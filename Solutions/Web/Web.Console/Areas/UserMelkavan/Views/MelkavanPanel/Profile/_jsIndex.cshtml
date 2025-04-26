@@ -1,0 +1,116 @@
+﻿@{
+    Layout = null;
+}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        //#region comments
+
+            // if (person.Name.length > 0)
+            //     $('#name').html(person.Name);
+            // if (person.Family.length > 0 && person.Family != person.Mobile)
+            //     $('#family').html(person.Family);
+            // if (person.Email.length > 0)
+            //     $('#email').html(person.Email);
+            // //$('#personId').html(person.PersonId);
+            // if (person.Mobile.length > 0)
+            //     $('#mobile').html(person.Mobile);
+            // //$('#stateId').html(person.StateId);
+            // //$('#stateName').html(person.StateName);
+            // //$('#cityId').html(person.CityId);
+            // if (person.CityName.length > 0)
+            //     $('#cityName').html(person.CityName);
+            // if (person.PersonTypeId.length > 0)
+            //     $('#personTypeId').html(person.PersonTypeId);
+
+            // if (person.PersonTypeId == 1) {
+            //     $('#personTypeName').html('مالک');
+            // }
+            // else if (person.PersonTypeId == 2) {
+            //     $('#personTypeName').html('مشاور');
+            // }
+
+
+
+
+            // if (user.Name.length > 0)
+            //     $('#name').html(user.Name);
+            // if (user.Family.length > 0 && user.Family != user.Mobile)
+            //     $('#family').html(user.Family);
+            // if (user.Email.length > 0)
+            //     $('#email').html(user.Email);
+            // //$('#personId').html(person.PersonId);
+            // if (user.Mobile.length > 0)
+            //     $('#mobile').html(user.Mobile);
+
+
+        //#endregion
+
+
+        debugger;
+
+        if(personTypeId != null){
+            if(personTypeId != ""){
+                if(personTypeId == 1){
+                    $('#personTypeName').html('مالک');
+                }
+                else
+                if(personTypeId == 2){
+                    $('#personTypeName').html('مشاور');
+                }
+            }
+        }
+
+        if(cityId != null){
+            if(cityId != ""){
+                if(cityId > 0){
+                    var cityName =  citiesList.filter(f=>f.Value == cityId)[0].DisplayText
+                }
+            }
+        }
+
+        if(cityName != null){
+            if(cityName != ""){
+                $('#cityName').html(cityName);
+            }
+        }
+
+
+        if(name != null){
+            if(name != ""){
+                $('#name').html(name);
+            }
+        }
+
+
+        if(family != null){
+            if(family != ""){
+               $('#family').html(family);
+            }
+        }
+
+
+        if(mobile != null){
+            if(mobile != ""){
+                $('#mobile').html(mobile);
+            }
+        }
+
+
+        if(email != null){
+            if(email != ""){
+               $('#email').html(email);
+            }
+        }
+
+
+        $("#favorites").click(function(e) {
+            e.preventDefault();
+
+            $.cookie("OnlyFavorite", "True", { path: '/' });
+            window.location.href="/UserMelkavan/MelkavanPanel/Index"
+
+        });
+    });
+</script>

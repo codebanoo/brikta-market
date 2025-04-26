@@ -1,0 +1,254 @@
+﻿@{
+    Layout = null;
+}
+
+<script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.js"></script>
+
+
+<script>
+    // function convertToPersianDateAndCalculateNext30Days(dateString) {
+    //     // Parse the date from SQL format to JS Date
+    //     const gregorianDate = new Date(dateString);
+    //     // Convert to Persian date
+    //     const persianDate = jalaali.toJalaali(gregorianDate.getFullYear(), gregorianDate.getMonth() + 1, gregorianDate.getDate());
+    //     let year = persianDate.jy;
+    //     let month = persianDate.jm;
+    //     let day = persianDate.jd;
+
+    //     // Array to store the next 30 days in Persian date format
+    //     const next30Days = [];
+
+    //     for (let i = 0; i < 30; i++) {
+    //         // Push the formatted Persian date into the array
+    //         next30Days.push(`${month}/${day}`);
+
+    //         // Increment day
+    //         day++;
+
+    //         // Check if we need to move to the next month
+    //         const daysInMonth = jalaali.jalaaliMonthLength(year, month);
+    //         if (day > daysInMonth) {
+    //             day = 1; // Reset day to the start of the next month
+    //             month++; // Move to the next month
+
+    //             // Check if we need to move to the next year
+    //             if (month > 12) {
+    //                 month = 1;
+    //                 year++;
+    //             }
+    //         }
+    //     }
+
+    //     return next30Days;
+    // }
+
+
+
+
+
+
+    function convertToPersianDates(dates) {
+        debugger;
+        return dates.map(dateString => {
+            // Extract only the date part from CreateEnDate
+            const dateOnly = dateString.split('T')[0];
+
+            // Convert to Jalaali date
+            const [year, month, day] = dateOnly.split('-').map(Number);
+            const persianDate = jalaali.toJalaali(year, month, day);
+
+            // Format as "month/day"
+            return `${persianDate.jm}/${persianDate.jd}`;
+        });
+    }
+
+
+    const AllViews = advertisementViewers.map(viewer => viewer.CreateEnDate);
+
+
+
+    function calculateViewsPerDayCounts(dateArray) {
+        const viewsPerDay = {};
+
+        // Iterate through the array of dates
+        dateArray.forEach(dateString => {
+            // Extract just the date part (e.g., "2024-10-26" from "2024-10-26T16:59:19.3938213")
+            const dateOnly = dateString.split('T')[0];
+
+            // Count occurrences for each date
+            viewsPerDay[dateOnly] = (viewsPerDay[dateOnly] || 0) + 1;
+        });
+
+        // Return the counts as an array of view counts
+        return Object.values(viewsPerDay);
+    }
+
+    debugger;
+
+    const viewsPerDayCounts = calculateViewsPerDayCounts(AllViews);
+
+    // اگر بدون بازدید بود
+    if (viewsPerDayCounts.length == 0) {
+        viewsPerDayCounts.push(0);
+    }
+
+
+    //     function convertToPersianDates2(dates) {
+    //     return dates.map(dateString => {
+    //         const date = new Date(dateString);
+    //         const { gy, gm, gd } = { gy: date.getFullYear(), gm: date.getMonth() + 1, gd: date.getDate() };
+
+    //         // Convert to Persian date
+    //         const persianDate = jalaali.toJalaali(gy, gm, gd);
+
+    //         // Format as "day month (in Persian)"
+    //         const persianMonthNames = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+    //         const persianMonth = persianMonthNames[persianDate.jm - 1];
+
+    //         return `${persianDate.jd} ${persianMonth}`;
+    //     });
+    // }
+
+    //  let viewsPerDayCounts2 = convertToPersianDates2(AllViews);
+    //  let viewsPerDayCounts2NoRepeat = viewsPerDayCounts2.filter((date, index) =>
+    //             viewsPerDayCounts2.indexOf(date) === index
+    //         );
+
+
+
+</script>
+
+
+<script>
+    $(document).ready(function () {
+
+        let colors = ['#4caefe',
+            '#3fbdf3',
+            '#35c3e8',
+            '#2bc9dc',
+            '#20cfe1',
+            '#16d4e6',
+            '#0dd9db',
+            '#03dfd0',
+            '#00e4c5',
+            '#00e9ba',
+            '#00eeaf',
+            '#23e274',
+            '#23e274',
+            '#4caefe',
+            '#3fbdf3',
+            '#35c3e8',
+            '#2bc9dc',
+            '#20cfe1',
+            '#16d4e6',
+            '#0dd9db',
+            '#03dfd0',
+            '#00e4c5',
+            '#00e9ba',
+            '#00eeaf',
+            '#23e274',
+            '#23e274',
+            '#4caefe',
+            '#3fbdf3',
+            '#35c3e8'];
+
+
+        debugger;
+
+        let days = convertToPersianDates(AllViews);
+        if (days.length == 0) {
+            days.push(' ');
+        }
+
+        debugger;
+        let nrd = days.filter((date, index) =>
+            days.indexOf(date) === index
+        );
+
+
+        const chart = Highcharts.chart('container', {
+            title: {
+                text: 'تعداد بازدیدکنندگان',
+                style: {
+                    fontFamily: 'IRANYekanX',
+                    fontSize: '14px'
+                },
+                align: 'left',
+                margin: 40
+            },
+
+            colors: [
+                '#4caefe',
+                '#3fbdf3',
+                '#35c3e8',
+                '#2bc9dc',
+                '#20cfe1',
+                '#16d4e6',
+                '#0dd9db',
+                '#03dfd0',
+                '#00e4c5',
+                '#00e9ba',
+                '#00eeaf',
+                '#23e274',
+                '#23e274',
+                '#4caefe',
+                '#3fbdf3',
+                '#35c3e8',
+                '#2bc9dc',
+                '#20cfe1',
+                '#16d4e6',
+                '#0dd9db',
+                '#03dfd0',
+                '#00e4c5',
+                '#00e9ba',
+                '#00eeaf',
+                '#23e274',
+                '#23e274',
+                '#4caefe',
+                '#3fbdf3',
+                '#35c3e8'
+            ],
+            chart: {
+                //height: (9 / 16 * 100) + '%' // 16:9 ratio
+                height: 550,
+                width: 360
+            },
+            xAxis: {
+                title: {
+                    text: 'روزهای ماه',
+                    style: {
+                        fontFamily: 'IRANYekanX',
+                        fontSize: '14px',
+                    },
+                    margin: 10,
+                },
+                categories: nrd
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                allowDecimals: false
+            },
+            series: [{
+                type: 'column',
+                name: 'تعداد بازدید',
+                borderRadius: 5,
+                colorByPoint: true,
+                data: viewsPerDayCounts,
+                showInLegend: false
+            }]
+        });
+
+
+        $(".highcharts-background").attr('fill', '#f5f5f5');
+
+        $("#container").css("display", "flex");
+        $("#container").css("margin", "0 auto");
+        $("#container").css("overflow", "visible");
+        $("#container").css("align-items", "center");
+        $("#container").css("width", "0px");
+
+        //const deviceWidth = window.innerWidth;
+    });
+</script>

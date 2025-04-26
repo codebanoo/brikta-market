@@ -1,0 +1,1449 @@
+﻿@{
+    Layout = null;
+}
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+
+        function getFileType(url) {
+            const extension = url.split('.').pop().toLowerCase();
+            return (['mp4', 'webm', 'ogg', 'mov'].includes(extension)) ? 'video' : 'image';
+        }
+
+
+        function createVideoThumbnail(videoUrl, callback) {
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            video.src = videoUrl;
+            video.currentTime = 1; // Capture the thumbnail at 1 second
+
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent))
+                video.autoplay = true;
+
+            video.addEventListener('loadeddata', function () {
+                // Set canvas size to match video dimensions (scaled down if needed)
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const thumbnailUrl = canvas.toDataURL();
+                callback(thumbnailUrl); // Pass the thumbnail URL to the callback
+            });
+        }
+
+        function updateMultipleThumbnailWithUrl(imgWrap2, imageUrl, fileId, VideoUrl) {
+            const html = `
+                            <div class='upload__img-box'>
+                                    <div videoUrl="${VideoUrl}" style='background-image: url("${imageUrl}")'
+                                     data-file='${imageUrl}'
+                                     class='img-bg'>
+                                    <div class='upload__img-close' videoUrl="${VideoUrl}" fileurl='${imageUrl}' fileid='${fileId}'></div>
+                                </div>
+                            </div>`;
+            imgWrap2.append(html);
+        }
+
+
+
+        $('#slcTagId').change(function () {
+            debugger;
+            const selectedOptions = $('#slcTagId option:selected');
+
+            if (selectedOptions.length > 3) {
+                $(selectedOptions[selectedOptions.length - 1]).prop('selected', false);
+
+                $('#alertText').text('امکان انتخاب بیش از 3 برچسب وجود ندارد');
+                $('#alertModal').modal('show');
+
+            }
+        });
+
+        //#region Map
+
+        var raster = new ol.layer.Tile({
+            source: new ol.source.OSM,
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+        });
+
+        var view = new ol.View({
+            center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+            constrainOnlyCenter: true,
+        });
+
+        var mapLeft = new ol.Map({
+            logo: false,
+            controls: ol.control.defaults({
+                attributionOptions: ({
+                    collapsible: false
+                })
+            }),
+            layers: [raster],
+            target: 'mapLeft',
+            view: view
+        });
+
+        var LocationLon = 51.24494;
+        var LocationLat = 36.66517;
+
+        var tmpEvt = {
+            LocationLon: LocationLon,
+            LocationLat: LocationLat,
+        }
+
+        var iconGeometry = new ol.geom.Point(ol.proj.transform([LocationLon, LocationLat], 'EPSG:4326', 'EPSG:3857'));
+
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [
+                    new ol.Feature({
+                        geometry: iconGeometry
+                    })
+                ]
+            }),
+            style: new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [0.5, 46],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'pixels',
+                    src: '/images/mapmarker1.png'
+                })
+            })
+        });
+
+
+        mapLeft.addLayer(layer);
+
+
+        mapLeft.on('singleclick', function (evt) {
+            debugger;
+
+            var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+
+            tmpEvt = {
+                LocationLon: lonlat[0],
+                LocationLat: lonlat[1]
+            };
+            iconGeometry.setCoordinates(evt.coordinate);
+        });
+
+
+        //#endregion
+
+
+        //#region Select elements
+
+        for (var i = 0; i < buildingLifesList.length; i++) {
+            //debugger;
+            var item = buildingLifesList[i];
+            $('#slcBuildingLifeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < tagsList.length; i++) {
+            //debugger;
+            var item = tagsList[i];
+            $('#slcTagId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < advertisementTypeList.length; i++) {
+
+            var item = advertisementTypeList[i];
+            var option = $("<option></option>");
+            option.attr("value", item.Value).text(item.DisplayText);
+            $('#slcAdvertisementTypeId').append(option);
+            if (item.DisplayText == "معاوضه") {
+                option.attr("disabled", "disabled")
+            }
+        }
+
+
+        for (var i = 0; i < propertyTypesList.length; i++) {
+            //debugger;
+            var item = propertyTypesList[i];
+            $('#slcPropertyTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        for (var i = 0; i < typeOfUsesList.length; i++) {
+            //debugger;
+            var item = typeOfUsesList[i];
+            $('#slcTypeOfUseId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        for (var i = 0; i < documentTypesList.length; i++) {
+            //debugger;
+            var item = documentTypesList[i];
+            $('#slcDocumentTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+
+        for (var i = 0; i < documentRootTypesList.length; i++) {
+            //debugger;
+            var item = documentRootTypesList[i];
+            $('#slcDocumentRootTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+
+        for (var i = 0; i < documentOwnershipTypesVMList.length; i++) {
+            //debugger;
+            var item = documentOwnershipTypesVMList[i];
+            $('#slcDocumentOwnershipTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < statesList.length; i++) {
+
+
+            if (statesList[i].Value == 27) {
+
+                var mazandaranItem = statesList[i];
+
+                $('#slcStateId')
+                    .append($("<option selected></option>")
+                        .attr("value", mazandaranItem.Value)
+                        .text(mazandaranItem.DisplayText));
+
+
+            } else {
+                var item = statesList[i];
+                $('#slcStateId')
+                    .append($("<option></option>")
+                        .attr("value", item.Value)
+                        .text(item.DisplayText));
+            }
+        }
+
+
+
+
+        var mazandaranCitiesList = citiesList.filter(f => f.Data_StateId == 27);
+
+        for (var k = 0; k < mazandaranCitiesList.length; k++) {
+
+            var item = mazandaranCitiesList[k];
+
+            if (item.Value == 619) {
+                $('#slcCityId')
+                    .append($("<option selected></option>")
+                        .attr("value", item.Value)
+                        .text(item.DisplayText));
+            } else {
+                $('#slcCityId')
+                    .append($("<option></option>")
+                        .attr("value", item.Value)
+                        .text(item.DisplayText));
+            }
+
+        }
+
+
+        var kelarAbadZonesList = zonesList.filter(f => f.Data_CityId == 619);
+
+
+        for (var h = 0; h < kelarAbadZonesList.length; h++) {
+
+            var item = kelarAbadZonesList[h];
+
+            if (item.Value == 215) {
+                $('#slcZoneId')
+                    .append($("<option selected></option>")
+                        .attr("value", item.Value)
+                        .text(item.DisplayText));
+            } else {
+                $('#slcZoneId')
+                    .append($("<option></option>")
+                        .attr("value", item.Value)
+                        .text(item.DisplayText));
+            }
+
+
+        }
+        //#endregion
+
+
+        //#region Change select elements
+        $('body').on('change', '#slcStateId', function (e) {
+            e.preventDefault();
+
+            var _this = $(this);
+            var stateId = _this.val();
+
+            $('#slcCityId').find('option')
+                .remove()
+                .end()
+                .append('<option value="" selected>---</option>');
+
+            for (var i = 0; i < citiesList.length; i++) {
+
+                var item = citiesList[i];
+                if (item.Data_StateId == stateId)
+                    $('#slcCityId')
+                        .append($("<option></option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+
+            $('#slcCityId').trigger("chosen:updated");
+
+            $('#slcCityId').change();
+        });
+
+        $('body').on('change', '#slcCityId', function (e) {
+            e.preventDefault();
+
+            var _this = $(this);
+            var cityId = _this.val();
+
+            $('#slcZoneId').find('option')
+                .remove()
+                .end()
+                .append('<option value="" selected>---</option>');
+
+            for (var i = 0; i < zonesList.length; i++) {
+
+                var item = zonesList[i];
+                if (item.Data_CityId == cityId)
+                    $('#slcZoneId')
+                        .append($("<option></option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+
+            $('#slcZoneId').trigger("chosen:updated");
+        });
+
+
+        $('body').on('change', '#slcAdvertisementTypeId', function (e) {
+
+            var _this = $(this);
+            debugger;
+            var advertisementTypeId = parseInt(_this.val());
+
+            $('#adInfo1').removeClass('d-none');
+            $('#adInfo2').removeClass('d-none');
+            $('#adInfo3').removeClass('d-none');
+            $('#adInfo6').removeClass('d-none');
+            $('#adInfo7').removeClass('d-none');
+            $('#adInfo9').removeClass('d-none');
+            $('#adInfo10').removeClass('d-none');
+
+            $('#adInfoAddress').removeClass('d-none');
+            $('#saveButton').removeClass('d-none');
+
+
+            if (advertisementTypeId != null && advertisementTypeId == 1) {
+
+                //اجاره
+                $('#RentadInfo4').removeClass('d-none');
+                $('#SaleadInfo5').addClass('d-none');
+                $('#adInfo8').addClass('d-none');
+
+            } else if (advertisementTypeId != null && advertisementTypeId == 2) {
+                //فروش
+                $('#SaleadInfo5').removeClass('d-none');
+                $('#RentadInfo4').addClass('d-none');
+                $('#adInfo8').removeClass('d-none');
+
+
+            } else {
+                _this.val('2');
+                _this.trigger('change');
+            }
+            mapLeft.updateSize();
+
+        });
+
+        var featureIds = [];
+        $('body').on('change', '#slcPropertyTypeId', function (e) {
+
+            var _this = $(this);
+
+            $('#loadingModal').modal('show');
+
+            debugger;
+
+            var propertyTypeId = _this.val();
+            var advertisementTypeId = $('#slcAdvertisementTypeId').val();
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/GetAllAdvertisementFeatureValues",
+                data: {
+                    'AdvertisementTypeId': advertisementTypeId,
+                    'PropertyTypeId': propertyTypeId,
+                },
+                success: function (result) {
+                    debugger;
+                    if (result.Result == "OK") {
+                        debugger;
+                        $('#features').html('');
+                        $('#features').parent().find('button.accordion-button').remove();
+                        $('#adOptions').addClass('d-none');
+
+                        if (propertyTypeId == '2') {
+                            $('#slcDocumentOwnershipTypeId').html('<option value="" selected="" disabled=""></option><option value="3">ملکیت/سرقفلی</option>');
+                        }
+                        else {
+                            $('#slcDocumentOwnershipTypeId').html('<option value="" selected disabled></option>');
+                            for (var i = 0; i < documentOwnershipTypesVMList.length; i++) {
+                                //debugger;
+                                var item = documentOwnershipTypesVMList[i];
+                                $('#slcDocumentOwnershipTypeId')
+                                    .append($("<option></option>")
+                                        .attr("value", item.Value)
+                                        .text(item.DisplayText));
+                            }
+                        }
+
+                        var record = result.Record;
+
+                        window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                        if (record.FeaturesVMList != null) {
+                            if (record.FeaturesVMList.length > 0) {
+                                var htmlResult = '';
+                                //$('#features').html('');
+
+
+                                $('#adOptions').removeClass('d-none');
+
+
+                                for (var k = 0; k < record.FeaturesCategoriesVMList.length; k++) {
+
+                                    htmlResult += '<button class="mt-2 accordion-button collapsed titles rounded-4 border" type="button" data-bs-toggle="collapse" data-bs-target=".collapse' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + '" aria-expanded="false" aria-controls="" style="z-index:0; display:flex; justify-content:space-between; padding:1rem !important;"><label class="form-label mb-1 titles text-muted">' + record.FeaturesCategoriesVMList[k].FeatureCategoryTitle + '</label></button>' +
+                                        '<div class="collapse collapse' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + ' bg-white rounded-4 p-3 border" id="features' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + '">';
+
+
+                                    for (var i = 0; i < record.FeaturesVMList.length; i++) {
+                                        if (record.FeaturesVMList[i].FeatureCategoryId != record.FeaturesCategoriesVMList[k].FeatureCategoryId)
+                                            continue;
+
+                                        var feature = record.FeaturesVMList[i];
+
+                                        if (feature.ElementTypeId == 5) {
+                                            htmlResult += "<div class=\"my-3 d-flex align-items-center \">" +
+                                                "<label class='form-label mb-1 titles'>" +
+                                                //"<label for=\"" + feature.FeatureId + "\">" +
+                                                feature.FeatureTitle +
+                                                //"</label>" +
+                                                "</label>";
+                                        }
+                                        else {
+                                            htmlResult += "<div class=\"my-3\">" +
+                                                "<label class='form-label mb-1 titles'>" +
+                                                //"<label for=\"" + feature.FeatureId + "\">" +
+                                                feature.FeatureTitle +
+                                                //"</label>" +
+                                                "</label>";
+                                        }
+
+
+                                        var value = "";
+                                        if (record.AdvertisementFeaturesValuesVMList != null) {
+                                            if (record.AdvertisementFeaturesValuesVMList.length > 0) {
+                                                var advertisementFeature = record.AdvertisementFeaturesValuesVMList.filter(a => a.FeatureId == feature.FeatureId);
+                                                value = advertisementFeature;
+                                            }
+                                            if (feature.ElementTypeId == 1) {
+
+                                                featureIds.push(feature.FeatureId);
+                                                //متنی
+                                                htmlResult += "<input  data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"  form-control features-input \" placeholder=\"" + feature.FeatureTitle +
+                                                    "\" type=\"text\" id=slcfeature-" + feature.FeatureId + "\ name=\"" + feature.FeatureId + "\" />";
+                                            } else if (feature.ElementTypeId == 2) {
+                                                featureIds.push(feature.FeatureId);
+                                                //تک انتخابی
+                                                htmlResult += "<select data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"  form-control ml-3 features-input\" placeholder=\"" + feature.FeatureTitle + "\" id='slcfeature-" + feature.FeatureId + "' name=\"" + feature.FeatureId + "\">" +
+                                                    "<option value='' selected disabled></option>";
+
+                                                var featureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+
+                                                if (featureOptions != null) {
+                                                    if (featureOptions.length > 0) {
+                                                        for (var j = 0; j < featureOptions.length; j++) {
+
+                                                            var featureOption = featureOptions[j];
+
+                                                            htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                        }
+                                                    }
+                                                }
+
+                                                htmlResult += "</select>";
+
+
+                                            } else if (feature.ElementTypeId == 3) {
+                                                featureIds.push(feature.FeatureId);
+                                                //چند انتخابی
+                                                htmlResult += "<select  data-ElementTypeId=\"" + feature.ElementTypeId + "\" multiple class=\" form-control ml-3 features-input\" placeholder=\"" + feature.FeatureTitle + "\"  name=\"" + feature.FeatureId + "\" id='slcfeature-" + feature.FeatureId + "'>" +
+                                                    "<option value='' selected disabled></option>";
+
+                                                multiFeatureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+                                                if (multiFeatureOptions != null) {
+                                                    if (multiFeatureOptions.length > 0) {
+                                                        for (var h = 0; h < multiFeatureOptions.length; h++) {
+                                                            var featureOption = multiFeatureOptions[h];
+                                                            htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                        }
+                                                    }
+                                                }
+                                                htmlResult += "</select>";
+                                            } else if (feature.ElementTypeId == 4) {
+                                                featureIds.push(feature.FeatureId);
+                                                //توضیحات
+                                            } else if (feature.ElementTypeId == 5) {
+                                                featureIds.push(feature.FeatureId);
+                                                //چک باکس
+
+                                                var boolValue = false;
+
+                                                if (boolValue != null || boolValue != undefined) {
+                                                    boolValue = value;
+                                                    htmlResult += "<label class=\" lblShowAllChosenItem me-2 \" style=\"height: 39px;\"><input data-ElementTypeId=\"" + feature.ElementTypeId +
+                                                        "\" type=\"checkbox\" id=\"slcfeature-" + feature.FeatureId + "\" name=\"" + feature.FeatureId +
+                                                        "\" data-placement=\"top\" data-toggle=\"tooltip\" title=\"" + feature.FeatureTitle +
+                                                        "\" class=\"showAllChosenItem w-100 h-100 features-input\">&nbsp;&nbsp;&nbsp;</label>";
+                                                }
+                                            }
+                                            htmlResult += "</div>";
+
+                                        }
+
+
+                                    }
+                                    htmlResult += "</div></div></div>";
+                                }
+
+                                //$('#features').parent().prepend('<button class="accordion-button collapsed titles rounded-4 border" type="button" data-bs-toggle="collapse" data-bs-target=".collapseOne" aria-expanded="false" aria-controls="" style="z-index:0"><label class="form-label mb-1 titles text-muted">امکانات اختیاری</label></button>');
+                                //$('#features').addClass('collapseOne').addClass('collapse').html(htmlResult);
+
+                                $("#adOptions").html(htmlResult);
+
+                                var selects = $('#features').find('select');
+                                for (var j = 0; j < selects.length; j++) {
+                                    var select = selects[j];
+                                    $(select).val('0');
+                                }
+                            }
+                        }
+
+
+
+                        $('#error-alert').removeClass('alert-danger');
+                        $('#error-alert').addClass('alert-success');
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#error-alert').show(1000);
+                        $('#error-alert').html(result.Message);
+                        $('#error-alert').show(500);
+                    }
+                    else
+                        if (result.Result == "ERROR") {
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('خطا');
+                            $('#my-warning-modal').modal("show");
+                            window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+                        }
+                },
+            });
+        });
+
+
+
+        $('body').on('keypress', '#Area', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+        $('body').on('keypress', '#Foundation', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+        $('body').on('keypress', '#OfferPrice', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+        $('body').on('keypress', '#RentPrice', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+        $('body').on('keypress', '#DepositPrice', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+
+        $('body').on('keypress', '#RebuiltInYearFa', function (e) {
+            // Allow only digits (0-9)
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+
+
+
+
+
+        $('body').on('change', '#Area', function (e) {
+            var _this = $(this);
+
+            debugger;
+
+            var area = _this.val();
+            //area = area.replace(" متر مربع", '');
+
+            var offerPrice = $('#OfferPrice').val();
+            var offerPriceType = $('#OfferPriceType').val();
+
+            if ((offerPrice != '') &&
+                (offerPriceType != null) &&
+                (area != '')) {
+                switch (offerPriceType) {
+                    case '0'://متری
+                        $('#CalculatedOfferPrice').val(parseFloat(offerPrice) * parseFloat(area));
+                        $('#spnOfferPrice').html('(متری)');
+                        $('#spnCalculatedOfferPrice').html('(کل)');
+                        break;
+                    case '1'://کل
+                        $('#CalculatedOfferPrice').val(parseFloat(offerPrice) / parseFloat(area));
+                        $('#spnOfferPrice').html('(کل)');
+                        $('#spnCalculatedOfferPrice').html('(متری)');
+                        break;
+                }
+            }
+            else
+                $('#CalculatedOfferPrice').val('');
+
+            //_this.val(area + ' متر مربع');
+        });
+
+        // $('body').on('change', '#Foundation', function (e) {
+        //     var _this = $(this);
+
+        //     _this.val(_this.val() + " متر مربع");
+        // });
+
+        $('body').on('keyup', '#OfferPrice', function (e) {
+            var num = $("#OfferPrice").val().replace(/\,/g, "").replace(/(.)(?=(.{3})+(?!.))/g, '$1,');
+            $("#OfferPrice").val(num);
+        });
+
+        $('body').on('keyup', '#RentPrice', function (e) {
+            var num = $("#RentPrice").val().replace(/\,/g, "").replace(/(.)(?=(.{3})+(?!.))/g, '$1,');
+            $("#RentPrice").val(num);
+        });
+
+        $('body').on('keyup', '#DepositPrice', function (e) {
+            var num = $("#DepositPrice").val().replace(/\,/g, "").replace(/(.)(?=(.{3})+(?!.))/g, '$1,');
+            $("#DepositPrice").val(num);
+        });
+
+        $('body').on('input', '#OfferPrice', function (e) {
+            var _this = $(this);
+            var offerPrice = _this.val().replace(/\,/g, "");
+
+            // if (offerPrice.length > 0, offerPrice.length < 7) {
+            //     result = "هزار تومان";
+            // } else if (offerPrice.length >= 7, offerPrice.length < 10) {
+            //     result = "میلیون تومان";
+            // }
+            // else if (offerPrice.length >= 10, offerPrice.length < 14) {
+            //     result = "میلیارد تومان";
+            // }
+            // else {
+            //     result = "غیر قابل ثبت";
+            // }
+
+            $('#resultOfOfferPrice').html(Num2persian(parseFloat(offerPrice)) + ' تومان');
+        });
+
+        $('body').on('input', '#RentPrice', function (e) {
+            var _this = $(this);
+            var rentPrice = _this.val().replace(/\,/g, "");
+
+            // if (rentPrice.length > 0, rentPrice.length < 7) {
+            //     result = "هزار تومان";
+            // } else if (rentPrice.length >= 7, rentPrice.length < 10) {
+            //     result = "میلیون تومان";
+            // }
+            // else if (rentPrice.length >= 10, rentPrice.length < 14) {
+            //     result = "میلیارد تومان";
+            // }
+            // else {
+            //     result = "غیر قابل ثبت";
+            // }
+
+            $('#resultOfRentPrice').html(Num2persian(parseFloat(rentPrice)) + ' تومان');
+        });
+
+        $('body').on('input', '#DepositPrice', function (e) {
+            var _this = $(this);
+            var depositPrice = _this.val().replace(/\,/g, "");
+
+            // if (depositPrice.length > 0, depositPrice.length < 7) {
+            //     result = "هزار تومان";
+            // } else if (depositPrice.length >= 7, depositPrice.length < 10) {
+            //     result = "میلیون تومان";
+            // }
+            // else if (depositPrice.length >= 10, depositPrice.length < 14) {
+            //     result = "میلیارد تومان";
+            // }
+            // else {
+            //     result = "غیر قابل ثبت";
+            // }
+
+            $('#resultOfDepositPrice').html(Num2persian(parseFloat(depositPrice)) + ' تومان');
+        });
+
+        $('body').on('change', '#OfferPriceType', function (e) {
+            var _this = $(this);
+
+            debugger;
+            //نوع قیمت
+            var offerPriceType = _this.val();
+            //قیمت پیشنهادی
+            var offerPrice = $('#OfferPrice').val();
+            var area = $('#Area').val().replace(" متر مربع", '');
+
+            if ((offerPrice != '') &&
+                (offerPriceType != null) &&
+                (area != '')) {
+                switch (offerPriceType) {
+                    case '0'://متری
+                        $('#CalculatedOfferPrice').val(parseFloat(offerPrice) * parseFloat(area));
+                        $('#spnOfferPrice').html('(متری)');
+                        $('#spnCalculatedOfferPrice').html('(کل)');
+                        break;
+                    case '1'://کل
+                        debugger;
+
+                        var test = (parseFloat(offerPrice) / parseFloat(area));
+                        $('#CalculatedOfferPrice').val(test);
+                        //$('#CalculatedOfferPrice').val(parseFloat(offerPrice) / parseFloat(area));
+                        $('#spnOfferPrice').html('(کل)');
+                        $('#spnCalculatedOfferPrice').html('(متری)');
+                        break;
+                }
+            }
+            else
+                $('#CalculatedOfferPrice').val('');
+        });
+
+        $('body').on('change', '#Convertable', function (e) {
+            var _this = $(this);
+            debugger;
+            var convertableId = _this.val();
+            debugger;
+        });
+
+        $('body').on('keyup', '#RebuiltInYearFa', function (e) {
+            e.preventDefault();
+
+            var _this = $(this);
+
+            CheckRebuiltInYearFa(_this);
+        });
+
+        function CheckRebuiltInYearFa(_this) {
+            try {
+                //debugger;
+
+                if (_this.val() === '')
+                    return true;
+
+                var rebuiltInYearFa = parseInt(_this.val());
+
+                if (_this.val().length == 4) {
+                    if ((rebuiltInYearFa >= 1300) &&
+                        (rebuiltInYearFa <= currentYear)) {
+                        $('.RebuiltInYearFa').hide();
+                        $('.RebuiltInYearFa').parent().removeClass("not_validated");
+                        return true;
+                    }
+                    else {
+                        $('.RebuiltInYearFa').html('سال ساخت باید بین سال 1300 و سال جاری باشد');
+                        $('.RebuiltInYearFa').show();
+                        $('.RebuiltInYearFa').parent().addClass("not_validated");
+                        return false;
+                    }
+                }
+                else
+                    if ((_this.val().length >= 1) && (_this.val().length <= 3)) {
+                        $('.RebuiltInYearFa').html('سال ساخت باید بین سال 1300 و سال جاری باشد');
+                        $('.RebuiltInYearFa').show();
+                        $('.RebuiltInYearFa').parent().addClass("not_validated");
+                        return false;
+                    }
+                    else
+                        if (_this.val().length == 0)
+                            return;
+            }
+            catch (exc) {
+
+            }
+
+            return false;
+            //_this.val('');
+        }
+
+        //#endregion
+
+
+        //#region SingleUploadImage
+        document.querySelectorAll(".main-Image").forEach((inputElement) => {
+            debugger;
+            const dropZoneElement = inputElement.closest(".drop-zone");
+
+            dropZoneElement.addEventListener("click", (e) => {
+                if ($(".drop-zone__thumb")[0] == undefined) {
+                    inputElement.click();
+                }
+            });
+
+            inputElement.addEventListener("change", (e) => {
+                debugger;
+                if (inputElement.files.length) {
+                    updateThumbnail(dropZoneElement, inputElement.files[0]);
+                    if ($(".drop-zone__thumb")[0] != undefined) {
+                        if ($("#DeleteMainImage").html() == undefined)
+                            $($(".drop-zone__thumb")[0]).append($('<div id="DeleteMainImage"></div>'));
+                    }
+                }
+            });
+
+            dropZoneElement.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropZoneElement.classList.add("drop-zone--over");
+            });
+
+            ["dragleave", "dragend"].forEach((type) => {
+                dropZoneElement.addEventListener(type, (e) => {
+                    dropZoneElement.classList.remove("drop-zone--over");
+                });
+            });
+
+            dropZoneElement.addEventListener("drop", (e) => {
+                e.preventDefault();
+
+                if (e.dataTransfer.files.length) {
+                    inputElement.files = e.dataTransfer.files;
+                    updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+                }
+
+                dropZoneElement.classList.remove("drop-zone--over");
+            });
+
+
+        });
+
+
+        function updateThumbnail(dropZoneElement, file) {
+            let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
+
+            // First time - remove the prompt
+            if (dropZoneElement.querySelector("#drop-zone__prompt")) {
+                dropZoneElement.querySelector("#drop-zone__prompt").remove();
+                dropZoneElement.querySelector("#mainImage").remove();
+            }
+
+            // First time - there is no thumbnail element, so lets create it
+            if (!thumbnailElement) {
+                thumbnailElement = document.createElement("div");
+                thumbnailElement.classList.add("drop-zone__thumb");
+                dropZoneElement.appendChild(thumbnailElement);
+            }
+
+            thumbnailElement.dataset.label = file.name;
+
+            // Show thumbnail for image files
+            if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    thumbnailElement.style.backgroundImage = `url('${reader.result}')`;
+                };
+            } else {
+                thumbnailElement.style.backgroundImage = null;
+            }
+        }
+
+        $('body').on('click', '#DeleteMainImage', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            debugger;
+            var _this = $(this);
+            $("#main-img-input").val("");
+            $($(".drop-zone__thumb")[0]).remove();
+            var label = $('<label class="form-label mb-1 titles" style="color: gray;" id="mainImage"></label>');
+            label.html('عکس اصلی');
+            var span = $('<span class="mdi mdi-image-plus footer-bottom-nav-span-mdi" style="font-size:5rem;color: gray;" id="drop-zone__prompt"></span>');
+            $("#dz-main").append(label);
+            $("#dz-main").append(span);
+
+
+            $("#main-img-input").val('');
+        });
+        //#endregion
+
+
+        $('#dz-main').on("click", function (event) {
+
+
+            if ($(event.target).is("#DeleteMainImage")) {
+                // Skip showing the large preview if the close icon was clicked
+                return;
+            }
+
+            // Get the background image URL from the thumbnail
+            const bgImage = $('.drop-zone__thumb').css('background-image');
+
+
+            if (bgImage != undefined) {
+
+                $('#largeImageContainer').css('background-image', bgImage);
+                $('#largeImagePreview').fadeIn();
+
+            }
+        });
+
+
+        $('.upload__img-wrap').on('click', '.upload__img-box', function (event) {
+
+
+            if ($(event.target).hasClass('upload__img-close')) {
+                // Skip showing the large preview if the close icon was clicked
+                return;
+            }
+
+            // Get the background image URL from the thumbnail
+            const bgImage = $(this).children(":first").css('background-image');
+            //put link for download
+            const background = $(this).children(":first");
+
+
+            if (bgImage != undefined) {
+
+                $('#largeImageContainer').css('background-image', bgImage);
+                $('#largeImagePreview').fadeIn();
+
+            }
+        });
+
+
+        // Hide the overlay when clicking outside the large image container
+        $('#largeImagePreview').click(function (event) {
+            if ($(event.target).is('#largeImageContainer') || $(event.target).closest('#largeImageContainer').length === 0) {
+                $(this).fadeOut();
+            }
+        });
+
+
+        //#region MultipleUploadImage
+
+        var imgWrap = "";
+        var imgArray = [];
+        var advertisementFileUploadPVMList = [];
+        $('body').on('click', '#addMultipleImage', function (e) {
+            e.preventDefault();
+            $('#other-Images').click();
+        });
+
+        $('#other-Images').each(function () {
+            $(this).on('change', function (e) {
+
+                debugger;
+                imgWrap = $('.upload__img-wrap');
+                var maxLength = $(this).attr('data-max_length');
+                var files = e.target.files;
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    advertisementFileUploadPVMList.push({ File: file });
+                }
+
+                var filesArr = Array.prototype.slice.call(files);
+                var iterator = 0;
+                filesArr.forEach(function (f, index) {
+                    if (imgArray.length > maxLength) {
+                        return false;
+                    }
+
+                    if (!f.type.match('image.*') && !f.type.match('video.*')) {
+                        return;
+                    }
+
+                    imgArray.push(f);
+
+                    var reader = new FileReader();
+                    if (f.type.match('image.*')) {
+                        // For image files
+                        reader.onload = function (e) {
+                            var html = "<div class='upload__img-box'><div style='background-image: url(" + e.target.result + ")' data-number='" + $(".upload__img-close").length + "' data-file='" + f.name + "' class='img-bg'><div class='upload__img-close' data-file='" + f.name + "'></div></div></div>";
+                            imgWrap.append(html);
+                            iterator++;
+                        };
+                        reader.readAsDataURL(f);
+                    } else if (f.type.match('video.*')) {
+                        // For video files
+                        var url = URL.createObjectURL(f);
+                        var video = document.createElement('video');
+                        var canvas = document.createElement('canvas');
+                        var context = canvas.getContext('2d');
+
+                        video.src = url;
+                        video.currentTime = 1; // Set time to capture thumbnail at 1 second
+
+                        if (/iPad|iPhone|iPod/.test(navigator.userAgent))
+                            video.autoplay = true;
+
+                        video.addEventListener('loadeddata', function () {
+                            // Delay in milliseconds (e.g., 1000 ms = 1 second)
+                            const delay = 1000;
+
+                            setTimeout(function () {
+                                // Set canvas size to video dimensions (scaled down)
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                                // Convert canvas to data URL and use it as background
+                                var thumbnailUrl = canvas.toDataURL();
+                                var html = "<div class='upload__img-box'><div style='background-image: url(" + thumbnailUrl + ")' data-number='" + $(".upload__img-close").length + "' data-file='" + f.name + "' class='img-bg'><div class='upload__img-close' data-file='" + f.name + "'></div></div></div>";
+                                imgWrap.append(html);
+                                iterator++;
+
+                                // Revoke the URL after thumbnail is created
+                                URL.revokeObjectURL(url);
+                            }, delay);
+                        });
+
+
+                    }
+                });
+            });
+        });
+
+        $('body').on('click', ".upload__img-close", function (e) {
+            //debugger;
+            var file = $(this).parent().data("file");
+            for (var i = 0; i < imgArray.length; i++) {
+                if (imgArray[i].name === file) {
+                    imgArray.splice(i, 1);
+                    break;
+                }
+            }
+            $(this).parent().parent().remove();
+
+
+            // Get the file name from the preview container or data attribute
+            var fileName = $(this).attr('data-file'); // Assuming you stored the filename in a data attribute
+
+
+            // Find the index of the file in advertisementFileUploadPVMList by its name
+            var index = advertisementFileUploadPVMList.findIndex(fileObj => fileObj.File.name === fileName);
+
+            // If the file exists in the array, remove it
+            if (index !== -1) {
+                advertisementFileUploadPVMList.splice(index, 1); // Remove the file from the array
+            }
+
+
+        });
+
+
+
+        //#endregion
+
+
+        //#region Submit the form
+
+        $('body').on('click', '#saveButton', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            $('#loadingModal').modal('show');
+            debugger;
+
+            //اگر عکس اصلی انتخاب نکرده بود
+            if ($('.drop-zone__thumb').length == 0)
+                if ($('.upload__img-box').length != 0) {
+
+                    $('#alertText').text('انتخاب عکس اصلی ضروری است');
+                    $('#alertModal').modal('show');
+                    window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                    return;
+                }
+
+            // #region validation
+            if (
+                //در هر حالت اگر این ها خالی بودن
+                ($('#slcAdvertisementTypeId').val() == null || $('#slcAdvertisementTypeId').val().length <= 0) ||
+                ($('#slcPropertyTypeId').val() == null || $('#slcPropertyTypeId').val().length <= 0) ||
+                ($('#slcStateId').val() == null || $('#slcStateId').val().length <= 0) ||
+                ($('#slcCityId').val() == null || $('#slcCityId').val().length <= 0) ||
+                ($('#Area').val() == null || $('#Area').val().length <= 0) ||
+                ($('#AdvertisementTitle').val() == null || $('#AdvertisementTitle').val().length <= 0) ||
+                ($('#slcTypeOfUseId').val() == null || $('#slcTypeOfUseId').val().length <= 0) ||
+                (tmpEvt.LocationLat == 36.66517 && tmpEvt.LocationLon == 51.24494) ||
+                //اگر اجاره بود و ودیعه یا اجاره خالی بود
+                (
+                    ($('#slcAdvertisementTypeId').val() == 1 || $('#slcAdvertisementTypeId').val() == "1") && (
+                        ($('#RentPrice').val() == null || $('#RentPrice').val().length <= 0) ||
+                        ($('#DepositPrice').val() == null || $('#DepositPrice').val().length <= 0))
+                )
+            ) {
+                var inputsToValidate = [$('#slcPropertyTypeId'), $('#slcStateId'), $('#slcCityId'), $('#Area'), $('#AdvertisementTitle'), $('#RentPrice'), $('#DepositPrice'), $('#slcTypeOfUseId'), $('#slcDocumentTypeId'), $('#slcDocumentRootTypeId'), $('#slcDocumentOwnershipTypeId')]
+
+                for (var i = 0; i < inputsToValidate.length; i++) {
+                    let input = inputsToValidate[i];
+                    let parent_div = input.parent();
+                    if (input.val() == null || input.val().length <= 0) {
+                        parent_div.addClass("not_validated");
+                    } else {
+                        parent_div.removeClass("not_validated");
+                    }
+                }
+                if (tmpEvt.LocationLat == 36.66517 && tmpEvt.LocationLon == 51.24494) {
+                    $("#mapLeft").addClass("not_validated");
+                } else {
+                    $("#mapLeft").removeClass("not_validated");
+                }
+                $('#alertText').text('لطفا تمام فیلد های اجباری را پر کنید');
+                $('#alertModal').modal('show');
+                window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+                return;
+            }
+
+            if ($('#RebuiltInYearFa').val().length > 0 && $('#RebuiltInYearFa').val().length != 4) {
+                //debugger;
+                $('#alertText').text('سال بازسازی باید 4 رقمی  باشد');
+                $('#alertModal').modal('show');
+
+                window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                return;
+            }
+
+            //debugger;
+            if (CheckRebuiltInYearFa($('#RebuiltInYearFa')) == false) {
+                $('#alertText').text('سال بازسازی باید 4 رقمی  باشد');
+                $('#alertModal').modal('show');
+
+                window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                return;
+            }
+
+            //if ($('#BuiltInYearFa').val().length > 0 && $('#BuiltInYearFa').val().length != 4) {
+            //    $('#alertText').text('سال ساخت باید 4 رقمی  باشد');
+            //    $('#alertModal').modal('show');
+            //    window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+            //    return;
+            //}
+            // #endregion
+
+            var _this = $(this);
+            var formData = new FormData();
+            debugger;
+            var advertisementTypeId = $('#slcAdvertisementTypeId').val();
+            var propertyTypeId = $('#slcPropertyTypeId').val();
+            var typeOfUseId = $('#slcTypeOfUseId').val();
+            var advertisementTitle = $('#AdvertisementTitle').val();
+            var stateId = $('#slcStateId').val();
+            var cityId = $('#slcCityId').val();
+            var zoneId = $('#slcZoneId').val();
+            var townName = $('#TownName').val();
+            var area = $('#Area').val().replace(" متر مربع", '');
+            var advertisementDescriptions = $('#AdvertisementDescriptions').val();
+            var locationLat = tmpEvt.LocationLat;
+            var locationLon = tmpEvt.LocationLon;
+            var builtInYearFa = $('#BuiltInYearFa').val();
+            var rebuiltInYearFa = $('#RebuiltInYearFa').val();
+            var buildingLife = $('#slcBuildingLifeId').val();
+            var foundation = $('#Foundation').val().replace(" متر مربع", '');
+            var tagId = $("#slcTagId").val();
+            var instagramLink = $("#InstagramLink").val();
+
+            //https://www.instagram.com/
+
+            // اگر لینک اینستاگرام صحیح نباشد خطا دهد
+            if (instagramLink && !instagramLink.startsWith('https://www.instagram.com')) {
+                $('#alertText').html('لینک اینستاگرام صحیح نمیباشد<br>لینک اینستاگرام باید با https://www.instagram.com شروع شود !');
+                $('#alertModal').modal('show');
+
+                window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                return;
+            }
+
+
+
+            if (advertisementTypeId !== null && advertisementTypeId == 1 || advertisementTypeId == "1") {
+                //اجاره
+                var rentPrice = $('#RentPrice').val().replace(/\,/g, "").replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                var depositePrice = $('#DepositPrice').val().replace(/\,/g, "").replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                var martialStatusId = parseInt($('#slcMaritalStatusId').val());
+                var convertable = $('#Convertable').prop("checked");
+
+
+            } else if (advertisementTypeId !== null && advertisementTypeId == 2 || advertisementTypeId == "2") {
+                //فروش
+                var offerPrice = $('#OfferPrice').val().replace(/\,/g, "").replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+                debugger;
+                if (parseFloat(offerPrice) <= 100000000) {
+                    $('#OfferPrice').parent().addClass("not_validated");
+                    $('#alertText').text('قیمت کل نباید زیر 100 میلیون تومان باشد');
+                    $('#alertModal').modal('show');
+
+                    window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                    return;
+                }
+
+                var documentTypeId = $('#slcDocumentTypeId').val();
+                var documentRootTypeId = $('#slcDocumentRootTypeId').val();
+                var documentOwnershipTypeId = $('#slcDocumentOwnershipTypeId').val();
+
+                debugger;
+                var calculatedOfferPrice = parseFloat(parseFloat(offerPrice) / parseFloat(area));
+
+            }
+
+
+
+            //برای پر کردن مقدار چک باکس ها براساس داشتن یا نداشتن تیک
+            $('input[type="checkbox"][id*="slcfeature"]').each(function () {
+                let checkbox = $(this);
+                checkbox.val(checkbox.prop('checked') ? '1' : null);
+            });
+
+            debugger;
+            featureIds;
+            var tmpItemValue = "";
+
+            var AdvertisementFeaturesValuesVM = [];
+
+            for (var i = 0; i < featureIds.length; i++) {
+                debugger;
+                var featureId = featureIds[i];
+                var itemValue = $("#slcfeature-" + featureId).val();
+
+
+                if (itemValue != null) {
+
+                    AdvertisementFeaturesValuesVM.push({
+                        FeatureId: featureId,
+                        FeatureValue: itemValue.toString()
+                    });
+                }
+
+            }
+
+            formData.append('StrAdvertisementFeaturesValuesVM', JSON.stringify(AdvertisementFeaturesValuesVM));
+
+
+
+
+
+            debugger;
+
+            var mainFile = $('#main-img-input');
+            advertisementFileUploadPVMList.push({
+                File: mainFile[0].files[0]
+            });
+
+
+            if (advertisementFileUploadPVMList.length > 0) {
+                for (var i = 0; i < advertisementFileUploadPVMList.length; i++) {
+                    debugger;
+
+                    var file = advertisementFileUploadPVMList[i].File;
+                    formData.append("Files", file);
+                }
+            }
+
+
+
+            //#region comments
+
+
+            //if (filesElm.length > 0) {
+            //    var k = 0;
+            //    for (var i = 0; i < filesElm.length; i++) {
+            //        var file = filesElm[i];
+            //        if (file != null){
+            //            if (file.files[i] != null){
+            //                if (file.files[i].size > 0){
+            //                    for (var j = 0; j < file.files.length; j++) {
+            //                        debugger;
+            //                        advertisementFileUploadPVMList.push({
+            //                            File: file.files[j]
+            //                        });
+
+            //                        debugger;
+            //                        formData.append("Files", file.files[j]);
+            //                        k++;
+
+            //                    }
+            //                }
+            //            }
+            //        }
+
+
+
+            //    }
+            //}
+
+
+            //var advertisementFileUploadPVMList = [];
+            //formData.append("Files", mainFile[0].files[0]);
+            //var filesElm = $('#other-Images');
+
+            //#endregion
+
+
+
+
+            debugger;
+
+
+            formData.append('AdvertisementDetailsVM.AdvertisementTypeId', advertisementTypeId);
+            formData.append('PropertyTypeId', propertyTypeId);
+            formData.append('TypeOfUseId', typeOfUseId);
+            formData.append('AdvertisementTitle', advertisementTitle);
+            formData.append('AdvertisementAddressVM.StateId', stateId);
+            formData.append('AdvertisementAddressVM.CityId', cityId);
+            formData.append('AdvertisementAddressVM.ZoneId', zoneId);
+            formData.append('AdvertisementAddressVM.TownName', townName);
+            formData.append('Area', area);
+            formData.append('AdvertisementPricesHistoriesVM.RentPrice', rentPrice);
+            formData.append('AdvertisementPricesHistoriesVM.DepositPrice', depositePrice);
+            formData.append('AdvertisementDetailsVM.MaritalStatusId', martialStatusId);
+            formData.append('AdvertisementDetailsVM.Convertable', convertable);
+            formData.append('AdvertisementDetailsVM.TagId', tagId);
+            formData.append('AdvertisementDetailsVM.InstagramLink', instagramLink)
+
+
+            formData.append('AdvertisementPricesHistoriesVM.OfferPrice', offerPrice); //قیمت وارد شده
+            formData.append('AdvertisementPricesHistoriesVM.OfferPriceType', 1); // نوع قیمت - کل بر مبنای میلیارد
+            formData.append('AdvertisementPricesHistoriesVM.CalculatedOfferPrice', calculatedOfferPrice); //قیمت محاسبه شده
+
+            formData.append('DocumentTypeId', documentTypeId);
+            formData.append('DocumentRootTypeId', documentRootTypeId);
+            formData.append('DocumentOwnershipTypeId', documentOwnershipTypeId);
+            formData.append('AdvertisementDescriptions', advertisementDescriptions);
+            formData.append('AdvertisementAddressVM.LocationLat', locationLat);
+            formData.append('AdvertisementAddressVM.LocationLon', locationLon);
+            formData.append('RebuiltInYearFa', rebuiltInYearFa);
+            formData.append('BuiltInYearFa', builtInYearFa);
+            formData.append('AdvertisementDetailsVM.BuildingLifeId', buildingLife);
+            formData.append('AdvertisementDetailsVM.Foundation', foundation);
+
+
+
+            $.ajax({
+                url: '/UserMelkavan/MelkavanPanel/AdvertisementRegistration',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                //contentType: 'application/json',
+                //dataType:'json',
+                success: function (result) {
+                    debugger;
+                    $('#loadingModal').modal('hide');
+                    if (result.Result == "OK") {
+                        $('#alertText').text('عملیات ثبت با موفقیت انجام شد');
+                        $('#alertModal').modal('show');
+                        window.setTimeout(function () { window.location.reload(); }, 2500);
+
+
+                        window.location.href = '/UserMelkavan/MelkavanPanel/MyAdvertisements';
+                    } else {
+                        $('#alertText').text('عملیات با خطا رو به رو شد...');
+                        $('#alertModal').modal('show');
+                    }
+                },
+                error: function (jqXHR) {
+                    $('#loadingModal').modal('hide');
+                    $('#alertText').text('عملیات با خطا رو‌به‌رو شد...');
+                    $('#alertModal').modal('show');
+
+                },
+                complete: function (jqXHR, status) {
+                }
+            });
+
+        });
+
+
+
+
+        //#endregion
+
+        $('.js-example-basic-single').select2({
+            width: '280px'
+        });
+    });
+</script>
+

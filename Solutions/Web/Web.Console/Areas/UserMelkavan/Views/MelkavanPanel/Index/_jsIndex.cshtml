@@ -1,0 +1,2282 @@
+﻿@using VM.Melkavan;
+@using VM.Public;
+@using VM.Teniaco;
+@using Newtonsoft.Json;
+
+@{
+    Layout = null;
+}
+
+
+<script>
+
+    // $(".adtype").on("change",function(){
+
+    //      $.ajax({
+    //             cache: false,
+    //             type: "Post",
+    //             url: "/UserMelkavan/MelkavanPanel/ChangePriceType",
+    //             data: {
+    //                 'AdvertisementTypeId': $(this).val()
+    //             },
+    //             success: function (data) {
+    //                 debugger;
+    //                 // Clear existing features from the source
+    //     source.clear();
+
+    //     // Iterate over the new data and create features
+    //     const newFeatures = data.Records.map((price) => {
+    //         const coord = ol.proj.transform([price.LocationLon, price.LocationLat], 'EPSG:4326', 'EPSG:3857');
+    //         const point = new ol.geom.Point(coord);
+    //         const feature = new ol.Feature(point);
+    //         feature.LastPrice = price.LastPrice;
+    //         return feature;
+    //     });
+
+    //     // Add the new features to the source
+    //     source.addFeatures(newFeatures);
+
+    //             },
+    //             error: function () {
+
+    //             }
+    //         });
+
+    // });
+
+    function formatToPersianMillions(num) {
+        const millions = Math.round(num / 1_000_000);
+        const persianNumber = millions.toLocaleString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        return `${persianNumber} میلیون`;
+    }
+
+    function convertToPersian(num) {
+        const millions = Math.round(num / 1_000_000);
+        const persianNumber = millions.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        return `${persianNumber}`;
+    }
+
+
+    $("#customZoomButton").on("click", function () {
+        window.location.href = "/UserMelkavan/MelkavanPanel/PriceMap";
+    });
+
+    const features = new Array(propertiesPricesList.length);
+    const distanceInput = 40;
+    const minDistanceInput = 20;
+
+    for (var i = 0; i < propertiesPricesList.length; i++) {
+        var price = propertiesPricesList[i];
+        var coord = ol.proj.transform([price.LocationLon, price.LocationLat], 'EPSG:4326', 'EPSG:3857');
+        var point = new ol.geom.Point(coord);
+        features[i] = new ol.Feature(point);
+        features[i].OfferPrice = price.OfferPrice;
+        features[i].CalculatedOfferPrice = price.CalculatedOfferPrice;
+        features[i].OfferPriceType = price.OfferPriceType;
+        features[i].LastPrice = price.LastPrice;
+    }
+
+    const source = new ol.source.Vector({
+        features: features,
+    });
+
+    const clusterSource = new ol.source.Cluster({
+        distance: parseInt(distanceInput, 10),
+        minDistance: parseInt(minDistanceInput, 10),
+        source: source,
+    });
+
+    const styleCache = {};
+
+    //badge style
+    const badgeStyle = (text) => new ol.style.Style({
+        image: new ol.style.Icon({
+            src: '/img/redd.png', // Path to your custom badge image
+            scale: 0.16, // Adjust the scale as needed
+            anchor: [0.5, 0.4], // Center horizontally, position bottom of the image at the point
+        }),
+        text: new ol.style.Text({
+            text: text,
+            font: '13px IRANYekanX',
+            fill: new ol.style.Fill({
+                color: '#fff', // Text color (white)
+            }),
+            textAlign: 'center',
+            offsetY: 0, // Center the text vertically
+        }),
+    });
+
+
+
+    const clusters = new ol.layer.Vector({
+        source: clusterSource,
+        style: function (feature) {
+            const features = feature.get('features');
+
+            // Single point: show as triangle with label
+            if (features.length === 1) {
+                const singlePrice = formatToPersianMillions(features[0].LastPrice);
+                return badgeStyle(singlePrice);
+            }
+
+            // Clustered points: show as circle with average price
+            let sum = 0;
+            let count = 0;
+            for (let i = 0; i < features.length; i++) {
+                const value = features[i].CalculatedOfferPrice;
+                if (value > 0) { // Only include non-zero values
+                    sum += value;
+                    count++;
+                }
+            }
+            const averagePrice = count > 0 ? Math.round(sum / count) : 0;
+            const averagePriceText = convertToPersian(averagePrice);
+
+            let style = styleCache[features.length];
+            if (!style) {
+                style = new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 20,
+                        stroke: new ol.style.Stroke({
+                            color: '#fff',
+                        }),
+                        fill: new ol.style.Fill({
+                            color: '#0e738a',
+                        }),
+                    }),
+                    text: new ol.style.Text({
+                        text: averagePriceText,
+                        font: '13px IRANYekanX',
+                        fill: new ol.style.Fill({
+                            color: '#fff',
+                        }),
+                    }),
+                });
+                styleCache[features.length] = style;
+            }
+            style.getText().setText(averagePriceText);
+            return style;
+        },
+    });
+
+    const raster = new ol.layer.Tile({
+        source: new ol.source.OSM(),
+    });
+
+    const view = new ol.View({
+        center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 12,
+        maxZoom: 17,
+        minZoom: 1,
+        constrainOnlyCenter: true,
+    });
+
+    const map = new ol.Map({
+        layers: [raster, clusters],
+        target: 'mapContainer',
+        view: view,
+        controls: [],
+    });
+
+    map.on('click', (e) => {
+        clusters.getFeatures(e.pixel).then((clickedFeatures) => {
+            if (clickedFeatures.length) {
+                const features = clickedFeatures[0].get('features');
+                if (features.length > 1) {
+                    const extent = new ol.extent.boundingExtent(
+                        features.map((r) => r.getGeometry().getCoordinates())
+                    );
+                    map.getView().fit(extent, { duration: 1000, padding: [50, 50, 50, 50] });
+                }
+            }
+        });
+    });
+
+</script>
+
+
+
+
+
+<script>
+
+    function convertToPersianAndFormat(priceString) {
+        // Convert the string to a number and format it with commas
+        const number = Number(priceString);
+        const formattedNumber = number.toLocaleString('en-US');
+
+        // Convert each digit to Persian
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const persianNumber = formattedNumber.replace(/\d/g, (d) => persianDigits[d]);
+
+        return persianNumber;
+    }
+
+
+
+    //$(function() {
+    //    $(".otpForm input[type!=hidden]:first").focus();
+    //})
+    //let tabChange = function(val) {
+
+
+    //    let ele = $('.otpForm input[type=text]');
+    //    if (ele[val - 1].value != '') {
+    //        $(ele[val]).focus()
+    //    } else if (ele[val - 1].value == '') {
+    //        $(ele[val]).focus()
+    //    }
+    //}
+
+    //$('body').on('click', '#confirmCode', function (event) {
+    //    event.preventDefault();
+    //    var confirmCode = $('#VirificationCode').val();
+    //    var getCodeFromInput = "";
+    //    $(".otpForm input[type=text]").each(function () {
+    //        var input = $(this).val();
+    //        getCodeFromInput += input;
+    //    });
+    //    if (confirmCode == getCodeFromInput.r)
+    //        $('#exampleModal').modal('hide');
+    //    var $url = 'https://localhost:44377/Home/index';
+    //    window.location.replace($url);
+    //})
+    //$('body').on('click', '#sendVerificationCode', function (e) {
+    //
+    //    e.preventDefault();
+    //    var $url = 'https://localhost:9253/publicHome/MelkavanLogin';
+    //    var phone = $('body #mobileNumber').val();
+    //    $.ajax({
+    //        type: "POST",
+    //        url: $url,
+    //        data: { userName: phone },
+    //        success: function (response) {
+    //
+    //            //    $('#exampleModal .modal-dialog').html(response);
+    //            $('#verifyUserName').val(response.userName);
+    //            $('#verifyModal').modal('show');
+    //        },
+    //        error: function () {
+    //            alert('Error');
+    //        }
+    //    });
+    //    return false;
+
+    //})
+
+
+
+
+    $(document).ready(function () {
+
+        //#region Select elements
+
+        for (var i = 0; i < buildingLifesList.length; i++) {
+            //debugger;
+            var item = buildingLifesList[i];
+            $('#slcBuildingLifeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        for (var i = 0; i < advertisementTypeList.length; i++) {
+
+            var item = advertisementTypeList[i];
+            var option = $("<option></option>");
+            option.attr("value", item.Value).text(item.DisplayText);
+            $('#slcAdvertisementTypeId').append(option);
+            if (item.DisplayText == "معاوضه") {
+                option.attr("disabled", "disabled")
+            }
+        }
+
+        for (var i = 0; i < propertyTypesList.length; i++) {
+            //debugger;
+            var item = propertyTypesList[i];
+            $('#slcPropertyTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        for (var i = 0; i < typeOfUsesList.length; i++) {
+            //debugger;
+            var item = typeOfUsesList[i];
+            $('#slcTypeOfUseId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        for (var i = 0; i < documentTypesList.length; i++) {
+            //debugger;
+            var item = documentTypesList[i];
+            $('#slcDocumentTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+
+        for (var i = 0; i < documentRootTypesList.length; i++) {
+            //debugger;
+            var item = documentRootTypesList[i];
+            $('#slcDocumentRootTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+
+        for (var i = 0; i < documentOwnershipTypesVMList.length; i++) {
+            //debugger;
+            var item = documentOwnershipTypesVMList[i];
+            $('#slcDocumentOwnershipTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < statesList.length; i++) {
+
+
+            var item = statesList[i];
+            $('#slcStateId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+
+            // if (statesList[i].Value == 27) {
+
+            //     var mazandaranItem = statesList[i];
+
+            //     $('#slcStateId')
+            //         .append($("<option selected></option>")
+            //             .attr("value", mazandaranItem.Value)
+            //             .text(mazandaranItem.DisplayText));
+
+
+            // } else {
+            //     var item = statesList[i];
+            //     $('#slcStateId')
+            //         .append($("<option></option>")
+            //             .attr("value", item.Value)
+            //             .text(item.DisplayText));
+            // }
+        }
+
+
+
+
+        var mazandaranCitiesList = citiesList.filter(f => f.Data_StateId == 27);
+
+        for (var k = 0; k < mazandaranCitiesList.length; k++) {
+
+            var item = mazandaranCitiesList[k];
+
+            $('#slcCityId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+
+            // if (item.Value == 619) {
+            //     $('#slcCityId')
+            //         .append($("<option selected></option>")
+            //             .attr("value", item.Value)
+            //             .text(item.DisplayText));
+            // } else {
+            //     $('#slcCityId')
+            //         .append($("<option></option>")
+            //             .attr("value", item.Value)
+            //             .text(item.DisplayText));
+            // }
+
+        }
+
+
+        var kelarAbadZonesList = zonesList.filter(f => f.Data_CityId == 619);
+
+
+        for (var h = 0; h < kelarAbadZonesList.length; h++) {
+
+            var item = kelarAbadZonesList[h];
+
+            $('#slcZoneId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+
+            // if (item.Value == 215) {
+            //     $('#slcZoneId')
+            //         .append($("<option selected></option>")
+            //             .attr("value", item.Value)
+            //             .text(item.DisplayText));
+            // } else {
+            //     $('#slcZoneId')
+            //         .append($("<option></option>")
+            //             .attr("value", item.Value)
+            //             .text(item.DisplayText));
+            // }
+
+
+        }
+        //#endregion
+
+
+        //#region Change select elements
+        $('body').on('change', '#slcStateId', function (e) {
+            e.preventDefault();
+
+            var _this = $(this);
+            var stateId = _this.val();
+
+            $('#slcCityId').find('option')
+                .remove()
+                .end()
+                .append('<option value="" selected>---</option>');
+
+            for (var i = 0; i < citiesList.length; i++) {
+
+                var item = citiesList[i];
+                if (item.Data_StateId == stateId)
+                    $('#slcCityId')
+                        .append($("<option></option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+
+            $('#slcCityId').trigger("chosen:updated");
+
+            $('#slcCityId').change();
+        });
+
+        $('body').on('change', '#slcCityId', function (e) {
+            e.preventDefault();
+
+            var _this = $(this);
+            var cityId = _this.val();
+
+            $('#slcZoneId').find('option')
+                .remove()
+                .end()
+                .append('<option value="" selected>---</option>');
+
+            for (var i = 0; i < zonesList.length; i++) {
+
+                var item = zonesList[i];
+                if (item.Data_CityId == cityId)
+                    $('#slcZoneId')
+                        .append($("<option></option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+
+            $('#slcZoneId').trigger("chosen:updated");
+        });
+
+
+        $('body').on('change', '#slcAdvertisementTypeId', function (e) {
+
+            $("#accordionExample").removeClass("hidden");
+
+            var _this = $(this);
+            var advertisementTypeId = parseInt(_this.val());
+
+            $('#adInfo1').removeClass('d-none');
+            $('#adInfo2').removeClass('d-none');
+            $('#adInfo3').removeClass('d-none');
+            $('#adInfo6').removeClass('d-none');
+            $('#adInfo7').removeClass('d-none');
+            $('#adInfo9').removeClass('d-none');
+            $('#adInfo10').removeClass('d-none');
+
+            $('#adInfoAddress').removeClass('d-none');
+            $('#saveButton').removeClass('d-none');
+
+
+            if (advertisementTypeId != null && advertisementTypeId == 1) {
+
+                //اجاره
+                $('#RentadInfo4').removeClass('d-none');
+                $('#SaleadInfo5').addClass('d-none');
+                $('#adInfo8').addClass('d-none');
+                $("#adInfo20").removeClass("d-none");
+
+            } else if (advertisementTypeId != null && advertisementTypeId == 2) {
+                //فروش
+                $('#SaleadInfo5').removeClass('d-none');
+                $('#RentadInfo4').addClass('d-none');
+                $('#adInfo8').removeClass('d-none');
+                $("#adInfo20").addClass("d-none");
+
+
+            } else {
+                _this.val('2');
+                _this.trigger('change');
+            }
+
+        });
+
+
+        $('body').on('change', '#Area', function (e) {
+            var _this = $(this);
+
+
+            var area = _this.val();
+            area = area.replace(" متر مربع", '');
+
+            var offerPrice = $('#OfferPrice').val();
+            var offerPriceType = $('#OfferPriceType').val();
+
+            if ((offerPrice != '') &&
+                (offerPriceType != null) &&
+                (area != '')) {
+                switch (offerPriceType) {
+                    case '0'://متری
+                        $('#CalculatedOfferPrice').val(parseFloat(offerPrice) * parseFloat(area));
+                        $('#spnOfferPrice').html('(متری)');
+                        $('#spnCalculatedOfferPrice').html('(کل)');
+                        break;
+                    case '1'://کل
+                        $('#CalculatedOfferPrice').val(parseFloat(offerPrice) / parseFloat(area));
+                        $('#spnOfferPrice').html('(کل)');
+                        $('#spnCalculatedOfferPrice').html('(متری)');
+                        break;
+                }
+            }
+            else
+                $('#CalculatedOfferPrice').val('');
+
+            _this.val(area + ' متر مربع');
+        });
+
+        $('body').on('change', '#Foundation', function (e) {
+            var _this = $(this);
+
+            _this.val(_this.val() + " متر مربع");
+        });
+
+
+        // لود کردن امکانات بعد انتخاب نوع ملک
+        var featureIds = [];
+        $('body').on('change', '#slcPropertyTypeId', function (e) {
+
+            var _this = $(this);
+
+            $('#loadingModal').modal('show');
+
+
+            var propertyTypeId = _this.val();
+            var advertisementTypeId = $('#slcAdvertisementTypeId').val();
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/GetAllAdvertisementFeatureValues",
+                data: {
+                    'AdvertisementTypeId': advertisementTypeId,
+                    'PropertyTypeId': propertyTypeId,
+                },
+                success: function (result) {
+
+                    if (result.Result == "OK") {
+
+                        $('#features').html('');
+                        $('#features').parent().find('button.accordion-button').remove();
+                        $('#adOptions').addClass('d-none');
+
+                        if (propertyTypeId == '2') {
+                            $('#slcDocumentOwnershipTypeId').html('<option value="" selected="" disabled=""></option><option value="3">ملکیت/سرقفلی</option>');
+                        }
+                        else {
+                            $('#slcDocumentOwnershipTypeId').html('<option value="" selected disabled></option>');
+                            for (var i = 0; i < documentOwnershipTypesVMList.length; i++) {
+                                //debugger;
+                                var item = documentOwnershipTypesVMList[i];
+                                $('#slcDocumentOwnershipTypeId')
+                                    .append($("<option></option>")
+                                        .attr("value", item.Value)
+                                        .text(item.DisplayText));
+                            }
+                        }
+
+                        var record = result.Record;
+
+                        window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+
+                        if (record.FeaturesVMList != null) {
+                            if (record.FeaturesVMList.length > 0) {
+                                var htmlResult = '';
+                                //$('#features').html('');
+
+                                $('#adOptions').removeClass('d-none');
+                                for (var k = 0; k < record.FeaturesCategoriesVMList.length; k++){
+
+                                        htmlResult += '<button class="mt-2 accordion-button collapsed titles rounded-4 border" type="button" data-bs-toggle="collapse" data-bs-target=".collapse' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + '" aria-expanded="false" aria-controls="" style="z-index:0; display:flex; justify-content:space-between;"><label class="form-label mb-1 titles text-muted">'+record.FeaturesCategoriesVMList[k].FeatureCategoryTitle+'</label></button>'+
+                                        '<div class="collapse collapse' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + ' bg-white rounded-4 p-3 border" id="features' + record.FeaturesCategoriesVMList[k].FeatureCategoryId + '">';
+
+
+                                for (var i = 0; i < record.FeaturesVMList.length; i++) {
+                                    if(record.FeaturesVMList[i].FeatureCategoryId != record.FeaturesCategoriesVMList[k].FeatureCategoryId)
+                                    continue;
+
+                                    var feature = record.FeaturesVMList[i];
+
+                                    if(feature.ElementTypeId == 5){
+                                          htmlResult += "<div class=\"my-3 d-flex align-items-center \">" +
+                                        "<label class='form-label mb-1 titles'>" +
+                                        //"<label for=\"" + feature.FeatureId + "\">" +
+                                        feature.FeatureTitle +
+                                        //"</label>" +
+                                        "</label>";
+                                    }
+                                    else{
+                                                                            htmlResult += "<div class=\"my-3\">" +
+                                        "<label class='form-label mb-1 titles'>" +
+                                        //"<label for=\"" + feature.FeatureId + "\">" +
+                                        feature.FeatureTitle +
+                                        //"</label>" +
+                                        "</label>";
+                                    }
+
+
+                                    var value = "";
+                                    if (record.AdvertisementFeaturesValuesVMList != null) {
+                                        if (record.AdvertisementFeaturesValuesVMList.length > 0) {
+                                            var advertisementFeature = record.AdvertisementFeaturesValuesVMList.filter(a => a.FeatureId == feature.FeatureId);
+                                            value = advertisementFeature;
+                                        }
+                                        if (feature.ElementTypeId == 1) {
+
+                                            featureIds.push(feature.FeatureId);
+                                            //متنی
+                                            htmlResult += "<input  data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"  form-control features-input \" placeholder=\"" + feature.FeatureTitle +
+                                                "\" type=\"text\" id=slcfeature-" + feature.FeatureId + "\ name=\"" + feature.FeatureId + "\" />";
+                                        } else if (feature.ElementTypeId == 2) {
+                                            featureIds.push(feature.FeatureId);
+                                            //تک انتخابی
+                                            htmlResult += "<select data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"  form-control ml-3 features-input\" placeholder=\"" + feature.FeatureTitle + "\" id='slcfeature-" + feature.FeatureId + "' name=\"" + feature.FeatureId + "\">" +
+                                                "<option value='' selected disabled></option>";
+
+                                            var featureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+
+                                            if (featureOptions != null) {
+                                                if (featureOptions.length > 0) {
+                                                    for (var j = 0; j < featureOptions.length; j++) {
+
+                                                        var featureOption = featureOptions[j];
+
+                                                        htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                    }
+                                                }
+                                            }
+
+                                            htmlResult += "</select>";
+
+
+                                        } else if (feature.ElementTypeId == 3) {
+                                            featureIds.push(feature.FeatureId);
+                                            //چند انتخابی
+                                            htmlResult += "<select  data-ElementTypeId=\"" + feature.ElementTypeId + "\" multiple class=\" form-control ml-3 features-input\" placeholder=\"" + feature.FeatureTitle + "\"  name=\"" + feature.FeatureId + "\" id='slcfeature-" + feature.FeatureId + "'>" +
+                                                "<option value='' selected disabled></option>";
+
+                                            multiFeatureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+                                            if (multiFeatureOptions != null) {
+                                                if (multiFeatureOptions.length > 0) {
+                                                    for (var h = 0; h < multiFeatureOptions.length; h++) {
+                                                        var featureOption = multiFeatureOptions[h];
+                                                        htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                    }
+                                                }
+                                            }
+                                            htmlResult += "</select>";
+                                        } else if (feature.ElementTypeId == 4) {
+                                            featureIds.push(feature.FeatureId);
+                                            //توضیحات
+                                        } else if (feature.ElementTypeId == 5) {
+                                            featureIds.push(feature.FeatureId);
+                                            //چک باکس
+
+                                            var boolValue = false;
+
+                                            if (boolValue != null || boolValue != undefined) {
+                                                boolValue = value;
+                                                htmlResult += "<label class=\" lblShowAllChosenItem me-2 \" style=\"height: 39px;\"><input data-ElementTypeId=\"" + feature.ElementTypeId +
+                                                    "\" type=\"checkbox\" id=\"slcfeature-" + feature.FeatureId + "\" name=\"" + feature.FeatureId +
+                                                    "\" data-placement=\"top\" data-toggle=\"tooltip\" title=\"" + feature.FeatureTitle +
+                                                    "\" class=\"showAllChosenItem w-100 h-100 features-input\">&nbsp;&nbsp;&nbsp;</label>";
+                                            }
+                                        }
+                                        htmlResult += "</div>";
+
+                                        }
+
+
+                                    }
+                                                                            htmlResult += "</div></div></div>";
+                                }
+
+                                //$('#features').parent().prepend('<button class="accordion-button collapsed titles rounded-4 border" type="button" data-bs-toggle="collapse" data-bs-target=".collapseOne" aria-expanded="false" aria-controls="" style="z-index:0"><label class="form-label mb-1 titles text-muted">امکانات اختیاری</label></button>');
+                                //$('#features').addClass('collapseOne').addClass('collapse').html(htmlResult);
+
+                                $("#adOptions").html(htmlResult);
+
+                                var selects = $('#features').find('select');
+                                for (var j = 0; j < selects.length; j++) {
+                                    var select = selects[j];
+                                    $(select).val('0');
+                                }
+                            }
+                        }
+
+
+
+                        $('#error-alert').removeClass('alert-danger');
+                        $('#error-alert').addClass('alert-success');
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#error-alert').show(1000);
+                        $('#error-alert').html(result.Message);
+                        $('#error-alert').show(500);
+                    }
+                    else
+                        if (result.Result == "ERROR") {
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('خطا');
+                            $('#my-warning-modal').modal("show");
+                            window.setTimeout(function () { $('#loadingModal').modal('hide'); }, 500);
+                        }
+                },
+            });
+        });
+
+
+
+        //************ FOR SELL RANGEBAR ***********/
+
+        let focusedHandle = null;
+
+
+        const slider = document.getElementById("shop-price-slider");
+
+        // Detect click on the handles to determine which one is focused
+        $(".range-slider-handle-lower").on("mousedown touchstart", function () {
+            focusedHandle = 0; // Min handle is focused
+            $(this).addClass("bg-info");
+            $(".range-slider-handle-upper").removeClass("bg-info");
+        });
+
+        $(".range-slider-handle-upper").on("mousedown touchstart", function () {
+            focusedHandle = 1; // Max handle is focused
+            $(this).addClass("bg-info");
+            $(".range-slider-handle-lower").removeClass("bg-info");
+        });
+
+
+        $("#addPrice").on("click", function () {
+            if (focusedHandle !== null) {
+                let currentValues = slider.noUiSlider.get();
+                let step = 500000000;
+
+                // Increment the value of the focused handle
+                currentValues[focusedHandle] = parseFloat(currentValues[focusedHandle].replace(/,/g, "")) + step;
+                slider.noUiSlider.set(currentValues); // Set the updated values
+            }
+        });
+
+        // Minus button functionality
+        $("#reducePrice").on("click", function () {
+            if (focusedHandle !== null) {
+                let currentValues = slider.noUiSlider.get();
+                let step = 500000000; // Step size
+
+                // Decrement the value of the focused handle
+                currentValues[focusedHandle] = parseFloat(currentValues[focusedHandle].replace(/,/g, "")) - step;
+                slider.noUiSlider.set(currentValues); // Set the updated values
+            }
+        });
+
+
+
+        // ******** FOR RENT RANGEBAR ************ //
+
+        let focusedHandle3 = null;
+
+
+        const slider3 = document.getElementById("shop-price-slider3");
+
+        // Detect click on the handles to determine which one is focused
+        $(".rent-range-slider-handle-lower").on("mousedown touchstart", function () {
+            focusedHandle3 = 0; // Min handle is focused
+            $(this).addClass("bg-info");
+            $(".rent-range-slider-handle-upper").removeClass("bg-info");
+        });
+
+        $(".rent-range-slider-handle-upper").on("mousedown touchstart", function () {
+            focusedHandle3 = 1; // Max handle is focused
+            $(this).addClass("bg-info");
+            $(".rent-range-slider-handle-lower").removeClass("bg-info");
+        });
+
+
+        $("#addPrice3").on("click", function () {
+            if (focusedHandle3 !== null) {
+                let currentValues = slider3.noUiSlider.get();
+                let step = 10000000;
+
+                // Increment the value of the focused handle
+                currentValues[focusedHandle3] = parseFloat(currentValues[focusedHandle3].replace(/,/g, "")) + step;
+                slider3.noUiSlider.set(currentValues); // Set the updated values
+            }
+        });
+
+        // Minus button functionality
+        $("#reducePrice3").on("click", function () {
+            if (focusedHandle3 !== null) {
+                let currentValues = slider3.noUiSlider.get();
+                let step = 10000000; // Step size
+
+                // Decrement the value of the focused handle
+                currentValues[focusedHandle3] = parseFloat(currentValues[focusedHandle3].replace(/,/g, "")) - step;
+                slider3.noUiSlider.set(currentValues); // Set the updated values
+            }
+        });
+
+
+
+        // ******** FOR deposit RANGEBAR ************ //
+
+        let focusedHandle2 = null;
+
+
+        const slider2 = document.getElementById("shop-price-slider2");
+
+        // Detect click on the handles to determine which one is focused
+        $(".deposit-range-slider-handle-lower").on("mousedown touchstart", function () {
+            focusedHandle2 = 0; // Min handle is focused
+            $(this).addClass("bg-info");
+            $(".deposit-range-slider-handle-upper").removeClass("bg-info");
+        });
+
+        $(".deposit-range-slider-handle-upper").on("mousedown touchstart", function () {
+            focusedHandle2 = 1; // Max handle is focused
+            $(this).addClass("bg-info");
+            $(".deposit-range-slider-handle-lower").removeClass("bg-info");
+        });
+
+
+        $("#addPrice2").on("click", function () {
+            if (focusedHandle2 !== null) {
+                let curdepositValues = slider2.noUiSlider.get();
+                let step = 1000000000;
+
+                // Increment the value of the focused handle
+                curdepositValues[focusedHandle2] = parseFloat(curdepositValues[focusedHandle2].replace(/,/g, "")) + step;
+                slider2.noUiSlider.set(curdepositValues); // Set the updated values
+            }
+        });
+
+        // Minus button functionality
+        $("#reducePrice2").on("click", function () {
+            if (focusedHandle2 !== null) {
+                let curdepositValues = slider2.noUiSlider.get();
+                let step = 1000000000; // Step size
+
+                // Decrement the value of the focused handle
+                curdepositValues[focusedHandle2] = parseFloat(curdepositValues[focusedHandle2].replace(/,/g, "")) - step;
+                slider2.noUiSlider.set(curdepositValues); // Set the updated values
+            }
+        });
+
+
+
+
+        // ******** FOR area RANGEBAR ************ //
+
+        let focusedArea = null;
+
+
+        const areaSlider = document.getElementById("shop-area-slider");
+
+        // Detect click on the handles to determine which one is focused
+        $(".area-range-slider-handle-lower").on("mousedown touchstart", function () {
+            focusedArea = 0; // Min handle is focused
+            $(this).addClass("bg-info");
+            $(".area-range-slider-handle-upper").removeClass("bg-info");
+        });
+
+        $(".area-range-slider-handle-upper").on("mousedown touchstart", function () {
+            focusedArea = 1; // Max handle is focused
+            $(this).addClass("bg-info");
+            $(".area-range-slider-handle-lower").removeClass("bg-info");
+        });
+
+
+        $("#addAreaPrice").on("click", function () {
+            if (focusedArea !== null) {
+                let curareaValues = areaSlider.noUiSlider.get();
+                let step = 100;
+
+                // Increment the value of the focused handle
+                curareaValues[focusedArea] = parseFloat(curareaValues[focusedArea].replace(/,/g, "")) + step;
+                areaSlider.noUiSlider.set(curareaValues); // Set the updated values
+            }
+        });
+
+        // Minus button functionality
+        $("#reduceAreaPrice").on("click", function () {
+            if (focusedArea !== null) {
+                let curareaValues = areaSlider.noUiSlider.get();
+                let step = 100; // Step size
+
+                // Decrement the value of the focused handle
+                curareaValues[focusedArea] = parseFloat(curareaValues[focusedArea].replace(/,/g, "")) - step;
+                areaSlider.noUiSlider.set(curareaValues); // Set the updated values
+            }
+        });
+
+
+
+
+
+        // ******** FOR foundation RANGEBAR ************ //
+
+        let focusedfoundation = null;
+
+
+        const foundationSlider = document.getElementById("shop-foundation-slider");
+
+        // Detect click on the handles to determine which one is focused
+        $(".foundation-range-slider-handle-lower").on("mousedown touchstart", function () {
+            focusedfoundation = 0; // Min handle is focused
+            $(this).addClass("bg-info");
+            $(".foundation-range-slider-handle-upper").removeClass("bg-info");
+        });
+
+        $(".foundation-range-slider-handle-upper").on("mousedown touchstart", function () {
+            focusedfoundation = 1; // Max handle is focused
+            $(this).addClass("bg-info");
+            $(".foundation-range-slider-handle-lower").removeClass("bg-info");
+        });
+
+
+        $("#addFoundationPrice").on("click", function () {
+            if (focusedfoundation !== null) {
+                let curareaValues = foundationSlider.noUiSlider.get();
+                let step = 10;
+
+                // Increment the value of the focused handle
+                curareaValues[focusedfoundation] = parseFloat(curareaValues[focusedfoundation].replace(/,/g, "")) + step;
+                foundationSlider.noUiSlider.set(curareaValues); // Set the updated values
+            }
+        });
+
+        // Minus button functionality
+        $("#reduceFoundationPrice").on("click", function () {
+            if (focusedfoundation !== null) {
+                let curareaValues = foundationSlider.noUiSlider.get();
+                let step = 10; // Step size
+
+                // Decrement the value of the focused handle
+                curareaValues[focusedfoundation] = parseFloat(curareaValues[focusedfoundation].replace(/,/g, "")) - step;
+                foundationSlider.noUiSlider.set(curareaValues); // Set the updated values
+            }
+        });
+
+
+
+        $('.btn-close').click(function (e) {
+
+            $('#filterModal').find('input, select').val('');
+            $("#slcConvertable").prop("checked", false);
+            $("#adOptions").addClass("d-none");
+
+
+            // Reset all NoUiSliders
+            document.querySelectorAll('#shop-price-slider').forEach((slider) => {
+                slider.noUiSlider.set([1000000000, 100000000000]);
+            });
+
+            document.querySelectorAll('#shop-price-slider2').forEach((slider) => {
+                slider.noUiSlider.set([0, 50000000000]);
+            });
+
+            document.querySelectorAll('#shop-price-slider3').forEach((slider) => {
+                slider.noUiSlider.set([0, 10000000000]);
+            });
+
+            document.querySelectorAll('#shop-area-slider').forEach((slider) => {
+                slider.noUiSlider.set([50, 50000]);
+            });
+
+            document.querySelectorAll('#shop-foundation-slider').forEach((slider) => {
+                slider.noUiSlider.set([0, 10000]);
+            });
+
+            document.querySelectorAll('#shop-year-slider').forEach((slider) => {
+                slider.noUiSlider.set([1360, 1403]);
+            });
+
+
+
+            $("#slcDepositFromPrice").val(null);
+            $("#slcDepositToPrice").val(null);
+            $("#slcRentFromPrice").val(null);
+            $("#slcRentToPrice").val(null);
+            $("#slcFromPrice").val(1000000000);
+            $("#slcToPrice").val(100000000000);
+            $("#slcFromArea").val(null);
+            $("#slcToArea").val(null);
+            $("#slcFromFoundation").val(null);
+            $("#slcToFoundation").val(null);
+            $("#slcFromYear").val(null);
+            $("#slcToYear").val(null);
+
+
+
+            //collapse any opened accordion
+            $(".accordion-button").addClass('collapsed').attr('aria-expanded', 'true');
+            $('.accordion-collapse').removeClass('show');
+
+
+            //hide all shown filters
+            $("#SaleadInfo5").addClass("d-none");
+            $("#RentadInfo4").addClass("d-none");
+            $("#adInfoAddress").addClass("d-none");
+            $("#adInfo3").addClass("d-none");
+            $("#adInfo10").addClass("d-none");
+            $("#adInfo20").addClass("d-none");
+            $("#adInfo1").addClass("d-none");
+            $("#adInfo8").addClass("d-none");
+
+
+            $("#shop-price-slider-min").text("1,000,000,000");
+            $("#shop-price-slider-max").text("100,000,000,000");
+            $("#shop-price-slider-min2").text("0");
+            $("#shop-price-slider-max2").text("50,000,000,000");
+            $("#shop-price-slider-min3").text("0");
+            $("#shop-price-slider-max3").text("10,000,000,000");
+            $("#shop-area-slider-min").text("50");
+            $("#shop-area-slider-max").text("50,000");
+            $("#shop-foundation-slider-min").text("0");
+            $("#shop-foundation-slider-max").text("10,000");
+            $("#shop-year-slider-min").text("1360");
+            $("#shop-year-slider-max").text("1403");
+
+
+
+
+        });
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        //برای قیمت فروش
+
+        const shopPriceSlider = document.querySelectorAll("#shop-price-slider");
+        const shopPriceSliderMin = document.querySelectorAll(
+            "#shop-price-slider-min",
+        ),
+            shopPriceSliderMax = document.querySelectorAll("#shop-price-slider-max");
+
+        shopPriceSlider.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "range-slider-",
+                start: [1000000000, 100000000000],
+                direction: "ltr",
+                connect: true,
+                step: 500000000,
+                margin: 1,
+                range: {
+                    min: 1000000000,
+                    max: 100_000_000_000,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcToPrice").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcFromPrice").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+        // برای قیمت ودیعه
+
+        const shopPriceSlider2 = document.querySelectorAll("#shop-price-slider2");
+        const shopPriceSliderMin2 = document.querySelectorAll(
+            "#shop-price-slider-min2",
+        ),
+            shopPriceSliderMax2 = document.querySelectorAll("#shop-price-slider-max2");
+
+        shopPriceSlider2.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "deposit-range-slider-",
+                start: [0, 50000000000],
+                direction: "ltr",
+                connect: true,
+                step: 50000000,
+                margin: 1,
+                range: {
+                    min: 0,
+                    max: 50_000_000_000,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax2.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcDepositToPrice").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin2.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcDepositFromPrice").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+        // برای قیمت اجاره
+
+
+        const shopPriceSlider3 = document.querySelectorAll("#shop-price-slider3");
+        const shopPriceSliderMin3 = document.querySelectorAll(
+            "#shop-price-slider-min3",
+        ),
+            shopPriceSliderMax3 = document.querySelectorAll("#shop-price-slider-max3");
+
+        shopPriceSlider3.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "rent-range-slider-",
+                start: [0, 10000000000],
+                direction: "ltr",
+                margin: 1,
+                connect: true,
+                step: 10000000,
+                range: {
+                    min: 0,
+                    max: 10_000_000_000,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax3.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcRentToPrice").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin3.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcRentFromPrice").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+
+        // برای مساحت
+
+        const shopPriceSlider4 = document.querySelectorAll("#shop-area-slider");
+        const shopPriceSliderMin4 = document.querySelectorAll(
+            "#shop-area-slider-min",
+        ),
+            shopPriceSliderMax4 = document.querySelectorAll("#shop-area-slider-max");
+
+        shopPriceSlider4.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "area-range-slider-",
+                start: [50, 50000],
+                direction: "ltr",
+                margin: 1,
+                connect: true,
+                step: 10,
+                range: {
+                    min: 50,
+                    max: 50_000,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax4.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcToArea").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin4.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcFromArea").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+
+        //برای زیربنا
+
+        const shopPriceSlider5 = document.querySelectorAll("#shop-foundation-slider");
+        const shopPriceSliderMin5 = document.querySelectorAll(
+            "#shop-foundation-slider-min",
+        ),
+            shopPriceSliderMax5 = document.querySelectorAll("#shop-foundation-slider-max");
+
+        shopPriceSlider5.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "foundation-range-slider-",
+                start: [0, 10000],
+                direction: "ltr",
+                margin: 1,
+                connect: true,
+                step: 10,
+                range: {
+                    min: 0,
+                    max: 10_000,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax5.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcToFoundation").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin5.forEach((price_item) => {
+                        price_item.innerHTML = values[handle];
+                        $("#slcFromFoundation").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+
+        // برای سال بازسازی
+
+        const shopPriceSlider6 = document.querySelectorAll("#shop-year-slider");
+        const shopPriceSliderMin6 = document.querySelectorAll(
+            "#shop-year-slider-min",
+        ),
+            shopPriceSliderMax6 = document.querySelectorAll("#shop-year-slider-max");
+
+        shopPriceSlider6.forEach((item) => {
+            noUiSlider.create(item, {
+                cssPrefix: "range-slider-",
+                start: [1360, 1403],
+                direction: "ltr",
+                margin: 1,
+                connect: true,
+                range: {
+                    min: 1_360,
+                    max: 1_403,
+                },
+                format: {
+                    to: function (value) {
+                        return value.toLocaleString("en-US", {
+                            style: "decimal",
+                            maximumFractionDigits: 0,
+                        });
+                    },
+                    from: function (value) {
+                        return parseFloat(value.replace(/,/g, ""));
+                    },
+                },
+            });
+
+            item.noUiSlider.on("update", function (values, handle) {
+                if (handle) {
+                    shopPriceSliderMax6.forEach((price_item) => {
+                        price_item.innerHTML = values[handle].replace(/,/g, '');;
+                        $("#slcToYear").val(values[handle]); //max price value
+                    });
+                } else {
+                    shopPriceSliderMin6.forEach((price_item) => {
+                        price_item.innerHTML = values[handle].replace(/,/g, '');;
+                        $("#slcFromYear").val(values[handle]); //min price value
+                    });
+                }
+            });
+        });
+    });
+
+
+    var firstTime = true;
+    var current_last = 0;
+    var isLoading = false;
+    var searchString = "";
+    (function ($) {
+
+        $(document).ready(function () {
+            if (onlyFavorite) {
+                $('#heartSpan').removeClass('mdi-cards-heart-outline');
+                $('#heartSpan').addClass('mdi-cards-heart');
+            }
+
+
+            $("#btnfilter").on("click", function () {
+
+                $("#accordionExample").addClass("hidden");
+
+            });
+
+            // *** SABA CODE *** //
+
+            // for (var i in banners) {
+            //     var item = banners[i];
+            //     var div = $('<div class="bannerSlick-item" style="padding-left: 1rem;" ></div>');
+            //     var titleDiv = $('<div class="text-white rounded-4 p-2 doctor-book-back" style="height:100px;background-image: url(/Files/BannerFiles/' + domainName +
+            //         '/' + item.BannerId + '/Image/' + item.BannerFilePath + ');background-position: center; background-repeat: no-repeat;  background-size: cover;" ></div>');
+            //     //var h1 = $('<h1 class="mb-1 doctor-book-back-title"></h1>');
+            //     //h1.text(item.BannerTitle);
+            //     //if (item.BannerLink != null && item.BannerLink.length > 0) {
+            //     //    var aTag = $('<a href="https://' + item.BannerLink + '" class="btn btn-sm btn-book btn-secondary"></a>')
+            //     //    aTag.text('بیشتر...');
+            //     //    titleDiv.append(aTag);
+            //     //}
+            //     //titleDiv.append(h1);
+            //     div.append(titleDiv);
+            //     $('#banner-div').append(div);
+            // }
+
+            // *** SINA CODE *** //
+
+
+
+            for (var i = 0; i < banners.length; i++) {
+
+                var docitem = $('<div class="available-doctor-item"></div>');
+                var back = $('<div class="bg-primary text-white rounded-4 doctor-book-back"></div>');
+
+                var item = banners[i];
+                var img = $('<img class="img-fluid" src="/Files/BannerFiles/' + domainName +
+                    '/' + item.BannerId + '/Image/' + item.BannerFilePath + '" />');
+
+                back.append(img);
+                docitem.append(back);
+
+                $('.available-doctor').append(docitem);
+            }
+
+            $('.available-doctor').slick({
+                infinite: false,
+                dots: false,
+                arrows: false,
+                speed: 300,
+                autoplay: true,
+                slidesToShow: 1.2,
+                slidesToScroll: 1,
+                rtl: true,
+            });
+
+
+            $("#searchInput").keyup(function (e) {
+                var code = e.which;
+                if (code == 13 || code == "13") {
+
+                    e.preventDefault();
+                    //searchString = $('#searchInput').val();
+                    $.cookie("searchString", $('#searchInput').val(), { expires: 30, path: '/' });
+
+                    firstTime = true;
+                    current_last = 0;
+                    isLoading = false;
+                    $('#main-container').empty();
+                    $(window).trigger("scroll");
+                }
+            });
+
+
+            //Advanced filters event
+            var IsFiltered = false;   // to determine if user clicked advanced search filters or not
+
+            //set all prices to null
+            $("#slcDepositFromPrice").val(null);
+            $("#slcDepositToPrice").val(null);
+            $("#slcRentFromPrice").val(null);
+            $("#slcRentToPrice").val(null);
+            $("#slcFromPrice").val(null);
+            $("#slcToPrice").val(null);
+            $("#slcFromArea").val(null);
+            $("#slcToArea").val(null);
+            $("#slcFromFoundation").val(null);
+            $("#slcToFoundation").val(null);
+            $("#slcFromYear").val(null);
+            $("#slcToYear").val(null);
+
+            // advanced search button click event
+            $("#advancedSearch").click(function (e) {
+
+                e.preventDefault();
+
+                IsFiltered = true;
+                firstTime = true;
+                current_last = 0;
+                isLoading = false;
+                $('#main-container').empty();
+                $(window).trigger("scroll");
+
+
+                //close modal
+                $(".btn-close").trigger('click');
+            });
+
+            //set prices to null after changing advertisement type
+            $('#slcAdvertisementTypeId').on('change', function () {
+
+                var selectedValue = $(this).val();
+
+                if (selectedValue == '1') {
+                    // set sell prices to null
+                    $("#slcFromPrice").val(1000000000);
+                    $("#slcToPrice").val(100000000000);
+
+                    $("#slcDepositFromPrice").val(0);
+                    $("#slcDepositToPrice").val(50000000000);
+                    $("#slcRentFromPrice").val(0);
+                    $("#slcRentToPrice").val(10000000000);
+                } else if (selectedValue == '2') {
+                    // set rent prices to null
+                    $("#slcDepositFromPrice").val(null);
+                    $("#slcDepositToPrice").val(null);
+                    $("#slcRentFromPrice").val(null);
+                    $("#slcRentToPrice").val(null);
+
+                    $("#slcFromPrice").val(1000000000);
+                    $("#slcToPrice").val(100000000000);
+                }
+            });
+
+
+
+            // $("#slcConvertable").on("change", function() {
+
+            //     // Check if the checkbox is checked
+            //     if ($(this).is(":checked")) {
+            //         $("#slcConvertable").val("true");
+            //     } else {
+            //         $("#slcConvertable").val("false");
+            //     }
+
+            // });
+
+
+
+
+            $('#onlyFavorite').click(function (e) {
+                e.preventDefault();
+                if (isAuthenticated) {
+                    var cookie_fav = $.cookie("OnlyFavorite");
+                    if (cookie_fav != null && cookie_fav.length > 0 && cookie_fav == "True") {
+                        onlyFavorite = false;
+                        $.cookie("OnlyFavorite", "False", { path: '/' });
+                    } else {
+                        onlyFavorite = true;
+                        $.cookie("OnlyFavorite", "True", { path: '/' });
+                    }
+                    firstTime = true;
+                    current_last = 0;
+                    isLoading = false;
+                    if ($('#heartSpan').hasClass('mdi-cards-heart-outline')) {
+                        $('#heartSpan').removeClass('mdi-cards-heart-outline');
+                        $('#heartSpan').addClass('mdi-cards-heart');
+                    } else {
+                        $('#heartSpan').removeClass('mdi-cards-heart');
+                        $('#heartSpan').addClass('mdi-cards-heart-outline');
+                    }
+                    $('#main-container').empty();
+                    $(window).trigger("scroll");
+
+                } else {
+                    $('#loginModal').modal('show');
+                }
+            });
+
+
+            $(window).on('scroll', function () {
+
+                if (firstTime || ($(window).scrollTop() + $(window).height() == $(document).height() && current_last % 10 == 0 && !isLoading)) {
+                    isLoading = true;
+                    firstTime = false;
+
+                    $("#loading-div").show();
+                    var cookie_search = $.cookie("searchString");
+                    if (cookie_search != null && cookie_search.length > 0) {
+                        searchString = cookie_search;
+                    } else {
+                        searchString = "";
+                    }
+
+
+
+                    //#region old codes - comments
+
+                    // $.ajax({
+                    //     cache: false,
+                    //     type: "Post",
+                    //      url: "/UserMelkavan/MelkavanPanel/GetAdvertisementsList",
+                    //     data: {
+                    //         'startIndex': current_last,
+                    //         'pageSize': 10,
+                    //         'onlyFavorite': onlyFavorite,
+                    //         'searchString': searchString
+                    //     },
+                    //     success: function (response) {
+                    //
+                    //         var cookie_search = $.cookie("searchString");
+                    //         if (onlyFavorite ||
+                    //             (cookie_search != null && cookie_search.length > 0))
+                    //             $("#banner-div").hide();
+                    //         else
+                    //             $("#banner-div").show();
+
+                    //         if (response.Result == "OK" && response.Records.length == 0) {
+                    //             $("#loading-div").hide();
+                    //             return;
+                    //         }
+
+
+                    //
+                    //         for (var i = 0; i < response.Records.length; i++) {
+                    //             var item = response.Records[i];
+                    //             var address = "";
+                    //             if (item.AdvertisementAddressVM.DistrictName != null &&
+                    //                 item.AdvertisementAddressVM.DistrictName.length > 0 &&
+                    //                 item.AdvertisementAddressVM.CityName != null &&
+                    //                 item.AdvertisementAddressVM.CityName.length > 0)
+                    //                 address += item.AdvertisementAddressVM.CityName + '، ' + item.AdvertisementAddressVM.DistrictName;
+                    //             else {
+                    //                 if (item.AdvertisementAddressVM.StateName != null)
+                    //                     address += item.AdvertisementAddressVM.StateName + '، ';
+                    //                 if (item.AdvertisementAddressVM.CityName != null)
+                    //                     address += item.AdvertisementAddressVM.CityName + '، ';
+                    //                 if (item.AdvertisementAddressVM.ZoneName != null)
+                    //                     address += item.AdvertisementAddressVM.ZoneName + '، ';
+                    //                 if (item.AdvertisementAddressVM.TownName != null)
+                    //                     address += item.AdvertisementAddressVM.TownName;
+
+                    //             }
+                    //             var priceString = "";
+                    //             var rentString = "";
+                    //             var depositString = "";
+                    //             if (item.AdvertisementPricesHistoriesVM != null && item.AdvertisementPricesHistoriesVM.OfferPrice != null)
+                    //                 priceString = item.AdvertisementPricesHistoriesVM.OfferPrice.toString();
+                    //             if (item.AdvertisementPricesHistoriesVM != null && item.AdvertisementPricesHistoriesVM.RentPrice != null)
+                    //                 rentString = item.AdvertisementPricesHistoriesVM.RentPrice.toString();
+                    //             if (item.AdvertisementPricesHistoriesVM != null && item.AdvertisementPricesHistoriesVM.DepositPrice != null)
+                    //                 depositString = item.AdvertisementPricesHistoriesVM.DepositPrice.toString();
+
+                    //             var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    //             var codedRent = rentString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    //             var codedDeposit = depositString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    //             var timeInMilliseconds = (new Date(item.CurrentDate)) - (new Date(item.CreateEnDate));
+                    //             var timeInHours = Math.ceil(timeInMilliseconds / (1000 * 60 * 60)) - 1;
+                    //             var timeInDays = Math.ceil(timeInHours / 24) - 1;
+                    //             var heartClass = "";
+                    //             if (isAuthenticated && item.IsFavorite) {
+                    //                 heartClass = "mdi-cards-heart";
+                    //             } else {
+                    //                 heartClass = "mdi-cards-heart-outline";
+                    //             }
+                    //             var displayTime = "";
+                    //             if (timeInDays >= 1)
+                    //                 displayTime = timeInDays.toString() + ' روز پیش ';
+                    //             else {
+                    //                 if (timeInHours >= 1)
+                    //                     displayTime = timeInHours.toString() + ' ساعت پیش ';
+                    //                 else
+                    //                     displayTime = "دقایقی پیش";
+                    //             }
+                    //             var imgSrc = "";
+                    //             if (item.AdvertisementFilesVM != null && item.AdvertisementFilesVM.length != 0) {
+                    //                 imgSrc = '/Files/AdvertisementsFiles/' + domainName + '/' + item.AdvertisementId +
+                    //                     '/Media/thumb_' + item.AdvertisementFilesVM[0].AdvertisementFilePath;
+                    //             } else {
+                    //                 imgSrc = "/images/Invert_Melkavan.jpg";
+                    //             }
+                    //             var labels = "";
+                    //             var priceDiv = "";
+                    //             if (item.AdvertisementDetailsVM.AdvertisementTypeId == 2) {
+                    //                 labels = '<div><span class="badge badge-pill bg-danger">فوری</span></div>';
+                    //                 if (codedPrice !== "") {
+                    //                     priceDiv = '<div class="mb-1 fs-14 pl-2 card-price" >' + codedPrice + ' تومان </div>';
+                    //                 } else {
+                    //                     priceDiv = '<div class="mb-1 fs-14 pl-2 card-price">قیمت توافقی</div>';
+                    //                 }
+
+                    //             } else {
+                    //                 priceDiv = '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">ودیعه:</span><span class="float-start"> ' + codedDeposit + ' تومان </span><br/></div></div>';
+                    //                 priceDiv += '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">اجاره:</span><span class="float-start"> ' + codedRent + ' تومان </span><br/></div></div>';
+
+                    //             }
+                    //             var div = $('<div id="ad_' + (i + current_last) + '"></div>');
+                    //             div.html('<a href="/UserMelkavan/MelkavanPanel/AdvertisementDetails/' + item.AdvertisementId + '" class="d-flex justify-content-between gap-3 bg-white p-2 my-1 mx-2 shadow-sm rounded-5 shadow-sm property-card" >' +
+                    //                 '<div style="width: 100%;">' +
+                    //                 '<h6 class="mb-1 fs-14 fw-bold" >' + item.AdvertisementTitle + '</h6>' +
+                    //                 labels +
+                    //                 priceDiv +
+                    //                 '<div class="">' +
+                    //                 '<span class="float-end">' + address + '</span>' +
+                    //                 '</div>' +
+                    //                 '<br />' +
+                    //                 '<span class="float-end pt-2" >' + displayTime + '</span>' +
+                    //                 '<span id="heart_' + item.AdvertisementId + '" class="text-primary heartIcon pt-1 float-start rounded-circle icon mdi ' +
+                    //                 heartClass + ' mdi-18px"' + 'style=" width: 18px!important; min-width: 18px!important;">' +
+                    //                 '</span>' +
+                    //                 '</div>' +
+
+                    //                 '<img style="height:125px;width:125px" src="' + imgSrc + '" title="' + item.AdvertisementTitle + '" />' +
+                    //                 '</a>' +
+                    //                 '</div>');
+                    //             $('#main-container').append(div);
+
+                    //         }
+                    //         current_last += response.Records.length;
+
+                    //         isLoading = false;
+                    //         $("#loading-div").hide();
+
+                    //     },
+                    //     error: function () {
+                    //         //$('#warningModal').modal("show");
+                    //         //$('#warningModal_text').html("خطا!");
+                    //         $("#loading-div").hide();
+                    //     }
+                    // });
+
+                    //#endregion
+
+
+
+                    // Check if the checkbox is checked
+                    if ($("#slcConvertable").is(":checked")) {
+                        $("#slcConvertable").val("1");
+                    } else {
+                        $("#slcConvertable").val("0");
+                    }
+
+                    //Advanced filter values
+                    var AdvertisementTypeId = $('#slcAdvertisementTypeId').val();
+                    var PropertyTypeId = $("#slcPropertyTypeId").val();
+                    var TypeOfUseId = $("#slcTypeOfUseId").val().join(',');
+                    var StateId = $("#slcStateId").val();
+                    var CityId = $("#slcCityId").val();
+                    var ZoneId = $("#slcZoneId").val();
+                    var TownName = $("#slcTownName").val();
+                    var FromArea = Number($("#slcFromArea").val().replace(/,/g, ''));
+                    var ToArea = Number($("#slcToArea").val().replace(/,/g, ''));
+                    var FromFoundation = Number($("#slcFromFoundation").val().replace(/,/g, ''));
+                    var ToFoundation = Number($("#slcToFoundation").val().replace(/,/g, ''));
+                    var RentFromPrice = Number($("#slcRentFromPrice").val().replace(/,/g, ''));
+                    var RentToPrice = Number($("#slcRentToPrice").val().replace(/,/g, ''));
+                    var DepositFromPrice = Number($("#slcDepositFromPrice").val().replace(/,/g, ''));
+                    var DepositToPrice = Number($("#slcDepositToPrice").val().replace(/,/g, ''));
+                    var MaritalStatusId = $("#slcMaritalStatusId").val();
+                    var Convertable = $("#slcConvertable").val();
+                    var FromPrice = Number($("#slcFromPrice").val().replace(/,/g, ''));
+                    var ToPrice = Number($("#slcToPrice").val().replace(/,/g, ''));
+                    var BuildingLifeId = $("#slcBuildingLifeId").val().join(',');
+                    var FromRebuiltInYear = Number($("#slcFromYear").val().replace(/,/g, ''));
+                    var ToRebuiltInYear = Number($("#slcToYear").val().replace(/,/g, ''));
+                    var DocumentTypeId = $("#slcDocumentTypeId").val();
+                    var DocumentRootTypeId = $("#slcDocumentRootTypeId").val();
+                    var DocumentOwnershipTypeId = $("#slcDocumentOwnershipTypeId").val();
+
+                    //Features
+                    var strFeatures = [];
+
+                    var features = $('.features-input');
+
+                    var featureValue = "";
+                    var featureId = "";
+                    var tmpStrFeatures = "";
+
+
+                    if (features != null) {
+                        if (features.length > 0) {
+                            for (var k = 0; k < features.length; k++) {
+
+
+                                switch (features[k].nodeName.toLowerCase()) {
+                                      case 'input':
+    if ($(features[k]).attr('type') === 'checkbox') {
+        // Handle checkboxes
+        if ($(features[k]).is(':checked')) {
+            featureValue = $(features[k]).val(); // Get the value if checked
+            featureId = features[k].id;
+
+            strFeatures.push({
+                'Key': featureId,
+                'Value': featureValue
+            });
+
+            tmpStrFeatures = JSON.stringify(strFeatures);
+        }
+    } else {
+        // Handle other input types
+        if ($(features[k]).val() != null && $(features[k]).val() !== "") {
+            featureValue = $(features[k]).val();
+            featureId = features[k].id;
+
+            strFeatures.push({
+                'Key': featureId,
+                'Value': featureValue
+            });
+
+            tmpStrFeatures = JSON.stringify(strFeatures);
+        }
+    }
+    break;
+
+
+                                    case 'select':
+
+
+                                        if ($(features[k]).val() != null) {
+                                            if ($(features[k]).val() != "") {
+
+                                                if ($(features[k]).val().length > 1) {
+
+                                                    //multiple select
+
+                                                    featureValue = $(features[k]).val().join(',');
+                                                    featureId = features[k].name;
+
+
+                                                    strFeatures.push({
+                                                        'Key': featureId,
+                                                        'Value': featureValue
+                                                    });
+
+                                                    tmpStrFeatures = JSON.stringify(strFeatures);
+
+
+                                                } else {
+
+                                                    featureValue = $(features[k]).val();
+                                                    featureId = features[k].name;
+
+
+                                                    strFeatures.push({
+                                                        'Key': featureId,
+                                                        'Value': featureValue
+                                                    });
+
+                                                    tmpStrFeatures = JSON.stringify(strFeatures);
+                                                }
+
+                                            }
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    //End of Features
+
+
+
+                    debugger;
+                    $.ajax({
+                        cache: false,
+                        type: "Post",
+                        url: "/UserMelkavan/MelkavanPanel/GetListOfAdverisementsAdvanceSearch",
+                        data: {
+                            'startIndex': current_last,
+                            'pageSize': 10,
+                            'onlyFavorite': onlyFavorite,
+                            'searchString': searchString,
+                            'IsFiltered': IsFiltered,
+                            'AdvertisementTypeId': AdvertisementTypeId,
+                            'PropertyTypeId': PropertyTypeId,
+                            'TypeOfUseId': TypeOfUseId,
+                            'StateId': StateId,
+                            'CityId': CityId,
+                            'ZoneId': ZoneId,
+                            'TownName': TownName,
+                            'FromArea': FromArea,
+                            'ToArea': ToArea,
+                            'FromFoundation': FromFoundation,
+                            'ToFoundation': ToFoundation,
+                            'RentFromPrice': RentFromPrice,
+                            'RentToPrice': RentToPrice,
+                            'DepositFromPrice': DepositFromPrice,
+                            'DepositToPrice': DepositToPrice,
+                            'MaritalStatusId': MaritalStatusId,
+                            'Convertable': Convertable,
+                            'FromPrice': FromPrice,
+                            'ToPrice': ToPrice,
+                            'BuildingLifeId': BuildingLifeId,
+                            'FromRebuiltInYear': FromRebuiltInYear,
+                            'ToRebuiltInYear': ToRebuiltInYear,
+                            'DocumentTypeId': DocumentTypeId,
+                            'DocumentRootTypeId': DocumentRootTypeId,
+                            'DocumentOwnershipTypeId': DocumentOwnershipTypeId,
+                            'Features': strFeatures
+                        },
+                        success: function (response) {
+                            debugger;
+                            var cookie_search = $.cookie("searchString");
+                            if (onlyFavorite ||
+                                (cookie_search != null && cookie_search.length > 0))
+                                $("#banner-div").hide();
+                            else
+                                $("#banner-div").show();
+
+                            if (response.Result == "OK" && response.Records.length == 0) {
+                                $("#loading-div").hide();
+                                return;
+                            }
+
+
+
+                            for (var i = 0; i < response.Records.length; i++) {
+                                var item = response.Records[i];
+                                var address = "";
+                                debugger;
+
+                                if ((item.StateName != null) ||
+                                    (item.StateName != "") &&
+                                    (item.CityName != null) ||
+                                    (item.CityName != "") &&
+                                    (item.ZoneName != null) ||
+                                    (item.ZoneName != "") &&
+                                    (item.TownName != null) ||
+                                    (item.TownName != "")) {
+                                    address += item.CityName + '، ' + item.TownName;
+                                } else {
+
+                                    if (item.StateName != null) {
+                                        if (item.StateName != "") {
+
+                                            address += item.StateName + '، ';
+                                        }
+                                    }
+
+
+                                    if (item.CityName != null) {
+                                        if (item.CityName != "") {
+                                            address += item.CityName + '، ';
+                                        }
+                                    }
+
+
+                                    if (item.ZoneName != null) {
+                                        if (item.ZoneName != "") {
+                                            address += item.ZoneName + '، ';
+                                        }
+                                    }
+
+
+                                    if (item.TownName != null) {
+                                        if (item.TownName != "") {
+                                            address += item.TownName;
+                                        }
+                                    }
+                                }
+
+
+                                var priceString = "";
+                                var rentString = "";
+                                var depositString = "";
+
+
+                                debugger;
+                                if (item.OfferPrice != null) {
+                                    priceString = item.OfferPrice.toString();
+
+                                }
+
+
+                                if (item.RentPrice != null) {
+                                    rentString = item.RentPrice.toString();
+                                }
+
+
+                                if (item.DepositPrice != null) {
+                                    depositString = item.DepositPrice.toString();
+                                }
+
+
+                                // var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                                // var codedRent = rentString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                                // var codedDeposit = depositString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                                var timeInMilliseconds = (new Date(item.CurrentDate)) - (new Date(item.CreateEnDate));
+
+                                var timeInHours = Math.ceil(timeInMilliseconds / (1000 * 60 * 60)) - 1;
+
+                                var timeInDays = Math.ceil(timeInHours / 24) - 1;
+
+                                var heartClass = "";
+
+                                if (isAuthenticated && item.IsFavorite) {
+                                    heartClass = "mdi-cards-heart";
+                                } else {
+                                    heartClass = "mdi-cards-heart-outline";
+                                }
+                                var displayTime = "";
+                                if (timeInDays >= 1)
+                                    displayTime = timeInDays.toString() + ' روز پیش ';
+                                else {
+                                    if (timeInHours >= 1)
+                                        displayTime = timeInHours.toString() + ' ساعت پیش ';
+                                    else
+                                        displayTime = "دقایقی پیش";
+                                }
+
+
+
+                                var imgSrc = "";
+
+                                function getFileType(filename) {
+                                    return filename.split('.').pop().toLowerCase();
+                                }
+
+                                if (item.RecordType == "Properties") {
+
+                                    if (item.AdvertisementFilesVM != null && item.AdvertisementFilesVM.length != 0) {
+
+                                        if (getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "jpg"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "jpeg"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "png"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "webp") {
+
+                                            imgSrc = '/Files/PropertiesFiles/my.teniaco.com/' + item.AdvertisementId +
+                                                '/Media/' + 'thumb_' + item.AdvertisementFilesVM[0].AdvertisementFilePath;
+
+                                        }
+                                        else {
+                                            imgSrc = "/images/Invert_Melkavan.jpg";
+                                        }
+
+
+                                    }
+                                    else {
+                                        imgSrc = "/images/Invert_Melkavan.jpg";
+                                    }
+
+
+                                } else if (item.RecordType == "Advertisement") {
+
+                                    if (item.AdvertisementFilesVM != null && item.AdvertisementFilesVM.length != 0) {
+
+                                        if (getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "jpg"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "jpeg"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "png"
+                                            || getFileType(item.AdvertisementFilesVM[0].AdvertisementFilePath) === "webp") {
+
+                                            imgSrc = '/Files/AdvertisementsFiles/melkavan.com/' + item.AdvertisementId +
+                                                '/Media/' + 'thumb_' + item.AdvertisementFilesVM[0].AdvertisementFilePath;
+
+                                        }
+                                        else {
+                                            imgSrc = "/images/Invert_Melkavan.jpg";
+                                        }
+
+
+                                    }
+                                    else {
+                                        imgSrc = "/images/Invert_Melkavan.jpg";
+                                    }
+                                }
+
+
+
+                                var labels = "";
+                                var priceDiv = "";
+
+
+                                debugger;
+                                if (item.TagId) {
+                                    const tagIds = item.TagId + ',';
+
+                                    if (tagIds.includes('1')) {
+                                        labels += '<span class="badge badge-pill bg-danger ms-1">فوری</span>';
+                                    }
+                                    if (tagIds.includes('2')) {
+                                        labels += '<span class="badge badge-pill bg-warning ms-1">مشارکت</span>';
+                                    }
+                                    if (tagIds.includes('3')) {
+                                        labels += '<span class="badge badge-pill bg-info ms-1">معاوضه</span>';
+                                    }
+                                    if (tagIds.includes('4')) {
+                                        labels += '<span class="badge badge-pill bg-success ms-1">زیر قیمت</span>';
+                                    }
+
+                                }
+
+
+                                if (item.AdvertisementTypeId == 2) {
+                                    //  labels = '<div><span class="badge badge-pill bg-danger">فوری</span></div>';
+                                    //if (codedPrice !== "") {
+                                    if (priceString !== '0') {
+                                        priceDiv = '<div class="mb-1 fs-14 pl-2 card-price" >' + convertToPersianAndFormat(priceString) + ' تومان </div>';
+                                    } else {
+                                        priceDiv = '<div class="mb-1 fs-14 pl-2 card-price">قیمت توافقی</div>';
+                                    }
+
+                                } else {
+                                    priceDiv = '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">ودیعه:</span><span class="float-start"> ' + convertToPersianAndFormat(depositString) + ' تومان </span><br/></div></div>';
+                                    priceDiv += '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">اجاره:</span><span class="float-start"> ' + convertToPersianAndFormat(rentString) + ' تومان </span><br/></div></div>';
+
+
+
+
+                                    //href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + ' ? Id = ' + item.AdvertisementId' & Type=' + item.RecordType + ''
+
+
+
+
+                                }
+
+                                //href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + ? Id = ' + item.AdvertisementId + ' & Type=' + item.RecordType + '
+                                var div = $('<div id="ad_' + (i + current_last) + '"></div>');
+
+                                if (address.includes('null')) {
+                                    address = "";
+                                }
+
+
+                                let result = "";
+
+                                result += '<a   class="advertisementDetail d-flex justify-content-between gap-3 bg-white p-2 my-1 mx-2 shadow-sm rounded-4 shadow-sm property-card" data-recordType="' + item.RecordType + '" data-advertisementId="' + item.AdvertisementId + '">' +
+                                    '<div style="width: 100%;">' +
+                                    '<h6 class="mb-1 fs-14 fw-bold" >' + item.AdvertisementTitle + '</h6>' +
+                                    labels +
+                                    priceDiv +
+                                    '<div class="">' +
+                                    '<span class="float-end">' + address + '</span>' +
+                                    '</div>' +
+                                    '<br />' +
+                                    '<span class="float-end pt-2" >' + displayTime + '</span>' +
+                                    '<span type="' + item.RecordType + '" id="heart_' + item.AdvertisementId + '" class="text-primary heartIcon pt-1 float-start rounded-circle icon mdi ' +
+                                    heartClass + ' mdi-18px"' + 'style=" width: 18px!important; min-width: 18px!important;">' +
+                                    '</span>';
+
+                                if (item.InstagramLink) {
+                                    result += '<span url="' + item.InstagramLink + '" class="instaIcon text-primary mdi-instagram ms-1 pt-1 float-start rounded-circle icon mdi mdi-18px"' + 'style=" width: 18px!important; min-width: 18px!important;">' +
+                                        '</span>';
+                                }
+
+                                result += '</div>' +
+                                    '<img class="rounded-4" style="height:125px;width:125px" src="' + imgSrc + '" title="' + item.AdvertisementTitle + '" />' +
+                                    '</a>' +
+                                    '</div>';
+
+                                div.html(result);
+                                debugger;
+
+                                $('#main-container').append(div);
+
+
+                                isLoading = false;
+                                $("#loading-div").hide();
+
+                            }
+
+                            current_last += response.Records.length;
+
+                        },
+                        error: function () {
+                            //$('#warningModal').modal("show");
+                            //$('#warningModal_text').html("خطا!");
+                            $("#loading-div").hide();
+                        }
+
+                    });
+
+                }
+            });
+
+            $('body').on('click', '.instaIcon', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                window.open($(this).attr('url'), '_blank');
+            });
+
+            $('body').on('click', '.heartIcon', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (!isAuthenticated) {
+                    $('#loginModal').modal('show');
+                    return;
+                }
+                var selectedHeartid = $(this).attr('id').split('_')[1];
+                let type = $(this).attr('type');
+                $.ajax({
+                    cache: false,
+                    type: "Post",
+                    url: "/UserMelkavan/MelkavanPanel/AdvertisementFavorite",
+                    data: { 'id': selectedHeartid, 'type': type },
+                    success: function (response) {
+
+
+
+                        if (response.Result == "OK") {
+
+                            var heartId = '#heart_' + response.Record;
+                            if ($(heartId).hasClass('mdi-cards-heart-outline') /*&& !response.Record.IsDeleted*/) {
+                                $(heartId).removeClass('mdi-cards-heart-outline');
+                                $(heartId).addClass('mdi-cards-heart');
+                            } else {
+                                $(heartId).removeClass('mdi-cards-heart');
+                                $(heartId).addClass('mdi-cards-heart-outline');
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error');
+                    }
+                });
+                console.log(selectedHeartid);
+            });
+
+            $('body').on('focus', '#open-search-form', function (e) {
+                e.preventDefault();
+                $("#special-offer").hide(1500);
+                //$('#btnfilter').show(1000);
+                $("#open-search-form").animate({ width: '250px' }, 1500);
+                //$("#special-offer").removeClass("d-flex");
+            });
+
+            $('body').on('focusout', '#open-search-form', function (e) {
+                e.preventDefault();
+                $("#open-search-form").animate({ width: '150px' }, 1500);
+                //$('#btnfilter').hide(1000);
+
+                $("#special-offer").show(1500);
+                //$("special-offer").animate({ width: '28px' }, 1500);
+                //window.setTimeout(function() { $("#special-offer").addClass("d-flex"); }, 200);
+            });
+
+            // $('.bannerSlick').slick({
+            //     infinite: false,
+            //     dots: false,
+            //     arrows: false,
+            //     speed: 300,
+            //     slidesToShow: 1.2,
+            //     slidesToScroll: 1,
+            //     rtl: true,
+            //     autoplay: true,
+            //     autoplaySpeed: 5000,
+            // });
+
+            $('body').on('click', '.advertisementDetail', function (e) {
+
+
+                e.preventDefault();
+                var _this = $(this);
+                var recordType = _this.attr('data-recordType');
+                var advertisementId = _this.attr('data-advertisementId');
+
+                // $.ajax({
+                //     cache: false,
+                //     type: "Post",
+                //     url: "/UserMelkavan/MelkavanPanel/AdvertisementDetails",
+
+                //     data: {
+                //         'Id': parseFloat(advertisementId),
+                //         'Type': recordType
+                //     },
+
+                //     success: function (result) {
+                //         if (result.Result == "OK") {
+
+                //         }
+                //         else
+                //             if (result.Result == "ERROR") {
+                //                 $('#my-warning-modal').find('.modal-title').html('خطا');
+                //                 $('#my-warning-modal').find('#error').html('خطا');
+                //                 $('#my-warning-modal').modal("show");
+                //             }
+                //     }
+
+                // });
+
+                window.location.href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + '?Id=' + advertisementId + '&Type=' + recordType;
+
+            });
+
+
+            $(window).trigger("scroll");
+        });
+    }(jQuery));
+
+
+</script>
+
+
+
+
+
+
+
+

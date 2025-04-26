@@ -1,0 +1,514 @@
+﻿<div class="content">
+    <h2 class="intro-y text-lg font-medium mt-10">
+        
+    </h2>
+    <div class="grid grid-cols-12 gap-6 mt-5">
+        <div class="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
+
+            <div data-tw-toggle="modal" data-tw-target="#CreatePropertyModal" class="bg-primary text-white rounded-md flex items-center" id="melk">ملک جدید   <i class="w-4 h-4" data-lucide="plus"></i></div>
+            @*             <div class="dropdown">
+
+            <button class="dropdown-toggle btn px-2 box" aria-expanded="false" data-tw-toggle="dropdown" id="AddToPropertiesBtn">
+            <span class="w-5 h-5 flex items-center justify-center"> <i class="w-4 h-4" data-lucide="plus"></i> </span>
+            </button>
+
+            </div> *@
+        </div>
+
+        <div class="col-span-12 mb-5" id="properties">
+        </div>
+
+
+
+        <input type="file" class="hidden" id="uploadDocumentFile" />
+
+
+
+        <div class="row">
+            <div id="largeImagePreview" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000;">
+                <img style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" id="largeImageContainer">
+                <video class="hidden" controls src="" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" id="largeVideoContainer"></video>
+                <a id="downloadImage" href="#" download style="position: absolute; bottom: 10px; left: 10px; background: rgba(0, 0, 0, 0.5); padding: 8px; border-radius: 50%; color: white; text-decoration: none;">
+                    &#x1F4E5; <!-- Unicode for a download icon -->
+                </a>
+            </div>
+        </div>
+
+
+
+        <!--dropdown-->
+        <div class="dropdown-menu w-40">
+            <ul class="dropdown-content">
+                <li>
+                    <a href="" class="dropdown-item"> <i data-lucide="users" class="w-4 h-4 mr-2"></i> Add Group </a>
+                </li>
+                <li>
+                    <a href="" class="dropdown-item"> <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> Send Message </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="divPagination bg-withe" style="display:grid; justify-content:center;" id="paginationDiv">
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="paginationDivUl"></ul>
+        </nav>
+    </div>
+</div>
+
+
+
+<!-- BEGIN: Create New Property Modal -->
+<div id="CreatePropertyModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div id="DialogCreateProperty" class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body text-center" tabindex="1">
+                <div style="position: relative;">
+                    <div class="modal-header">
+                        <h2 class="font-medium text-base mx-auto">ثبت ملک جدید</h2>
+                    </div>
+                    <div class="grid grid-cols-12 mb-3 flex mt-5" style="">
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">عنوان ملک<span style="color:red;">*</span></label>
+
+                                <input id="PropertyCodeName" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="نام ملک">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع ملک<span style="color:red;">*</span></label>
+                                <select id="PropertyTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع کاربری<span style="color:red;">*</span></label>
+                                <select id="TypeOfUseId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع سند<span style="color:red;">*</span></label>
+                                <select id="DocumentTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع ریشه سند<span style="color:red;">*</span></label>
+                                <select id="DocumentRootTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع مالکیت<span style="color:red;">*</span></label>
+                                <select id="DocumentOwnershipTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">مساحت<span style="color:red;">*</span></label>
+                                <input id="Area" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="متر مربع">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">زیربنا</label>
+                                <input id="Foundation" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="متر مربع">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">عمربنا</label>
+                                <select id="BuildingLifeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">سال بازسازی</label>
+                                <input id="RebuiltInYearFa" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">قیمت</label>
+                                <input id="OfferPrice" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="ریال">
+                            </div>
+
+                        </div>
+
+
+                        <div style="justify-content:space-around;" class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3 flex">
+
+                            <div class="flex items-center">
+                                <label for="Exchangeable" class="w-full">قابل معاوضه</label>
+                                <input id="Exchangeable" type="checkbox" class="mr-2 p-2.5 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+
+                            <div class="flex items-center">
+                                <label for="Participable" class="w-full">قابل مشارکت</label>
+                                <input id="Participable" type="checkbox" class="mr-2 p-2.5 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-12 font-medium py-3 px-3 mt-2">
+
+                            <div>
+                                <label class="flex mb-2" style="width:50%;">توضیحات تکمیلی</label>
+                                <textarea rows="5" id="PropertyDescriptions" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="توضیحات تکمیلی"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="col-span-12 flex justify-center items-center">
+                            <button id="createPropertyBtn" class="btn btn-primary text-white px-6">ثبت</button>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Create New Property Modal -->
+<!-- Delete Docs Modal -->
+<a class="flex items-center text-success" data-tw-toggle="modal" id="deleteModal" style="display:none" data-tw-target="#my-delete-modal"> </a>
+<div class="modal fade" id="my-delete-modal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button style="font-size:180%;" type="button" class="close" data-tw-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="error"> امکان بازگشت وجود ندارد آیا از تأیید  فرم اطمینان دارید ؟</p>
+            </div>
+            <div class="modal-footer">
+                <button id="myFileDeleteBtn" type="button" data-tw-dismiss="modal" class="btn btn-danger w-24 ml-1 confirmButton">بله</button>
+                <button type="button" data-tw-dismiss="modal" class="btn btn-secondary w-24">خیر</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete Maps Modal -->
+<a class="flex items-center text-success" data-tw-toggle="modal" id="deleteMapsModal" style="display:none" data-tw-target="#my-Mapsdelete-modal"> </a>
+<div class="modal fade" id="my-Mapsdelete-modal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button style="font-size:180%;" type="button" class="close" data-tw-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="error"> امکان بازگشت وجود ندارد آیا از تأیید  فرم اطمینان دارید ؟</p>
+            </div>
+            <div class="modal-footer">
+                <button id="myMapDeleteBtn" type="button" data-tw-dismiss="modal" class="btn btn-danger w-24 ml-1 confirmButton">بله</button>
+                <button type="button" data-tw-dismiss="modal" class="btn btn-secondary w-24">خیر</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- BEGIN: Edit Property Modal -->
+<div id="EditPropertyModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div id="DialogEditProperty" class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body text-center" tabindex="1">
+                <div style="position: relative;">
+                    <div class="modal-header">
+                        <h2 class="font-medium text-base mx-auto">ویرایش ملک</h2>
+                    </div>
+                    <div class="grid grid-cols-12 mb-3 flex mt-5" style="">
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">عنوان ملک<span style="color:red;">*</span></label>
+
+                                <input id="EditPropertyCodeName" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="نام ملک">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع ملک<span style="color:red;">*</span></label>
+                                <select id="EditPropertyTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع کاربری<span style="color:red;">*</span></label>
+                                <select id="EditTypeOfUseId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع سند<span style="color:red;">*</span></label>
+                                <select id="EditDocumentTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع ریشه سند<span style="color:red;">*</span></label>
+                                <select id="EditDocumentRootTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نوع مالکیت<span style="color:red;">*</span></label>
+                                <select id="EditDocumentOwnershipTypeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">مساحت<span style="color:red;">*</span></label>
+                                <input id="EditArea" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="متر مربع">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">زیربنا</label>
+                                <input id="EditFoundation" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="متر مربع">
+                            </div>
+
+                        </div>
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">عمربنا</label>
+                                <select id="EditBuildingLifeId" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                                    <option selected disabled></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">سال بازسازی</label>
+                                <input id="EditRebuiltInYearFa" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">قیمت</label>
+                                <input id="EditOfferPrice" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="ریال">
+                            </div>
+
+                        </div>
+
+
+                        <div style="justify-content:space-around;" class="col-span-6 lg:col-span-4 sm:col-span-12 font-medium py-3 px-3 flex">
+
+                            <div class="flex items-center">
+                                <label for="EditExchangeable" class="w-full">قابل معاوضه</label>
+                                <input id="EditExchangeable" type="checkbox" class="mr-2 p-2.5 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+
+                            <div class="flex items-center">
+                                <label for="EditParticipable" class="w-full">قابل مشارکت</label>
+                                <input id="EditParticipable" type="checkbox" class="mr-2 p-2.5 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-12 font-medium py-3 px-3 mt-2">
+
+                            <div>
+                                <label class="flex mb-2" style="width:50%;">توضیحات تکمیلی</label>
+                                <textarea rows="5" id="EditPropertyDescriptions" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="توضیحات تکمیلی"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="col-span-12 flex justify-center items-center">
+                            <button id="EditPropertyBtn" class="btn btn-primary text-white px-6">ویرایش</button>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Edit Property Modal -->
+
+<button data-tw-toggle="modal" id="openDistrictModalButton" style="display:none" data-tw-target="#DistrictModal"></button>
+<div id="DistrictModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div id="DialogDistrict" class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center" tabindex="1">
+                <div style="position: relative;">
+                    <div class="modal-header">
+                        <h2 class="font-medium text-base mx-auto">افزودن ناحیه</h2>
+                    </div>
+                    <div class="grid grid-cols-12 mb-3 flex mt-5" style="">
+                        <div class="col-span-12 font-medium py-3">
+
+                            <div class="flex items-center">
+                                <label style="width:50%;">نام ناحیه</label>
+                                <input id="addDistrictName" type="text" class="p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="نام ناحیه">
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-span-12 flex justify-center items-center">
+                            <button id="addDistrict" class="btn btn-primary text-white px-6">افزودن</button>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- BEGIN: Edit Features Modal -->
+<div id="EditFeaturesModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div style="width:auto;" id="DialogEditFeatures" class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body text-center" tabindex="1">
+                <div style="position: relative;">
+                    <div class="modal-header">
+                        <h2 class="font-medium text-base mx-auto">ویرایش امکانات</h2>
+                    </div>
+                    <div>
+
+
+
+
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                        <div class="container">
+                            <button class="accordion">Website Design and Development</button>
+                            <div class="accordion-content">
+                                <p>
+                                    Whether you need a wordpress website, a shopify site, or a custom fullstack application, we got you! No matter what kind of website or application you need, it will be made with clean and maintable code that follows modern development standards. We also have top notch designers that can make unique designs that will make your website look different and unique. Not to mention that we also provide 24/7 website maintenance so that you get all the support you need.
+                                </p>
+                            </div>
+
+                            <button class="accordion">Website Analytics and Performance</button>
+                            <div class="accordion-content">
+                                <p>
+                                    We believe that in order to have a successful website, you need to constantly adjust and adapt to the data provided by your website visitors. Here at Pierre Web Development, we have narrowed down the specific key performance indicators that will dramatically boost your success with connecting to target markets. We will provide a basic metric dashboard based on how much traffic your site gets, detailed analytical reports that show which parts of your website is the most popular among visitors as well as access to tools you can use to make meaningful decisions based on this data.
+                                </p>
+                            </div>
+
+                            <button class="accordion">Digital Marketing</button>
+                            <div class="accordion-content">
+                                <p>
+                                    We know that every great website focuses on helping you get more business and building a brand that your ideal customers will love and support. We can help you set up a great, SEO-focused content strategy, a paid ads campaign, email marketing integration with Mailchimp as well as a social media marketing campaign. We also use popular website analytic tools to track your site's performance and provide you with weekly analytic reports to help bolster your growth.
+                                </p>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-span-12 flex justify-center items-center">
+                            <button id="editFeaturesBtn" class="btn btn-primary text-white px-6">ثبت</button>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Create New Property Modal -->

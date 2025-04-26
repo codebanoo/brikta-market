@@ -1,0 +1,139 @@
+﻿
+@using VM.Console
+@using VM.Public;
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "پروفایل";
+}
+
+<script type="text/javascript">
+    @{
+        int personTypeId = 0;
+
+        @Html.Raw("var personTypeId;")
+        ;
+
+        if (ViewData["PersonTypeId"] != null)
+        {
+            personTypeId = (int)ViewData["PersonTypeId"];
+
+            @Html.Raw(" personTypeId = '" + personTypeId + "'; ");
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        string name = "";
+
+        @Html.Raw("var name;")
+        ;
+
+        if (ViewData["Name"] != null)
+        {
+            name = ViewData["Name"] as string;
+
+            @Html.Raw(" name = '" + name + "'; ");
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        string mobile = "";
+
+        @Html.Raw("var mobile;")
+        ;
+
+        if (ViewData["Mobile"] != null)
+        {
+            mobile = ViewData["Mobile"] as string;
+
+            @Html.Raw(" mobile = '" + mobile + "'; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        string family = "";
+
+        @Html.Raw("var family;")
+        ;
+
+        if (ViewData["Family"] != null)
+        {
+            family = ViewData["Family"] as string;
+
+            @Html.Raw(" family = '" + family + "'; ")
+            ;
+        }
+    }
+</script>
+
+
+<script type="text/javascript">
+    @{
+        string email = "";
+
+        @Html.Raw("var email;")
+        ;
+
+        if (ViewData["Email"] != null)
+        {
+            email = ViewData["Email"] as string;
+
+            @Html.Raw(" email = '" + email + "'; ")
+            ;
+        }
+    }
+</script>
+
+        
+<script type="text/javascript">
+    @{
+        string cityId = "";
+
+        @Html.Raw("var cityId;")
+        ;
+
+        if (ViewData["CityId"] != null)
+        {
+            cityId = ViewData["CityId"] as string;
+
+            @Html.Raw(" cityId = '" + cityId + "'; ")
+            ;
+        }
+    }
+</script>
+
+
+
+<script type="text/javascript">
+    @{
+        List<CitiesVM> citiesList = new List<CitiesVM>();
+
+        @Html.Raw("var citiesList = [];")
+        ;
+
+        if (ViewData["CitiesList"] != null)
+        {
+            citiesList = (List<CitiesVM>)ViewData["CitiesList"];
+
+            var citiesListData = citiesList.Select(c =>
+            new
+            {
+               DisplayText = $"{c.CityName}",
+               Value = c.CityId,
+               Data_StateId = c.StateId
+            });
+
+            @Html.Raw("debugger; citiesList = " +
+            JsonConvert.DeserializeObject(JsonConvert.SerializeObject(citiesListData)) + "; debugger;");
+        }
+    }
+</script>
+
+

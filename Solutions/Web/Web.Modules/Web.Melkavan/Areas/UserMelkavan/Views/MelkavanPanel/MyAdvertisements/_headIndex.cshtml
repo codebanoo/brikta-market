@@ -1,0 +1,62 @@
+﻿@using VM.Public;
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "آگهی های من";
+}
+
+@{
+    string domainName = "";
+    if (ViewData["DomainName"] != null)
+        domainName = ViewData["DomainName"] as string;
+}
+
+<script>
+    var domainName = "@domainName";
+</script>
+<style>
+    .choose {
+        background-color: white;
+        border: none;
+        color: black;
+        font-size: 20px;
+        cursor: pointer;
+        width: 80px;
+        height: 40px;
+        margin-right: 12px;
+        margin-top: 5px;
+    }
+
+    p {
+        font-size: 10px;
+        /*font-family: 'IRANYekanXFaNum-Light';*/
+        font-weight: 400 !important;
+        margin-top: 5px;
+    }
+
+    .btn {
+        padding: 5px !important;
+    }
+
+    .btnDiv {
+        width: 20%;
+        margin-left: 12px;
+    }
+
+    #count {
+        color: #f7f9fb;
+        background-color: red;
+        border-radius: 50%;
+        text-align: center;
+        /*    line-height: 1rem;*/
+        font-size: 12px;
+        margin: auto;
+        width: 22px;
+        height: 22px;
+        position: relative;
+        vertical-align: middle;
+        line-height: 25px;
+        left: -7rem;
+        top: 1rem;
+    }
+</style>

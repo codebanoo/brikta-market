@@ -1,0 +1,1320 @@
+﻿
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+
+
+        function setAdvertismentRecords(advertismentList, htmlSelector, propertyId) {
+
+            // console.log(advertismentList);
+            debugger;
+
+            $(htmlSelector).html('');
+            //$('#paginationDiv').addClass('d-none');
+            for (var j = 0; j < advertismentList.length; j++) {
+                let anchorElements = '';
+                let anchorImagesElements = '';
+                let anchorAdvertisementFeaturesValuesVMElements = '';
+                if (advertismentList[j].AdvertisementFeaturesValuesVM.length > 0) {
+
+                    for (let h = 0; h < advertismentList[j].AdvertisementFeaturesValuesVM.length; h++) {
+                        const featureValues = advertismentList[j].AdvertisementFeaturesValuesVM[h].FeatureValue.split(';');
+                        if (featureValues != null) {
+                            featureValues.forEach(value => {
+                                if (value.trim() !== "") {
+                                    anchorAdvertisementFeaturesValuesVMElements += `<div class="btn btn-secondary  inline-block ml-2  fitem" style="min-width: auto !important;width: auto !important;">${value}</div>`;
+                                }
+                            });
+                        }
+                        else {
+                            anchorAdvertisementFeaturesValuesVMElements = "";
+                        }
+                    }
+                }
+                if (advertismentList[j].AdvertisementFilesVM !== null && advertismentList[j].AdvertisementFilesVM.length > 0) {
+                    for (let h = 0; h < advertismentList[j].AdvertisementFilesVM.length && h <= 4; h++) {
+
+                        let isVideo = ['.mp4', '.avi', '.mov', '.mkv'].includes(advertismentList[j].AdvertisementFilesVM[h].AdvertisementFileExt);
+                        if (isVideo) {
+                            if (advertismentList[j].RecordType == 'Advertisement') {
+                                anchorElements += `
+                                                                                    <div class="w-10 h-10 image-fit zoom-in -ml-5 nearAdvertisementPhotos">
+                                                                                            <img src="/images/myBlack.png" class="rounded-full videoFile" videoSrc="/Files/AdvertisementsFiles/melkavan.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" >
+                                                                                    </div>
+                                                                                `;
+                                anchorImagesElements += `
+                                                                                    <div class="h-64 px-2">
+                                                                                        <div class="h-full image-fit rounded-md overflow-hidden">
+                                                                                                        <img class="videoFile" src="/images/myBlack.png" videoSrc="/Files/AdvertisementsFiles/melkavan.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" style="height: 100%; width: 100%;">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
+                            }
+                            else if (advertismentList[j].RecordType == 'Properties') {
+                                anchorElements += `
+                                                                                            <div class="w-10 h-10 image-fit zoom-in -ml-5 nearAdvertisementPhotos">
+                                                                                                        <img src="/images/myBlack.png" class="rounded-full videoFile" videoSrc="/Files/PropertiesFiles/my.teniaco.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" >
+                                                                                        </div>
+                                                                                    `;
+                                anchorImagesElements += `
+                                                                                        <div class="h-64 px-2">
+                                                                                            <div class="h-full image-fit rounded-md overflow-hidden">
+                                                                                                                    <img class="videoFile" src="/images/myBlack.png" videoSrc="/Files/PropertiesFiles/my.teniaco.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" style="height: 100%; width: 100%;">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
+                            }
+                        }
+                        else {
+                            if (advertismentList[j].RecordType == 'Advertisement') {
+                                anchorElements += `
+                                                                                    <div class="w-10 h-10 image-fit zoom-in -ml-5 nearAdvertisementPhotos">
+                                                                                        <img class="rounded-full" src="/Files/AdvertisementsFiles/melkavan.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" data-action="zoom">
+                                                                                    </div>
+                                                                                `;
+                                anchorImagesElements += `
+                                                                                    <div class="h-64 px-2">
+                                                                                        <div class="h-full image-fit rounded-md overflow-hidden">
+                                                                                                <img src="/Files/AdvertisementsFiles/melkavan.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" data-action="zoom" style="height: 100%; width: 100%;">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
+                            }
+                            else if (advertismentList[j].RecordType == 'Properties') {
+                                anchorElements += `
+                                                                                            <div class="w-10 h-10 image-fit zoom-in -ml-5 nearAdvertisementPhotos">
+                                                                                                <img class="rounded-full" src="/Files/PropertiesFiles/my.teniaco.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" data-action="zoom">
+                                                                                        </div>
+                                                                                    `;
+                                anchorImagesElements += `
+                                                                                        <div class="h-64 px-2">
+                                                                                            <div class="h-full image-fit rounded-md overflow-hidden">
+                                                                                                        <img src="/Files/PropertiesFiles/my.teniaco.com/${advertismentList[j].AdvertisementId}/Media/${advertismentList[j].AdvertisementFilesVM[h].AdvertisementFilePath}" data-action="zoom" style="height: 100%; width: 100%;">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
+                            }
+                        }
+
+
+                    }
+                }
+                else {
+                    anchorElements += `
+                                                                            <div class="w-10 h-10 image-fit zoom-in -ml-5 recordTitle nearAdvertisementPhotos">
+                                                                            <img style="object-fit:unset;" class="rounded-full" src="/images/Invert_Melkavan.jpg" data-action="zoom">
+                                                                        </div>
+                                                                    `;
+                    anchorImagesElements += `
+                                                                        <div class="h-64 px-2">
+                                                                            <div class="h-full image-fit rounded-md overflow-hidden">
+                                                                                <img src="/images/melkavan-new.png" data-action="zoom" style="height: 100%; width: 100%; object-fit:unset;">
+                                                                            </div>
+                                                                        </div>
+                                                                    `;
+                }
+
+
+
+                debugger;
+
+
+
+
+                var str = '<div class="col-span-12 md:col-span-6 xl:col-span-4 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mainDivContentRecord mb-2" id="rowOfProperties-' + advertismentList[j].AdvertisementId + '">'
+                    +
+                    '<div class="intro-x box"><div class="p-2"><div style="grid-template-columns: repeat(9, minmax(0, 1fr))" class="grid gap-5 items-center text-center nearAdvertisementsGrid"><div class="flex nearAdvertisementPhotosParent">'
+                    +
+                    anchorElements
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-center justify-center relative recordTitle "> <span style="display:none;" class="nearAdvertisementRecordTitle">فاصله تا ملک من: </span>' + advertismentList[j].DistanceFromMyProperty + 'متر فاصله</div>'
+                    +
+                    '<div class="text-center justify-center relative recordTitle " > <span style="display:none;" class="nearAdvertisementRecordTitle">نوع آگهی: </span>'
+                    +
+                    (
+                        (advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId === null ||
+                            advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId === undefined ||
+                            advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId === ''
+                            ? '-' :
+                            advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId === 1 ? 'اجاره' : (advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId === 2 ? 'فروش' : ''))
+                    )
+                    +
+                    '</div><div class="text-center justify-center relative recordTitle"> <span style="display:none;" class="nearAdvertisementRecordTitle">عنوان آگهی: </span>'
+                    +
+                    advertismentList[j].AdvertisementTitle
+                    +
+                    '</div><div class="text-center justify-center relative recordTitle"> <span style="display:none;" class="nearAdvertisementRecordTitle">مساحت: </span>'
+                    +
+                    advertismentList[j].Area
+                    +
+                    ' متر مربع </div><div class="text-center justify-center relative recordTitle"> <div style="text-align:start; justify-content:center; display:flex;"> <span style="display:none;" class="nearAdvertisementRecordTitle">قیمت: </span>'
+                    +
+                    (
+                        (
+                            advertismentList[j].AdvertisementPricesHistoriesVM === null ||
+                            (
+                                advertismentList[j].AdvertisementPricesHistoriesVM.OfferPrice === null &&
+                                advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                            )
+                        )
+                            ? '-'
+                            : (
+                                advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                                    ? Math.floor(advertismentList[j].AdvertisementPricesHistoriesVM.OfferPrice).toLocaleString()
+                                    : 'اجاره: ' +
+                                    (
+                                        advertismentList[j].AdvertisementPricesHistoriesVM.RentPrice === null ||
+                                            advertismentList[j].AdvertisementPricesHistoriesVM.RentPrice === undefined ||
+                                            advertismentList[j].AdvertisementPricesHistoriesVM.RentPrice === ''
+                                            ? '-'
+                                            : Math.floor(advertismentList[j].AdvertisementPricesHistoriesVM.RentPrice).toLocaleString()
+                                    ) +
+                                    ' ریال <br />' +
+                                    'ودیعه: ' +
+                                    (
+                                        advertismentList[j].AdvertisementPricesHistoriesVM.DepositPrice === null ||
+                                            advertismentList[j].AdvertisementPricesHistoriesVM.DepositPrice === undefined ||
+                                            advertismentList[j].AdvertisementPricesHistoriesVM.DepositPrice === ''
+                                            ? '-'
+                                            : Math.floor(advertismentList[j].AdvertisementPricesHistoriesVM.DepositPrice).toLocaleString()
+                                    )
+                            )
+                    )
+
+
+                    +
+                    ' ریال </div></div>  <div class="text-center justify-center relative recordTitle"> <span style="display:none;" class="nearAdvertisementRecordTitle">تاریخ آگهی: </span>'
+                    +
+                    (advertismentList[j].RegisterOrEditDate === null || advertismentList[j].RegisterOrEditDate === '' || advertismentList[j].RegisterOrEditDate === undefined ? '-' : advertismentList[j].RegisterOrEditDate)
+                    +
+                    '</div><div class="text-center justify-center relative recordTitle flex" > <i style="display:none;" class="nearAdvertisementAddressIcon material-symbols-outlined location_on fs40  ml-1">location_on</i> <span style="display:none;" class="nearAdvertisementRecordTitle">آدرس: </span>'
+                    +
+
+                    (
+                        (
+                            advertismentList[j].AdvertisementAddressVM === null ||
+                            advertismentList[j].AdvertisementAddressVM.StateName === null ||
+                            advertismentList[j].AdvertisementAddressVM.CityName === null ||
+                            advertismentList[j].AdvertisementAddressVM.ZoneName === null
+                        )
+                            ? '-'
+                            : (
+                                advertismentList[j].AdvertisementAddressVM.StateName +
+                                (advertismentList[j].AdvertisementAddressVM.CityName !== null && advertismentList[j].AdvertisementAddressVM.CityName !== '' ? ` / ${advertismentList[j].AdvertisementAddressVM.CityName}` : '') +
+                                (advertismentList[j].AdvertisementAddressVM.ZoneName !== null && advertismentList[j].AdvertisementAddressVM.ZoneName !== '' ? ` / ${advertismentList[j].AdvertisementAddressVM.ZoneName}` : '') +
+                                (advertismentList[j].AdvertisementAddressVM.TownName !== null && advertismentList[j].AdvertisementAddressVM.TownName !== '' ? ` / ${advertismentList[j].AdvertisementAddressVM.TownName}` : '')
+                            )
+                    )
+
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-center justify-center relative"><div class="flex justify-center items-center"><a style="color: rgb(84 162 219); cursor:pointer;" propertyId="' + propertyId + '" advertisementId=' + advertismentList[j].AdvertisementId + ' class="flex items-center setDetailModal" data-setDetailModalId="propertyDetail-' + advertismentList[j].AdvertisementId + '" "><i style="" myTitle="مشاهده جزئیات" class="material-symbols-outlined dekstopDetailsButton">more_horiz</i><button class="btn mobileDetailsButton">جزئیات</button></a></div></div></div></div></div></div>'
+                    +
+                    ' <div propertyId="' + propertyId + '" class="advertisementRow col-span-12 md:col-span-7 xl:col-span-4 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mb-2" style="display:none" advertisementId="' + advertismentList[j].AdvertisementId + '"><div style="background-color: whitesmoke;" class="intro-y box p-2 pt-4"><div class="single-item"><div class="intro-y col-span-12 md:col-span-6 lg:col-span-4 xl:col-span-3"><div class="box" dir="ltr" style="font-weight: 500; background-color: whitesmoke;"><div style="background-color: whitesmoke;" class="box sm:flex nearDetailsBox"><div style="background-color: whitesmoke; position:relative;" class=" flex flex-col justify-center flex-1"><div class="map-label hidden">قیمت به میلیارد ریال</div>'
+                    +
+                    '<div propertyId="' + propertyId + '" advertisementId=' + advertismentList[j].AdvertisementId + ' class="w-100 ml-2 mr-2 mb-2 h-64 MapHolder">'
+                    +
+                    '<div class="single-item">'
+                    +
+                    anchorImagesElements
+                    +
+                    '</div></div>'
+                    +
+                    '<div style="margin-top:10px;" class="flex mx-6 " id="propertyDetailButtons">'
+                    +
+                    '<a class="flex items-center text-success" data-tw-toggle="modal" id="ChartModal-c-' + advertismentList[j].AdvertisementId + '"  style="display:none" data-tw-target="#ChartModal">'
+                    +
+                    '<a myTitle="نمودار بازدید" recordType="' + advertismentList[j].RecordType + '" data-advertismentId="' + advertismentList[j].AdvertisementId + '" id="setChartOfViewersModalId">'
+                    +
+
+                    '<button style="position:relative;" class="rounded-full btn btn-primary mr-1 mb-2">'
+                    +
+                    '<div id="countOfView" style="line-height: 24px; left:-6px; bottom:-6px;"> ' + ((advertismentList[j].ViewersTotalCount != null) ? advertismentList[j].ViewersTotalCount : 0) + ' </div>'
+                    +
+                    '<svg  width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="eye" data-lucide="eye" class="lucide lucide-eye w-5 h-5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+                    +
+                    '</button></a>'
+                    +
+
+                    '<a data-tw-toggle="modal" data-tw-target="#ProfileModal" style="display:none" id="openProfileModalButton-' + advertismentList[j].AdvertisementId + '"></a>'
+
+                    +
+                    '<a myTitle="مشخصات آگهی دهنده" id="setProfileModalId" data-advertiserId="' + advertismentList[j].AdvertiserId + '" data-AdvId="' + advertismentList[j].AdvertisementId + '">'
+
+                    +
+                    '<button class="rounded-full btn btn-primary mr-1 mb-2"> <svg  width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" icon-name="phone" data-lucide="phone" class="lucide lucide-phone w-5 h-5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"></path></svg> </button>'
+                    +
+                    '</a>'
+                    +
+
+                    '<a id="melkavanLink" myTitle="لینک آگهی ملکاوان" target="_blank" href="https://melkavan.com/UserMelkavan/MelkavanPanel/AdvertisementDetails?Id=' + advertismentList[j].AdvertisementId + '&Type=' + advertismentList[j].RecordType + '" style="height:38px; width:46px;" class="rounded-full btn btn-primary mr-1 mb-2" > <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="70 -960 820 960" width="24px" fill="#e7e7e7"><path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z"/></svg> </a>'
+
+                    +
+
+                    '<a propertyId="' + propertyId + '" myTitle="موقعیت آگهی" id="setMapModalId" offerPrice="' + advertismentList[j].AdvertisementPricesHistoriesVM.OfferPrice + '" recordType="' + advertismentList[j].RecordType + '" data-setMapModal-Id="' + advertismentList[j].AdvertisementId + '" data-setMapModal-Lat="' + (advertismentList[j].AdvertisementAddressVM?.LocationLat ?? '') + '" data-setMapModal-Lon="' + (advertismentList[j].AdvertisementAddressVM?.LocationLon ?? '') + '"style="height:38px; width:46px;" class="rounded-full btn btn-primary mr-1 mb-2" > <i style="font-weight:200;" class="material-symbols-outlined">pin_drop</i></a>'
+                    +
+                    '<a class="flex items-center text-success" data-tw-toggle="modal" id="modal-c-' + advertismentList[j].AdvertisementId + '" style="display:none" data-tw-target="#Map-Modal"></a>'
+
+                    +
+                    '</div>'
+                    +
+
+                    `<div style="display:none;" class="hiddenAdvertisementMobileTitle text-xl text-center px-4 mt-10 flex flex-col justify-center flex-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-darkmode-300 border-dashed">` + advertismentList[j].AdvertisementTitle + `</div>`
+
+                    +
+                    '</div>'
+                    //section 3
+                    +
+                    '<div class=" w-30-detail"><div class="nearAdvertisementDetailColumn px-4 py-8 mt-10 flex flex-col justify-center flex-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-darkmode-300 border-dashed text-right"><div class="text-slate-500  text-xs mt-5 text-primary detailFontSize">'
+                    +
+                    ((advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                        ? (advertismentList[j].DocumentTypeTitle === null || advertismentList[j].DocumentTypeTitle === '' || advertismentList[j].DocumentTypeTitle === undefined ? ' - : <span class="text-slate-400">نوع سند</span>' : ' <span class="text-slate-400">نوع سند</span> : ' + advertismentList[j].DocumentTypeTitle)
+                        :
+                        (advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM === null ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === null ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === '' ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === undefined ? ' -  :  <span class="text-slate-400">عمر بنا</span>' : ' <span class="text-slate-400">عمر بنا</span> : ' + advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle)
+                    ))
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize ">'
+                    +
+                    ((advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                        ? (advertismentList[j].DocumentRootTypeTitle === null || advertismentList[j].DocumentRootTypeTitle === undefined || advertismentList[j].DocumentRootTypeTitle === '' ? ' - : <span class="text-slate-400">نوع ریشه سند</span>' : ' <span class="text-slate-400">نوع ریشه سند</span> : ' + advertismentList[j].DocumentRootTypeTitle)
+
+                        :
+                        (advertismentList[j].RebuiltInYearFa === 0 || advertismentList[j].RebuiltInYearFa === undefined || advertismentList[j].RebuiltInYearFa === '' || advertismentList[j].RebuiltInYearFa === null ? ' - : <span class="text-slate-400">سال  بازسازی</span>' : '<span class="text-slate-400">سال  بازسازی</span> : ' + advertismentList[j].RebuiltInYearFa)
+                    ))
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+
+                    ((advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                        ?
+                        (advertismentList[j].DocumentOwnershipTypeTitle === null || advertismentList[j].DocumentOwnershipTypeTitle === '' || advertismentList[j].DocumentOwnershipTypeTitle === undefined ? ' - : <span class="text-slate-400">نوع مالکیت سند</span>' : ' <span class="text-slate-400">نوع مالکیت سند</span> : ' + advertismentList[j].DocumentOwnershipTypeTitle)
+                        :
+                        ''
+                    ))
+                    +
+                    '</div>'
+                    +
+                    '</div></div>'
+                    +
+                    '<div class=" w-30-detail">'
+                    +
+                    '<div class="nearAdvertisementDetailColumn px-4 py-8 mt-10 flex flex-col justify-center flex-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-darkmode-300 border-dashed text-right"> '
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    //section 2
+                    +
+                    (advertismentList[j].AdvertisementDetailsVM.Foundation === null || advertismentList[j].AdvertisementDetailsVM.Foundation === '' || advertismentList[j].AdvertisementDetailsVM.Foundation === undefined ? ' - : <span class="text-slate-400">زیر بنا</span>' : ' <span class="text-slate-400">زیر بنا</span> : ' + advertismentList[j].AdvertisementDetailsVM.Foundation + 'متر مربع')
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+
+                    ((advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                        ? (advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM === null ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === null ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === '' ||
+                            advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle === undefined ? ' - : <span class="text-slate-400">عمر بنا</span>' : ' <span class="text-slate-400">عمر بنا</span> : ' + advertismentList[j].AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle)
+                        : (advertismentList[j].AdvertisementDetailsVM.MaritalStatusId === null || advertismentList[j].AdvertisementDetailsVM.MaritalStatusId === '' || advertismentList[j].AdvertisementDetailsVM.MaritalStatusId === undefined
+                            ? ' - : <span class="text-slate-400">وضعیت تأهل</span>'
+                            : advertismentList[j].AdvertisementDetailsVM.MaritalStatusId === 0
+                                ? ' <span class="text-slate-400">وضعیت تأهل</span> : مهم نیست'
+                                : advertismentList[j].AdvertisementDetailsVM.MaritalStatusId === 1
+                                    ? ' <span class="text-slate-400">وضعیت تأهل</span> : متاهل'
+                                    : ' <span class="text-slate-400">وضعیت تأهل</span> : مجرد')))
+                    +
+
+                    '</div>'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+                    ((advertismentList[j].AdvertisementDetailsVM.AdvertisementTypeId !== 1
+                        ?
+                        (advertismentList[j].RebuiltInYearFa === 0 || advertismentList[j].RebuiltInYearFa === undefined || advertismentList[j].RebuiltInYearFa === '' || advertismentList[j].RebuiltInYearFa === null ? ' - : <span class="text-slate-400">سال  بازسازی</span>' : '<span class="text-slate-400">سال  بازسازی</span> :' + advertismentList[j].RebuiltInYearFa)
+                        :
+                        (advertismentList[j].AdvertisementDetailsVM.Convertable === null || advertismentList[j].AdvertisementDetailsVM.Convertable === '' || advertismentList[j].AdvertisementDetailsVM.Convertable === undefined
+                            ? ' - : <span class="text-slate-400">قابل تبدیل</span>'
+                            : advertismentList[j].AdvertisementDetailsVM.Convertable === false
+                                ? '<span class="text-slate-400">قابل تبدیل</span> :  نمی باشد'
+                                :
+                                '<span class="text-slate-400">قابل تبدیل</span> :  می باشد'
+                        )
+                    ))
+                    +
+                    '</div>'
+                    +
+                    '</div></div>'
+                    //section 1
+                    +
+                    '<div class=" w-30-detail">'
+                    +
+                    '<div style="position:absolute; right:0;" class="advertisementTitleDekstop text-xl px-4 mt-2 flex flex-col justify-center flex-1 text-right">'
+                    +
+                    advertismentList[j].AdvertisementTitle
+                    +
+                    ' </div>'
+                    +
+                    ' <div class="nearAdvertisementDetailColumn px-8 py-8 mt-10 flex flex-col justify-center flex-1 border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-darkmode-300 border-dashed text-right">'
+                    +
+                    '<div class="text-slate-500 text-xs text-primary mt-5 detailFontSize nearAdvertisementPropertyTypeTilte">'
+                    +
+                    (advertismentList[j].PropertyTypeTilte === null || advertismentList[j].PropertyTypeTilte === '' || advertismentList[j].PropertyTypeTilte === undefined ? ' - : <span class="text-slate-400">نوع ملک</span> ' : ' <span class="text-slate-400">نوع ملک</span> : ' + advertismentList[j].PropertyTypeTilte)
+                    +
+                    '</div>'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+                    (advertismentList[j].TypeUseTitle === null || advertismentList[j].TypeUseTitle === '' || advertismentList[j].TypeUseTitle === undefined ? ' - : <span class="text-slate-400">نوع کاربری</span>' : ' <span class="text-slate-400">نوع کاربری</span> : ' + advertismentList[j].TypeUseTitle)
+                    +
+                    '</div>'
+                    +
+
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+                    (advertismentList[j].Area === null || advertismentList[j].Area === undefined || advertismentList[j].Area === '' ? '  - : <span class="text-slate-400">مساحت</span>' : ' <span class="text-slate-400">مساحت</span> : ' + advertismentList[j].Area + 'متر مربع')
+                    +
+                    '</div>'
+                    +
+                    '</div></div>'
+                    +
+                    '<div class="row w-50 h-10 nearAdvertisementDescriptions">'
+                    +
+                    '<div class="text-slate-500 text-xs mt-5 text-primary detailFontSize">'
+                    +
+
+                    ' : <span class="text-slate-400">توضیحات</span>'
+
+                    +
+                    (
+                        (
+                            advertismentList[j].AdvertisementDescriptions === null ||
+                            advertismentList[j].AdvertisementDescriptions === undefined ||
+                            advertismentList[j].AdvertisementDescriptions === ''
+                        )
+                            ? '<div>-</div>'
+                            : (
+                                (advertismentList[j].AdvertisementDescriptions.length > 150)
+                                    ? '<div style="line-height: 25px;" id="tooltipId-' + advertismentList[j].AdvertisementId + '">' +
+                                    '...' + advertismentList[j].AdvertisementDescriptions.substring(0, 150) + '</div>'
+                                    : '<div>' + advertismentList[j].AdvertisementDescriptions + '</div>'
+                            ) +
+                            (
+                                (advertismentList[j].AdvertisementDescriptions.length > 150)
+                                    ? '<div id="TooltipValue-' + advertismentList[j].AdvertisementId + '" style="display: none;">' +
+                                    advertismentList[j].AdvertisementDescriptions + '</div>'
+                                    : ''
+                            )
+                    )
+
+                    +
+                    '</div></div></div>'
+                    +
+                    ((anchorAdvertisementFeaturesValuesVMElements === null || anchorAdvertisementFeaturesValuesVMElements === '' ? '' : '<div dir="rtl" class="g-scrolling-carousel carousel-three mt-2"><div class="items">' + anchorAdvertisementFeaturesValuesVMElements))
+                    +
+                    '</div></div></div></div></div></div></div></div>';
+                $(htmlSelector).append(str);
+                var tippyAddress = '#tooltipId-' + advertismentList[j].AdvertisementId
+                var tippyContentAddress = '#TooltipValue-' + advertismentList[j].AdvertisementId
+                tippy(tippyAddress, {
+                    content: $(tippyContentAddress).html()
+                });
+
+
+                let tooltipElements = ['#setMapModalId', '#setProfileModalId', '#setChartOfViewersModalId', '#melkavanLink'];
+                for (let i = 0; i < tooltipElements.length; i++) {
+                    tippyAddress = tooltipElements[i];
+                    tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                    });
+                }
+
+            }
+
+            $(".carousel-three .items").gScrollingCarousel({
+                scrollAmount: true,
+                mouseScrolling: true,
+                draggable: true,
+                snapOnDrag: true,
+            });
+
+
+
+
+
+
+            if ($(".single-item").length) {
+                $(".single-item").each(function () {
+                    tns({
+                        container: this,
+                        slideBy: "page",
+                        mouseDrag: true,
+                        autoplay: false,
+                        controls: true,
+                        nav: false,
+                        speed: 500,
+                    });
+                });
+            }
+        }
+
+
+
+
+
+        if (typeof String.prototype.toPersinaDigit !== 'function') {
+            String.prototype.toPersinaDigit = function () {
+                return this.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+            };
+        }
+
+        // Kia :: Active Menu By Class Every Area Spefic has been repeated
+        $(".side-nav ul li:nth-child(6)").addClass("activemenu");
+        $(".side-nav ul li:nth-child(6) a").addClass("activemenu-link");
+        $(".side-nav ul li:nth-child(6) a").removeClass("side-menu");
+        $(".side-nav ul li:nth-child(6) a .side-menu__title").addClass("activemenu-text");
+
+
+
+        // if (advertisementVMList === null || advertisementVMList === '' || advertisementVMList === undefined || advertisementVMList.length <= 0) {
+        //     $('#my-warning-modal').find('.modal-title').html('خطا');
+        //     $('#my-warning-modal').find('#error').html('خطا');
+        //     return $('#warningModal')[0].click();
+        // }
+
+
+        function LoadMyPropertiesWithPagination(pageNum) {
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MelkavanPropertiesManagement/GetListOfMelkavanProperties",
+                data: { 'pageNum': pageNum, 'pageSize': '10' },
+                success: function (response) {
+                    let properties = response.Records;
+                    let htmlResult = ``;
+
+                    for (let i = 0; i < properties.length; i++) {
+                        let mainPhoto = properties[i].Photos.find(photo => photo.PropertyFileOrder === 1);
+                        let finalPhoto = (!mainPhoto) ? '/images/mainThumb.jpg' : '/Files/PropertiesFiles/my.teniaco.com/' + properties[i].PropertyId + '/media/thumb_' + mainPhoto.PropertyFilePath;
+
+                        if (window.innerWidth <= 768) {
+                            htmlResult += `
+                                                        <div style="margin-top:50px;" class="block w-full border-b border-gray-300 relative">
+                                                         <div id="basic-accordion">
+                                                              <div class="preview">
+                                                                      <div class="accordion" id="faq-accordion-`+ properties[i].PropertyId + `">
+                                                                       <div class="accordion-item">
+                                                                            <div id="faq-accordion-content-1" class="accordion-header">
+
+
+                                                                                                                                    <img propertyId="`+ properties[i].PropertyId + `" class="myPropertyPhoto" src="` + finalPhoto + `">
+
+
+                                                                                                            <a style="padding-top: 145px; padding-bottom:15px;" propertyId=`+ properties[i].PropertyId + ` href="#faq-accordion-` + properties[i].PropertyId + `" class="clickableAccordian clickableAccordianmd pointer mr-auto font-medium text-2xl" type="button" data-tw-toggle="collapse" data-tw-target="#faq-accordion-collapse-` + properties[i].PropertyId + `" aria-expanded="false" aria-controls="faq-accordion-collapse` + properties[i].PropertyId + `" id="` + properties[i].PropertyId + `">
+
+                                                                                <div class="p-2 text-center justify-center flex items-center">
+                                                           <div class="nProject flex items-stretch  text-slate-600 text-base">
+                                                                   <i style="margin-top: -3px;" class="material-symbols-outlined text-sinacolor ml-1">home</i>
+                                                               `+ properties[i].PropertyCodeName + `
+                                                           </div>
+                                                        </div>
+                                                                                <div class="p-2   text-center justify-center flex items-center">
+                                                                       <span class="text-center text-base  text-slate-600">`+ properties[i].Area.toPersinaDigit() + ` مترمربع</span>
+                                                        </div>
+                                                                                <div class="p-2   text-center justify-center flex items-center">
+                                                                                                                         <span class="block font-sans text-lg antialiased font-normal leading-normal text-sinacolor">قیمت متری: `+ properties[i].PricePerMeter.toLocaleString().toPersinaDigit() + ` ریال</span>
+
+                                                        </div>
+
+                                                             <div class="p-2   text-center justify-center flex items-center">
+                                                                                                                                 <span class="block font-sans text-lg antialiased font-normal leading-normal text-sinacolor">قیمت کل: `+ properties[i].TotalPrice.toLocaleString().toPersinaDigit() + ` ریال</span>
+
+                                                            </div>
+
+                                                                  <div class="p-2   text-center justify-center flex items-center">
+                                                                          <i class="material-symbols-outlined location_on fs40  text-sinacolor ml-1">location_on</i>`;
+                            // if (properties[i].StateName) htmlResult += ` <span class="text-center text-base  text-slate-600">` + properties[i].StateName + `/` + properties[i].CityName + `/` + properties[i].ZoneName + `</span>`;
+                            // else htmlResult += ` <span class="text-center text-base  text-slate-600">آدرس وارد نشده</span>`;
+
+                            htmlResult += ` </div>
+
+
+
+                                                                       </a><div id="faq-accordion-collapse-`+ properties[i].PropertyId + `" aria-labelledby="faq-accordion-content-1" data-tw-parent="#faq-accordion-collapse-` + properties[i].PropertyId + `"><div class="accordion-body  text-slate-600 dark:text-slate-500 leading-relaxed" data-body="` + properties[i].PropertyId + `" style="display: none;"><div class="grid grid-cols-12 gap-6 rowOfProjects" data-constructionprojectid="` + properties[i].PropertyId + `">
+
+                                                                        <div propertyId=`+ properties[i].PropertyId + ` class="col-span-12 mt-4 AdvertismentRecords"> </div>
+
+                                                                   </div></div></div></div></div></div></div></div></div>
+                                                    `;
+                        }
+
+                        else {
+
+                            htmlResult += `
+                                                                                                <div class="block w-full border-b border-gray-300">
+                                                                            <div id="basic-accordion">
+                                                                                <div class="preview">
+                                                                                        <div class="accordion" id="faq-accordion-`+ properties[i].PropertyId + `">
+                                                                                        <div class="accordion-item">
+                                                                                            <div id="faq-accordion-content-1" class="accordion-header">
+
+                                                                                                                        <a propertyId=`+ properties[i].PropertyId + ` href="#faq-accordion-` + properties[i].PropertyId + `" class="flex justify-center p-3 clickableAccordian pointer mr-auto font-medium text-2xl" type="button" data-tw-toggle="collapse" data-tw-target="#faq-accordion-collapse-` + properties[i].PropertyId + `" aria-expanded="true" aria-controls="faq-accordion-collapse` + properties[i].PropertyId + `" id="` + properties[i].PropertyId + `">
+
+
+                                                                                                    <div class="w-1/5 p-2 text-center justify-center flex items-center">
+                                                                                                        <div class="nProject flex items-stretch  text-base text-slate-600">
+                                                                                                                    <i style="margin-top: -3px; color: rgb(84 162 219);" class="material-symbols-outlined ml-1">home</i>
+                                                                                                            `+ properties[i].PropertyCodeName + `
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div class="w-1/5 p-2   text-center justify-center flex items-center">
+                                                                                                        <span class="text-center text-base text-slate-600">`+ properties[i].Area.toPersinaDigit() + ` </span><div class="AreaMeter"><span class="Squre">مربع</span><span>متر</span></div>
+                                                                                                    </div>
+                                                                                                    <div class="w-1/5 p-2   text-center justify-center flex items-center">
+                                                                                                                        <span class="text-center text-base text-slate-600">`+ properties[i].PricePerMeter.toLocaleString().toPersinaDigit() + ` ریال</span>
+
+                                                                                                    </div>
+                                                                                                    <div class="w-1/5 p-2  text-center justify-center flex items-center">
+                                                                                                                     <span class="text-center text-base text-slate-600">`+ properties[i].TotalPrice.toLocaleString().toPersinaDigit() + ` ریال</span>
+                                                                                                    </div>
+                                                                                                    <div class="w-1/5 p-2 text-center justify-center flex items-center">
+                                                                                                        <div class="nProject flex items-stretch  text-base text-slate-600">`;
+
+                            if (properties[i].StateName) {
+                                htmlResult += `<i style="color: rgb(84 162 219);" class="material-symbols-outlined location_on fs40 ml-1">location_on</i>
+                                            <span class="text-center text-base  text-slate-600">` + properties[i].StateName + `/` + properties[i].CityName + `/` + properties[i].ZoneName + `</span>
+                                        `;
+                            }
+                            else {
+                                htmlResult += `<i title="فاقد آدرس" style="color: rgb(84 162 219);" class="material-symbols-outlined location_on fs40 ml-1">location_off</i>`;
+                            }
+
+
+
+
+                            htmlResult += `</div>
+                                                                                                    </div>
+
+                                                                                                        </a><div id="faq-accordion-collapse-`+ properties[i].PropertyId + `" aria-labelledby="faq-accordion-content-1" data-tw-parent="#faq-accordion-collapse-` + properties[i].PropertyId + `" class="" style="display: none;">
+                                                                                                        <div class="accordion-body  text-slate-600 dark:text-slate-500 leading-relaxed" data-body="`+ properties[i].PropertyId + `" style="display: contents;">
+                                                                                                            <div class="grid grid-cols-12 gap-6 rowOfProjects" data-constructionprojectid="`+ properties[i].PropertyId + `">
+                                                                                                            <div class="col-span-12">
+
+
+                                                                                                               <div class="col-span-12 md:col-span-7 xl:col-span-12 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mt-4" id="titlesOfProperties">
+                                                                                                                       <div style="grid-template-columns: repeat(9, minmax(0, 1fr)) !important;" class="grid gap-4 mt-5">
+                                                                                                                           <div style="text-align:right;" class="whitespace-nowrap hidden">عکس</div>
+                                                                                                                        <div class="text-center whitespace-nowrap recordsTitle hidden"> فاصله تا ملک من</div>
+                                                                                                                           <div class="text-center whitespace-nowrap recordsTitle hidden"> نوع آگهی</div>
+                                                                                                                       <div class="text-center whitespace-nowrap recordsTitle hidden">عنوان ملک</div>
+                                                                                                                           <div class="text-center whitespace-nowrap recordsTitle hidden">مساحت</div>
+                                                                                                                       <div class="text-center whitespace-nowrap recordsTitle hidden">قیمت پیشنهادی</div>
+                                                                                                                       <div class="text-center whitespace-nowrap recordsTitle hidden">زمان ثبت آگهی</div>
+                                                                                                                           <div class="text-center whitespace-nowrap recordsTitle hidden">آدرس</div>
+                                                                                                                           <div class="text-center whitespace-nowrap recordsTitle hidden">جزئیات ملک</div>
+                                                                                                                   </div>
+                                                                                                               </div>
+
+                                                                                                                           <div propertyId=`+ properties[i].PropertyId + ` class="col-span-12 md:col-span-7 xl:col-span-12 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mt-4 AdvertismentRecords"> </div>
+
+
+
+
+                                                                                                            </div>
+                                                                                                                <div data-constructionprojectid="`+ properties[i].PropertyId + `" class="chartsPanel col-span-12 xxl:col-span-3 xl:col-span-6 llg:col-span-4 lg:col-span-6 mt-2 md:col-span-12 sm:col-span-12 xs:col-span-12 lg:mt-2 xl:mt-2">
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>`;
+
+                        }
+
+
+                    } // end of properties loop
+                    $('#mainDiv').html(htmlResult);
+
+
+
+                    //Pagination
+                    var paginationDiv = $("#paginationDiv");
+                    if (response.TotalRecordCount !== null && response.TotalRecordCount !== 0 && response.TotalRecordCount > 10) {
+                        var pageNumber = parseInt(pageNum);
+                        var pageSize = 10;
+                        var count = Math.ceil(response.TotalRecordCount / pageSize);
+                        window.pagObj = $('#paginationDiv').twbsPagination({
+                            totalPages: count,
+                            activeClass: "activePage",
+                            visiblePages: 3,
+                            last: ">>",
+                            first: "<<",
+                            prev: "<",
+                            next: ">",
+                            onPageClick: function (event, pageNumber) {
+                                LoadMyPropertiesWithPagination(pageNumber)
+                            }
+                        }).on('page', function (event) {
+
+                        });
+                    }
+
+                } // end of success
+            }); // end of ajax
+        } // end of LoadMyPropertiesWithPagination function
+
+        LoadMyPropertiesWithPagination(1);
+
+
+
+
+        $('body').on('click', '.myPropertyPhoto', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.clickableAccordian[propertyId=' + propertyId + ']').trigger('click');
+        });
+
+
+        $('body').on('click', '.clickableAccordian', function (e) {
+
+
+            var _this = $(this);
+            var toggle = _this.attr('data-tw-target');
+            if (!toggle) return; // Ensure toggle exists.
+
+            var id = parseInt(toggle.match(/\d+$/)[0]);
+            let target1 = $(`#faq-accordion-collapse-${id}`);
+
+            // If the clicked accordion is already open, close it
+            if (target1.hasClass('show')) {
+                // Close the currently open accordion
+                target1.removeClass('show').slideUp(300);
+
+                // Revert the text and radial-progress styles for the clicked accordion
+                _this.find('.text-white').removeClass('text-white').addClass('text-slate-600');
+                _this.find('svg.radial-progress').css({
+                    'stroke': '',
+                    'fill': ''
+                });
+
+                // Remove the 'bg-primary' class from the clicked element
+                _this.removeClass('bg-primary');
+            } else {
+
+                let propertyId = $(this).attr('propertyId');
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/UserTeniaco/MelkavanPropertiesManagement/GetListOfNearAdvertisementsWithPropertyId",
+                    data: { 'propertyId': propertyId, 'recordType': 'Properties' },
+                    success: function (result) {
+                        let records = result.Records;
+                        console.log(records);
+                        if (records.length > 0)
+                            setAdvertismentRecords(records, '.AdvertismentRecords[propertyId=' + propertyId + ']', propertyId);
+                    }
+                });
+
+
+
+
+                debugger;
+                // Close all other accordions
+                $('.accordion-collapse.show').each(function () {
+                    $(this).removeClass('show').slideUp(300);
+                });
+
+                // Reset styles for all other clickableAccordians
+                $('.clickableAccordian').each(function () {
+                    $(this).find('.text-white').removeClass('text-white').addClass('text-slate-600');
+                    $(this).find('svg.radial-progress').css({
+                        'stroke': '',
+                        'fill': ''
+                    });
+                    $(this).removeClass('bg-primary');
+                });
+
+                // Open the clicked accordion
+                target1.addClass('show').slideDown(300);
+
+                // Apply styles for the clicked accordion
+                _this.find('.text-slate-600').removeClass('text-slate-600').addClass('text-white');
+                _this.find('svg.radial-progress').css({
+                    'stroke': '#fff',
+                    'fill': '#fff'
+                });
+                _this.addClass('bg-primary');
+            }
+
+            // Show the corresponding accordion-body
+            $('.accordion-body').css("display", "none"); // Hide all
+            var targetBody = $(`.accordion-body[data-body="${id}"]`);
+            if (targetBody.length) {
+                targetBody.css("display", "contents");
+            }
+
+            // Enable scrolling in the scrollbox if needed.
+            $('.scrollbox-overflowed').css("overflow", "auto");
+        });
+
+
+
+
+        debugger;
+        //setAdvertismentRecords(advertisementVMList, 1, CountOfListadvertisementVMList)
+        debugger;
+        $('#paginationDiv').removeClass('d-none')
+        if (CountOfListadvertisementVMList != null) {
+            if (CountOfListadvertisementVMList.length > 0) {
+                var pageNumber = parseInt(1);
+                var pageSize = 50;
+                var count = Math.ceil(parseInt(CountOfListadvertisementVMList) / pageSize);
+                window.pagObj = $('#paginationDiv').twbsPagination({
+                    totalPages: count,
+                    visiblePages: 3,
+                    last: ">>",
+                    first: "<<",
+                    prev: "<",
+                    next: ">",
+                    onPageClick: function (event, page) {
+                    }
+                }).on('page', function (event, page) {
+                    setAdvertismentPagination(page)
+                });
+            }
+        }
+
+        //tippy('.tooltipId', {
+        //    content: $('.TooltipValue').html()
+        //});
+
+
+
+        // set Chart Of Viwewers
+        const staticOptions = {
+            chart: {
+                style: {
+                    fontFamily: 'IRANYekanX'
+                },
+                type: 'column',
+            },
+            title: {
+                text: 'تعداد بازدیدکنندگان',
+                align: 'left'
+            },
+            xAxis: {
+                style: {
+                    fontFamily: 'IRANYekanX'
+                },
+                categories: []
+            },
+            yAxis: {
+                title: { text: '' },
+                allowDecimals: false
+            },
+            series: [{
+                style: {
+                    fontFamily: 'IRANYekanX'
+                },
+                type: 'column',
+                name: 'تعداد بازدیدکنندگان',
+                data: [],
+                showInLegend: false
+            }],
+            loading: true,
+        };
+
+
+        $("body").on("change", "#select_tags", function () {
+            var _this = $(this);
+            var advertisementIdValue = _this.attr('data-advertismentId');
+            var recordType = _this.attr('recordType');
+
+            var filterType = _this.val();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/UserTeniaco/MelkavanPropertiesManagement/GetAdvertisementsViewersReportWithIdAndFilterType",
+                data: { 'AdvertisementId': parseFloat(advertisementIdValue), 'FilterType': filterType, 'RecordType': recordType },
+                success: function (result) {
+                    console.log(result);
+                    const dayValues = result.map(item2 => item2.Day);
+                    const countValues = result.map(item => item.Count);
+                    staticOptions.xAxis.categories = dayValues;
+                    staticOptions.series[0].data = countValues;
+                    const containerId = 'container';
+                    $('#container').empty();
+                    $('#' + containerId).css('overflow', 'hidden');
+                    const chart = Highcharts.chart(containerId, staticOptions);
+                    $('#ChartModal-c-' + advertisementIdValue)[0].click();
+
+                }
+
+            });
+        });
+
+
+        $('body').on('click', '#setChartOfViewersModalId', function () {
+            $('#select_tags').val('7days');
+            var _this = $(this);
+            var advertisementIdValue = _this.attr('data-advertismentId');
+            var recordType = _this.attr('recordType');
+            $('#select_tags').attr("data-advertismentId", advertisementIdValue);
+            $('#select_tags').attr("recordType", recordType)
+            $('#select_tags').change();
+        });
+
+
+
+
+        // set Profile Modal Function
+
+        $('body').on('click', '#setProfileModalId', function () {
+
+            $("#personNameValue").html('')
+            $("#personLastNameValue").html('')
+            $("#personCityValue").html('')
+            $("#personPhoneValue").html('')
+            $("#personStateValue").html('')
+            var _this = $(this);
+            var advertiserId = _this.attr('data-advertiserId');
+            var advertisementIdValue = _this.attr('data-AdvId');
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/UserTeniaco/MelkavanPropertiesManagement/GetUserDetailChartDataByUserId",
+                data: { 'userId': advertiserId },
+                success: function (result) {
+                    console.log(result);
+                    $(window).load(function () { $('#AjaxLoading').hide(); });
+                    $("#personNameValue").text((result === null || result === undefined || result === '' ? '' : result.Name === null || result.Name === '' || result.Name === undefined ? '-' : result.Name));
+                    $("#personLastNameValue").text((result === null || result === undefined || result === '' ? '' : result.Family === null || result.Family === '' || result.Family === undefined ? '-' : result.Family));
+                    $("#personCityValue").text((result === null || result === undefined || result === '' ? '' : result.CityName === null || result.CityName === '' || result.CityName === undefined ? '-' : result.CityName));
+                    $("#personPhoneValue").text((result === null || result === undefined || result === '' ? '' : result.Mobile === null || result.Mobile === '' || result.Mobile === undefined ? '-' : result.Mobile));
+                    $("#personStateValue").text((result === null || result === undefined || result === '' ? '' : result.StateName === null || result.StateName === '' || result.Name === undefined ? '-' : result.StateName));
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+            $('#openProfileModalButton-' + advertisementIdValue)[0].click();
+        });
+
+
+
+
+        // set  More Detail Modal Function
+
+        $('body').on('click', '.setDetailModal', function () {
+
+            $('.map-label').addClass('hidden');
+
+            let propertyId = $(this).attr('propertyId');
+            let advertisementId = $(this).attr('advertisementId');
+
+            $('.advertisementRow').each(function () {
+                debugger;
+                let advertisementPropId = $(this).attr('propertyId');
+                let advertisementAdverId = $(this).attr('advertisementId');
+                if (advertisementPropId == propertyId && advertisementAdverId == advertisementId) {
+                    if ($(this).css('display') == 'none') {
+                        $(this).css('display', 'block');
+                    }
+                    else {
+                        $(this).css('display', 'none');
+                    }
+                }
+                else {
+                    $(this).css('display', 'none');
+                }
+            })
+
+            var targetElement = $('.MapHolder[propertyId=' + propertyId + '][advertisementId=' + advertisementId + ']');
+            targetElement.children(":first").removeClass('hidden');
+            targetElement.children().eq(1).addClass('hidden');
+
+
+
+
+        });
+
+
+
+        // Initialize OpenLayers map and components
+        var raster = new ol.layer.Tile({
+            source: new ol.source.OSM(),
+        });
+
+        var view = new ol.View({
+            center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+            constrainOnlyCenter: true,
+        });
+
+        var mapLeft = new ol.Map({
+            logo: false,
+            target: 'map', // اطمینان از مقدار درست `target`
+            layers: [raster],
+            view: view,
+            controls: ol.control.defaults({
+                zoom: false,
+                attribution: false,
+                rotate: false,
+            }),
+        });
+
+        // Default marker location
+        var LocationLon = 51.24494;
+        var LocationLat = 36.66517;
+        var iconGeometry = new ol.geom.Point(ol.proj.fromLonLat([LocationLon, LocationLat]));
+
+        // تابع ایجاد استایل آیکون
+        function getIconStyle(src) {
+            return new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [0.5, 46],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'pixels',
+                    src: src,
+                }),
+            });
+        }
+
+        // استایل اولیه
+        var markerFeature = new ol.Feature({
+            geometry: iconGeometry,
+        });
+
+        var vectorSource = new ol.source.Vector({
+            features: [markerFeature],
+        });
+
+        var layer = new ol.layer.Vector({
+            source: vectorSource,
+            style: getIconStyle('/images/mapmarketDefu.png'), // آیکون پیش‌فرض
+        });
+
+        mapLeft.addLayer(layer);
+
+        // 🔹 تابع بررسی زوم و تغییر آیکون
+        mapLeft.getView().on('change:resolution', function () {
+            var zoom = view.getZoom();
+            console.log("Zoom Level:", zoom); // بررسی مقدار زوم در کنسول
+
+            if (zoom < 13) {
+                markerFeature.setStyle(getIconStyle('/images/mapmarketDefu.png')); // آیکون برای زوم بالا
+            } else {
+                markerFeature.setStyle(getIconStyle('/images/mapmarker5.png')); // آیکون پیش‌فرض
+            }
+        });
+
+
+
+
+        $('body').on('click', '.videoFile', function (event) {
+            if ($(this).attr('videoSrc') != 'undefined') {
+                $('#downloadImage').attr('href', $(this).attr('videoSrc'));
+
+                $('#largeVideoContainer').removeClass('hidden');
+                $('#largeImageContainer').attr('src', '');
+                $('#largeVideoContainer').attr('src', $(this).attr('videoSrc'));
+                document.getElementById("largeVideoContainer").autoplay = true;
+                $('#largeImagePreview').fadeIn();
+
+                $('#largeVideoContainer').removeClass('hidden');
+
+                return;
+            }
+        });
+
+
+        // Hide the overlay when clicking outside the large image container
+        $('#largeImagePreview').click(function (event) {
+            if (!$(event.target).is('#largeVideoContainer')) {
+                $(this).fadeOut();
+                let video = document.querySelector('#largeVideoContainer').pause();
+                $('#largeVideoContainer').addClass('hidden');
+            }
+        });
+
+
+        // Update map and target dynamically on click
+        $('body').on('click', '#setMapModalId', function () {
+            // Remove all existing overlays (price circles)
+            mapLeft.getOverlays().clear();
+
+            var _this = $(this);
+            var advertisementId = _this.attr('data-setMapModal-Id');
+            let propertyId = _this.attr('propertyId');
+            var Lon = parseFloat(_this.attr('data-setMapModal-Lon'));
+            var Lat = parseFloat(_this.attr('data-setMapModal-Lat'));
+            let recordType = $(this).attr('recordType');
+            let offerPrice = $(this).attr('offerPrice');
+            LocationLon = Lon;
+            LocationLat = Lat;
+
+            // Update map center dynamically based on main advertisement
+            view.setCenter(ol.proj.fromLonLat([LocationLon, LocationLat]));
+
+
+            // Remove existing nearby houses layer if any
+            if (typeof nearHousesLayer !== 'undefined') {
+                mapLeft.removeLayer(nearHousesLayer);
+            }
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/UserTeniaco/MelkavanPropertiesManagement/GetListOfNearAdvertisementsWithPropertyId",
+                data: { 'propertyId': advertisementId, 'recordType': recordType },
+                success: function (result) {
+                    let records = result.Records;
+                    console.log(records);
+                    // Create an array of features for the nearby houses
+                    let features = records.map(record => {
+                        let adLon = record.AdvertisementAddressVM.LocationLon;
+                        let adLat = record.AdvertisementAddressVM.LocationLat;
+                        let adLink = 'https://melkavan.com/UserMelkavan/MelkavanPanel/AdvertisementDetails?Id=' + record.AdvertisementId + '&Type=' + record.RecordType;
+                        let adPrice = record.AdvertisementPricesHistoriesVM.OfferPrice ? record.AdvertisementPricesHistoriesVM.OfferPrice.toString() : '';
+
+                        let feature = new ol.Feature({
+                            geometry: new ol.geom.Point(ol.proj.fromLonLat([adLon, adLat])),
+                        });
+
+                        // Add properties to the feature
+                        feature.set('link', adLink);
+                        feature.set('price', adPrice);
+                        return feature;
+                    });
+
+
+
+
+
+                    // Update marker position for the main house
+                    iconGeometry.setCoordinates(ol.proj.fromLonLat([LocationLon, LocationLat]));
+
+                    // Remove and re-add marker layer to map
+                    mapLeft.removeLayer(layer);
+                    mapLeft.addLayer(layer);
+
+                    // ✅ Add price overlay for the main house
+                    let mainHouseFeature = new ol.Feature({
+                        geometry: iconGeometry
+                    });
+                    mainHouseFeature.set('price', offerPrice || ''); // Fetch the main house price
+                    createMarkerOverlay(mainHouseFeature, mapLeft, true);
+
+
+
+                    function markerStyle(feature) {
+                        let price = feature.get('price') || '';
+
+                        createMarkerOverlay(feature, mapLeft, false);
+
+                        // Convert price from 'ریال' to 'میلیارد ریال'
+                        let priceInBillion = price ? (parseInt(price) / 1_000_000_000).toFixed(0) : '';
+
+                        return [
+                            // **Marker Icon**
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1], // Bottom center anchor
+                                    anchorXUnits: 'fraction',
+                                    anchorYUnits: 'fraction',
+                                    // src: '/images/red-marker.png', // Marker image
+                                    scale: 0.8,
+                                }),
+                            }),
+
+                        ];
+
+
+                    }
+
+
+
+
+
+
+
+
+                    // Create a new vector layer for nearby houses
+                    nearHousesLayer = new ol.layer.Vector({
+                        source: new ol.source.Vector({
+                            features: features,
+                        }),
+                        style: markerStyle,
+                    });
+
+                    // Add the layer with nearby houses to the map
+                    mapLeft.addLayer(nearHousesLayer);
+
+
+                    // Click listener for markers
+                    mapLeft.on('singleclick', function (evt) {
+                        mapLeft.forEachFeatureAtPixel(evt.pixel, function (feature) {
+                            let link = feature.get('link');
+                            if (link) {
+                                window.open(link, '_blank'); // Open the link in a new tab
+                            }
+                        });
+                    });
+                }
+            });
+
+            // Update marker position for the main house
+            iconGeometry.setCoordinates(ol.proj.fromLonLat([LocationLon, LocationLat]));
+
+            // Remove and re-add marker layer to map
+            mapLeft.removeLayer(layer);
+            mapLeft.addLayer(layer);
+
+            // Set the map's target dynamically to the advertisement-specific holder
+            var targetElement = $('.MapHolder[propertyId=' + propertyId + '][advertisementId=' + advertisementId + ']');
+            if (targetElement.length > 0) {
+                targetElement.children(":first").addClass('hidden');
+                targetElement.children().eq(1).removeClass('hidden');
+                mapLeft.setTarget(targetElement[0]);
+                mapLeft.updateSize();
+
+                $('.map-label').removeClass('hidden');
+
+            } else {
+                console.error('No MapHolder element found for advertisementId:', advertisementId);
+            }
+        });
+
+
+
+
+
+        function createMarkerOverlay(feature, map, isMainMarker) {
+            let price = feature.get('price') || '';
+            let priceInBillion = price ? (parseInt(price) / 1_000_000_000).toFixed(0) : '';
+
+            // Create a div element for the price circle
+            let priceDiv = document.createElement('div');
+            if (isMainMarker == false) {
+                priceDiv.className = 'price-overlay';
+
+
+                priceDiv.innerHTML = priceInBillion;
+
+                // Create an OpenLayers overlay
+                let overlay = new ol.Overlay({
+                    element: priceDiv,
+                    positioning: 'top-right',  // Position in the top-right of marker
+                    offset: [5, -50],  // Adjust exact position
+                    stopEvent: false,
+
+                });
+
+                // Set the overlay position
+                overlay.setPosition(feature.getGeometry().getCoordinates());
+
+                // Add to map
+                map.addOverlay(overlay);
+
+            }
+            else {
+                priceDiv.className = 'Mainprice-overlay';
+
+
+
+                priceDiv.innerHTML = priceInBillion;
+
+                // Create an OpenLayers overlay
+                let overlay = new ol.Overlay({
+                    element: priceDiv,
+                    positioning: 'top-right',  // Position in the top-right of marker
+                    offset: [5, -60],  // Adjust exact position
+                    stopEvent: false,
+                });
+
+                // Set the overlay position
+                overlay.setPosition(feature.getGeometry().getCoordinates());
+
+                // Add to map
+                map.addOverlay(overlay);
+
+
+            }
+
+
+        }
+
+        // Apply styles to price overlay using CSS
+        let style = document.createElement('style');
+        style.innerHTML = `
+                                .price-overlay {
+                                   background: #7f3271;
+        color: white;
+        font-size: 14px;
+        font-weight: 800;
+        text-align: center;
+        line-height: 30px;
+        font-family: sans-serif;
+        width: 30px;
+        height: 30px;
+        border: none;
+        box-shadow: 0 0 2px #000000;
+        border-radius: 50%;
+        border: 1px solid #1d1d1d;
+        position: absolute;
+                                }
+                            `;
+        document.head.appendChild(style);
+
+
+        //Main price-overlay
+        let Mainstyle = document.createElement('style');
+        Mainstyle.innerHTML = `
+                                        .Mainprice-overlay {
+
+                          background: #32517F;
+        color: white;
+        font-size: 14px;
+        font-weight: 800;
+        text-align: center;
+        line-height: 25px;
+        font-family: sans-serif;
+        width: 30px;
+        height: 30px;
+        border: none;
+        box-shadow: 0 0 2px #000000;
+        border-radius: 50%;
+        border: 2px solid #1d1d1d;
+        position: absolute;
+
+                                    }
+                                `;
+        document.head.appendChild(Mainstyle);
+
+
+
+
+    });
+
+
+</script>

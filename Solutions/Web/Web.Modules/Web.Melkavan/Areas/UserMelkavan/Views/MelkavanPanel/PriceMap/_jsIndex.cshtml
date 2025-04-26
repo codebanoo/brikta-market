@@ -1,0 +1,249 @@
+﻿<script>
+
+    $(".adtype").on("change", function () {
+
+         $('.map-label').addClass('d-none');
+        $.ajax({
+            cache: false,
+            type: "Post",
+            url: "/UserMelkavan/MelkavanPanel/ChangePriceType",
+            data: {
+                'AdvertisementTypeId': $(this).val()
+            },
+            success: function (data) {
+                debugger;
+                // Clear existing features from the source
+                source.clear();
+
+                // Iterate over the new data and create features
+                const newFeatures = data.Records.map((price) => {
+
+                    debugger;
+                    const coord = ol.proj.transform([price.LocationLon, price.LocationLat], 'EPSG:4326', 'EPSG:3857');
+                    const point = new ol.geom.Point(coord);
+                    const feature = new ol.Feature(point);
+                    if (price.AdvertisementTypeId == '1') {
+                        clusterSource.setDistance(0);
+                        feature.AdvertisementTypeId = 1;
+                        feature.RentPrice = price.RentPrice;
+                        feature.DepositPrice = price.DepositPrice;
+                    }
+                    else if (price.AdvertisementTypeId == '2') {
+                        $('.map-label').removeClass('d-none');
+                        clusterSource.setDistance(100);
+                        feature.AdvertisementTypeId = 2;
+                        feature.LastPrice = price.LastPrice;
+                        feature.CalculatedOfferPrice = price.CalculatedOfferPrice;
+                    }
+                    return feature;
+                });
+
+                // Add the new features to the source
+                source.addFeatures(newFeatures);
+
+            },
+            error: function () {
+
+            }
+        });
+
+    });
+
+    function formatToPersianMillions(num) {
+        const millions = Math.round(num / 1_000_000);
+        const persianNumber = millions.toLocaleString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        return `${persianNumber} میلیون`;
+    }
+
+    function convertToPersian(num) {
+        const millions = Math.round(num / 1_000_000);
+        const persianNumber = millions.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        return `${persianNumber}`;
+    }
+
+
+    $("#customZoomButton").on("click", function () {
+        window.location.href = "/UserMelkavan/MelkavanPanel/PriceMap";
+    });
+
+    const features = new Array(propertiesPricesList.length);
+    const distanceInput = 80;
+    const minDistanceInput = 20;
+
+    for (var i = 0; i < propertiesPricesList.length; i++) {
+        var price = propertiesPricesList[i];
+        var coord = ol.proj.transform([price.LocationLon, price.LocationLat], 'EPSG:4326', 'EPSG:3857');
+        var point = new ol.geom.Point(coord);
+        features[i] = new ol.Feature(point);
+        features[i].OfferPrice = price.OfferPrice;
+        features[i].CalculatedOfferPrice = price.CalculatedOfferPrice;
+        features[i].OfferPriceType = price.OfferPriceType;
+        features[i].LastPrice = price.LastPrice;
+        features[i].RentPrice = price.RentPrice;
+        features[i].DepositPrice = price.DepositPrice;
+        features[i].AdvertisementTypeId = price.AdvertisementTypeId;
+    }
+
+    const source = new ol.source.Vector({
+        features: features,
+    });
+
+    const clusterSource = new ol.source.Cluster({
+        distance: parseInt(distanceInput, 10),
+        minDistance: parseInt(minDistanceInput, 10),
+        source: source,
+    });
+
+    const styleCache = {};
+
+    //badge style
+    const badgeStyle = (text) => {
+        // Split the text by '-' if it exists
+        const lines = text.split('-');
+        const multilineText = lines.length > 1 ? `${lines[0]}\n${lines[1]}` : text;
+
+        let scale = 0.16;
+        if (lines.length > 1) {
+            scale = 0.24;
+        }
+
+        return new ol.style.Style({
+            image: new ol.style.Icon({
+                src: '/img/redd.png', // Path to your custom badge image
+                scale: scale, // Adjust the scale as needed
+                anchor: [0.5, 0.4], // Center horizontally, position bottom of the image at the point
+            }),
+            text: new ol.style.Text({
+                text: multilineText,
+                font: '13px IRANYekanX',
+                fill: new ol.style.Fill({
+                    color: '#fff', // Text color (white)
+                }),
+                textAlign: 'center',
+                offsetY: 0, // Center the text vertically
+            }),
+        });
+    };
+
+
+
+
+    const clusters = new ol.layer.Vector({
+        source: clusterSource,
+        style: function (feature) {
+            const features = feature.get('features');
+            const zoomLevel = map.getView().getZoom();
+
+            // Small dot style for low zoom levels
+            const smallDotStyle = new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 4,
+                    fill: new ol.style.Fill({
+                        color: '#BA0D0D', // Red dot for example
+                    }),
+                }),
+            });
+
+            // Check if this is a single feature with AdvertisementTypeId '1' and zoom level is low
+            if (features.length === 1 && features[0].AdvertisementTypeId == '1' && zoomLevel < 14) {
+                return smallDotStyle;
+            }
+
+            // Single point: show as badgeStyle when zoomed in
+            if (features.length === 1) {
+                let singlePrice;
+                if (features[0].AdvertisementTypeId == '1') {
+                    singlePrice = 'اجاره: ' + formatToPersianMillions(features[0].RentPrice) + '-' + 'ودیعه: ' + formatToPersianMillions(features[0].DepositPrice);
+                } else if (features[0].AdvertisementTypeId == '2') {
+                    singlePrice = formatToPersianMillions(features[0].LastPrice);
+                }
+                return badgeStyle(singlePrice);
+            }
+
+            // Clustered points: show as circle with average price
+            let sum = 0;
+            let count = 0;
+            for (let i = 0; i < features.length; i++) {
+                let value;
+                if (features[i].AdvertisementTypeId == '1') {
+                    value = features[i].RentPrice;
+                } else if (features[i].AdvertisementTypeId == '2') {
+                    value = features[i].CalculatedOfferPrice;
+                }
+                if (value > 0) {
+                    sum += value;
+                    count++;
+                }
+            }
+            const averagePrice = count > 0 ? Math.round(sum / count) : 0;
+            const averagePriceText = convertToPersian(averagePrice);
+
+            let style = styleCache[features.length];
+            if (!style) {
+                style = new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 20,
+                        stroke: new ol.style.Stroke({
+                            color: '#fff',
+                        }),
+                        fill: new ol.style.Fill({
+                            color: '#0e738a',
+                        }),
+                    }),
+                    text: new ol.style.Text({
+                        text: averagePriceText,
+                        font: '16px IRANYekanX',
+                        fill: new ol.style.Fill({
+                            color: '#fff',
+                        }),
+                    }),
+                });
+                styleCache[features.length] = style;
+            }
+            style.getText().setText(averagePriceText);
+            return style;
+        },
+    });
+
+
+
+    const raster = new ol.layer.Tile({
+        source: new ol.source.OSM(),
+    });
+
+    const view = new ol.View({
+        center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 12,
+        maxZoom: 17,
+        minZoom: 1,
+        constrainOnlyCenter: true,
+    });
+
+    const map = new ol.Map({
+        layers: [raster, clusters],
+        target: 'mapContainer',
+        view: view,
+        controls: [],
+    });
+
+
+    // Update style when the map's view changes (zoom in/out)
+    map.getView().on('change:resolution', () => {
+        clusters.setStyle(clusters.getStyle());
+    });
+
+    map.on('click', (e) => {
+        clusters.getFeatures(e.pixel).then((clickedFeatures) => {
+            if (clickedFeatures.length) {
+                const features = clickedFeatures[0].get('features');
+                if (features.length > 1) {
+                    const extent = new ol.extent.boundingExtent(
+                        features.map((r) => r.getGeometry().getCoordinates())
+                    );
+                    map.getView().fit(extent, { duration: 1000, padding: [50, 50, 50, 50] });
+                }
+            }
+        });
+    });
+
+</script>

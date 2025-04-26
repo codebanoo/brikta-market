@@ -1,0 +1,586 @@
+﻿<div class="bg-white shadow-sm" style="position: fixed; z-index: 2; width: 100%;">
+    <div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header">
+
+        <div class="d-flex align-items-center gap-2 ">
+
+            @*            <a href="#" class="bg-white shadow rounded-circle icon">
+            <span class="mdi mdi-bell-outline mdi-18px text-primary"></span>
+            </a>*@
+            <a href="#" id="onlyFavorite" class="bg-white shadow rounded-circle icon">
+                <span id="heartSpan" class="mdi mdi-cards-heart-outline mdi-18px text-primary"></span>
+            </a>
+
+            <a data-bs-toggle="modal" data-bs-target="#filterModal" href="#" id="btnfilter" class="bg-white shadow rounded-circle icon">
+                <span class="mdi mdi-filter-outline mdi-18px text-primary"></span>
+            </a>
+
+            <div>
+                <a id="open-search-form" class="bg-white input-group rounded-4 shadow pe-2  align-items-center search-bar" style="width: 170px;">
+                    <span class="mdi mdi-magnify mdi-18px text-primary ms-1"></span>
+                    <input type="text" id="searchInput" class="form-control text-muted border-0" placeholder="جستجو..." aria-label="Search" aria-describedby="search" style="width: 5rem;height:35px">
+                </a>
+            </div>
+
+            <div id="special-offer" class="align-items-center gap-2 me-auto bg-danger text-white px-2 py-1 rounded-4 float-start" style="white-space:nowrap; height:2rem;">
+                پیشنهاد ویژه
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- body  overflow-auto vh-100  body-fix-osahan-footer-->
+<div style=" padding-bottom: 4rem!important;padding-top: 4.5rem!important;">
+    <div class="mt-0">
+
+
+        <div class="available-doctor ps-2 ms-1">
+            @*     <div class="available-doctor-item">
+            <div class="bg-primary text-white rounded-4 doctor-book-back">
+
+
+            <img src="/Files/BannerFiles/localhost/1/Image/new-homes-for-sale-banner-template-35254-trans.png" alt="" class="img-fluid">
+
+
+            </div>
+            </div>
+            <div class="available-doctor-item">
+            <div class="btn-info text-white rounded-4 doctor-book-back">
+
+
+            <img src="/Files/BannerFiles/localhost/1002/image/house-banner.jpg" alt="" class="img-fluid">
+
+            </div>
+            </div> *@
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-12 col-md-12 col-xs-12 col-sm-12 col-lg-12 my-3">
+        <div id="mapContainer">
+            <div style="z-index:1;" class="map-label">دایره آبی: میانگین متری/ابر قرمز: قیمت کل</div>
+            @*             <select class="form-select form-select-sm adtype" aria-label="Small select example">
+            <option value="2">فروش</option>
+            <option value="1">اجاره</option>
+            </select> *@
+            <button id="customZoomButton"><i class="bi bi-fullscreen fs-5 d-flex align-items-center justify-content-center"></i></button>
+        </div>
+
+
+    </div>
+
+
+
+    <div class="my-auto " id="main-container">
+
+        <!-- Properties List -->
+
+    </div>
+
+    <div id="loading-div" class="justify-content-center w-100 pt-2" style="text-align: center;">
+        <div class="spinner-border text-secondary" role="status" style="width: 3rem; height: 3rem;">
+        </div>
+    </div>
+</div>
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a id="melkavan-icon" class="col footer-bottom-nav active">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>
+
+
+<!-- Filters Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title float-end" id="exampleModalLabel"> فیلترها</h5>
+            </div>
+            <div class="modal-body">
+
+
+                <div style=" padding-bottom: 4rem!important;!important;">
+
+                    <input type="hidden" name="kind" value="4" />
+
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary()
+
+                    <div class="bg-white rounded-4 p-3 border">
+                        <div class="mb-3">
+                            <label class="form-label mb-1 titles  text-muted">نوع آگهی</label>
+                            <div class="input-group border bg-white rounded-3 py-1">
+                                <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                <select name="AdvertisementTypeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcAdvertisementTypeId">
+                                    <option value="" selected></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Accordions -->
+
+                    <div class="accordion mt-3 hidden" id="accordionExample">
+                        <div class="accordion-item mb-3 border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed border rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    <svg class="ms-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                                        <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z" />
+                                    </svg>
+                                    قیمت
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="SaleadInfo5">
+
+                                    <div class="mb-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">قیمت</label>
+                                        <input id="slcFromPrice" type="hidden" />
+                                        <input id="slcToPrice" type="hidden" />
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-price-slider"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-min">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-max">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <div id="addPrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-plus"></i></span>
+                                        </div>
+                                        <div id="reducePrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-dash"></i></span>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="bg-white rounded-4 p-3 d-none" id="RentadInfo4">
+
+                                    <div class="mb-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">قیمت اجاره</label>
+
+                                        <input id="slcRentFromPrice" type="hidden" />
+                                        <input id="slcRentToPrice" type="hidden" />
+
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-price-slider3"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-min3">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-max3">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <div id="addPrice3" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-plus"></i></span>
+                                        </div>
+                                        <div id="reducePrice3" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-dash"></i></span>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="mb-3 mt-4">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">قیمت ودیعه</label>
+
+                                        <input id="slcDepositFromPrice" type="hidden" />
+                                        <input id="slcDepositToPrice" type="hidden" />
+
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-price-slider2"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-min2">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                                <div dir="rtl">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-price-slider-max2">
+                                                    </span>
+                                                    <span class="text-xs">تومان</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="d-flex justify-content-between">
+                                        <div id="addPrice2" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-plus"></i></span>
+                                        </div>
+                                        <div id="reducePrice2" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-dash"></i></span>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item mb-3 border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed border rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <i class="bi bi-geo-alt-fill ms-2"></i>
+                                    موقعیت
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="adInfoAddress">
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">استان</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+
+                                            <select name="StateId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcStateId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">شهرستان</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="CityId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcCityId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">شهر/منطقه</label>
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="ZoneId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcZoneId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">نام محله</label>
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <span class="input-group-text bg-transparent rounded-0 border-0">
+                                                <span class="mdi mdi-subtitles-outline mdi-18px"></span>
+                                            </span>
+                                            <input name="TownName" class="form-control bg-transparent rounded-0 border-0 px-0" placeholder="لطفا نام محله را وارد کنید" id="slcTownName" />
+                                            <span class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="accordion-item mb-3 border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed border rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    <i class="bi bi-three-dots ms-2"></i>
+                                    تکمیلی
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="adInfo3">
+                                    <div class="mb-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">مساحت</label>
+
+
+                                        <input id="slcFromArea" type="hidden" />
+                                        <input id="slcToArea" type="hidden" />
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-area-slider"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-area-slider-min">
+                                                    </span>
+                                                    <span class="text-xs">مترمربع</span>
+                                                </div>
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-area-slider-max">
+                                                    </span>
+                                                    <span class="text-xs">متر مربع</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="d-flex justify-content-between">
+                                        <div id="addAreaPrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-plus"></i></span>
+                                        </div>
+                                        <div id="reduceAreaPrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-dash"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <hr />
+                                    <div class="mb-3 mt-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">زیر بنا</label>
+
+                                        <input id="slcFromFoundation" type="hidden" />
+                                        <input id="slcToFoundation" type="hidden" />
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-foundation-slider"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-foundation-slider-min">
+                                                    </span>
+                                                    <span class="text-xs">متر مربع</span>
+                                                </div>
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-foundation-slider-max">
+                                                    </span>
+                                                    <span class="text-xs">متر مربع</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <div id="addFoundationPrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-plus"></i></span>
+                                        </div>
+                                        <div id="reduceFoundationPrice" class="text-white text-center button-style">
+                                            <span style="position:absolute; top:7px; right:10px; font-size:20px;"><i class="bi bi-dash"></i></span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="adInfo10">
+
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">عمر بنا</label>
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select multiple name="BuildingLifeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcBuildingLifeId">
+                                                <option disabled value="" selected></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="exampleFormControlName" class="form-label mb-1 titles text-muted">سال بازسازی</label>
+
+                                        <input id="slcFromYear" type="hidden" />
+                                        <input id="slcToYear" type="hidden" />
+                                        <div dir="ltr" class="space-y-4">
+                                            <div class="w-100 my-3 pe-2" id="shop-year-slider"></div>
+                                            <div class="d-flex justify-content-between">
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-year-slider-min">
+                                                    </span>
+                                                </div>
+                                                <div dir="rtl" class="text-emerald-500 dark:text-emerald-400">
+                                                    <span class="text-xs font-bold xl:text-sm"
+                                                          id="shop-year-slider-max">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="adInfo20" class="bg-white rounded-4 p-3 d-none mt-2">
+
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">وضعیت تاهل</label>
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="MaritalStatusId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcMaritalStatusId">
+                                                <option value="0">هردو</option>
+                                                <option value="1">متاهل</option>
+                                                <option value="2">مجرد</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="hidden" id="convertableValue" />
+                                            <input name="Convertable" class="form-check-input ms-3" type="checkbox" id="slcConvertable" value="false">
+                                            <label class="form-check-label titles text-muted" for="Convertable">
+                                                قابل تبدیل
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <div class="accordion-item mb-3 border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed border rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    <i class="bi bi-file-earmark-fill ms-2"></i>
+                                    سند
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="adInfo1">
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">نوع ملک</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="PropertyTypeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcPropertyTypeId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">نوع کاربری</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select multiple name="TypeOfUseId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcTypeOfUseId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-4 p-3 d-none mt-2" id="adInfo8">
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">نوع سند</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="DocumentTypeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcDocumentTypeId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">نوع ریشه سند</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="DocumentRootTypeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcDocumentRootTypeId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-1 titles text-muted">نوع مالکیت سند</label>
+
+                                        <div class="input-group border bg-white rounded-3 py-1">
+                                            <label class="input-group-text bg-transparent rounded-0 border-0"><span class="mdi mdi-city-variant-outline mdi-18px"></span></label>
+                                            <select name="DocumentOwnershipTypeId" class="form-select bg-transparent rounded-0 border-0 px-3" id="slcDocumentOwnershipTypeId">
+                                                <option value="" selected disabled></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        </di>
+
+                        <!-- End Of Acordions -->
+
+                        <div class="d-none mt-2" id="adOptions">
+                            <div class="bg-white rounded-4 p-3 border" id="features">
+                            </div>
+                        </div>
+
+                        <div class=" p-3 d-flex justify-content-center">
+                            <button type="submit" id="advancedSearch" class="btn btn-info btn-lg w-75 text-center rounded-4 btnSave">جستجو</button>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+

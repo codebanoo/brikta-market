@@ -1,0 +1,82 @@
+﻿@using VM.Console;
+
+@{
+    List<int> roleIds = new List<int>();
+    if (ViewData["RoleIds"] != null)
+    {
+        roleIds = ((string)ViewData["RoleIds"]).Split(',').Select(int.Parse).ToList();
+    }
+
+    List<int> levelIds = new List<int>();
+    if (ViewData["LevelIds"] != null)
+    {
+        levelIds = ((string)ViewData["LevelIds"]).Split(',').Select(int.Parse).ToList();
+    }
+}
+
+<!-- Sidebar-Section-Start -->
+<div class="lg:w-1/5 xl:w-1/6 flex sidebar-menu" id="sidebar-menu">
+
+    <div class="flex justify-end">
+
+        <a class="sidebar-collapse-btn sidebar-collapse-btn-desktop">
+            <span class="icon-menu"></span>
+        </a>
+        <a class="sidebar-collapse-btn sidebar-collapse-btn-mobile">
+            <span class="icon-menu"></span>
+        </a>
+
+    </div>
+
+    <a class="sidebar-logo flex justify-center" href="#">
+        <img src="/outter_theme/assets/img/logo.png" alt="">
+    </a>
+    <div class="sidebar-body">
+        <ul>
+            <li>
+                <a href="#">
+                    <span class="icon-dashboard"></span>
+                    <span class="text">داشبورد</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon-home"></span>
+                    <span class="text">املاک من</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon-home-two"></span>
+                    <span class="text">پروژه های من</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon-search"></span>
+                    <span class="text">جستجوی املاک</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon-document-search"></span>
+                    <span class="text">جستجوی پروژه ها</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon-diagram"></span>
+                    <span class="text">نقشه ها و آمار ها</span>
+                </a>
+
+            <li>
+                <a href="">
+                    <img src="/outter_theme/assets/img/menu-pattern.jpg" alt="" class="sidebar-chart">
+                </a>
+            </li>
+
+        </ul>
+    </div>
+
+</div>
+<!-- Sidebar-Section-End -->

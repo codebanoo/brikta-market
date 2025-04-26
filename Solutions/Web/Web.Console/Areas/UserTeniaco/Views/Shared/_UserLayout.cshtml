@@ -1,0 +1,454 @@
+﻿@using Services.Xml.Entities;
+@using VM.Console;
+
+@{
+    Layout = "_UserMainLayout";
+
+    DomainsSettingsVM domainsSettings = new DomainsSettingsVM();
+    if (ViewData["DomainsSettings"] != null)
+    {
+        domainsSettings = ViewData["DomainsSettings"] as DomainsSettingsVM;
+    }
+}
+
+@section head {
+
+    <script>
+        @{
+            string nameFamily = "";
+
+            @Html.Raw("var nameFamily  = '';")
+            ;
+
+            if (ViewData["NameFamily"] != null)
+            {
+                nameFamily = (string)ViewData["NameFamily"];
+                @Html.Raw("var nameFamily = '" + Html.Raw(nameFamily) + "';")
+                ;
+            }
+        }
+
+    </script>
+
+    @*<link href="~/lib/highcharts/code/css/highcharts.css" rel="stylesheet" />*@
+    <link href="~/enigma v1.0.5/dist/fonts/font-awesome/font-awesome.css" rel="stylesheet" />
+    <link href="/Enigma v1.0.5/dist/fonts/iranyekan/fontiran.css" rel="stylesheet">
+    <link href="/Enigma v1.0.5/dist/fonts/iranyekan/iranyekan.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Enigma v1.0.5/dist/fonts/font-awesome/font-awesome.css" />
+
+    <meta name="fontiran.com:license" content="5VM66X">
+    <link href="/Gentelella_theme/build/css/iranyekan/fontiran.css" rel="stylesheet">
+    <link href="/Gentelella_theme/build/css/iranyekan/iranyekan.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Lib/TinySlider/tiny-slider.css" />
+    <link href="~/lib/jqueryloading/jquery.loading.css" rel="stylesheet" />
+
+
+    @*<link href="~/lib/highcharts-11.1.0/code/css/highcharts.css" rel="stylesheet" />*@
+
+    <link href="~/lib/jquery-chosen/chosen.css" rel="stylesheet" />
+
+    <link href="~/lib/google-scrolling-carousel/jquery.gscrollingcarousel.css" rel="stylesheet" />
+    @*<link href="~/lib/jquery.scrollbar-gh-pages/includes/style.css" rel="stylesheet" />*@
+    @*<link href="~/lib/jquery.scrollbar-gh-pages/includes/prettify/prettify.css" rel="stylesheet" />*@
+
+
+    <link href="~/lib/jquery-ui/themes/base/all.css" rel="stylesheet" />
+
+    <link href="~/lib/jquery-scroll/scrollbox.css" rel="stylesheet" />
+    @*<link href="~/lib/jquery.horizontal.scroll/jquery.horizontal.scroll.css" rel="stylesheet" />*@
+    <link rel="stylesheet" href="/Enigma v1.0.5/dist/css/app-rtl.css" />
+
+    @*<link href="~/lib/multiscroll/jquery.multiscroll.css" rel="stylesheet" />*@
+    @*<link href="~/lib/jquery.scrollbar-gh-pages/jquery.scrollbar.css" rel="stylesheet" />*@
+
+
+    @*<link rel="stylesheet" href="/outter_theme/assets/css/bootstrap.min.css">*@
+
+    @*<link href="~/lib/bootstrap-persiandatetimepicker/jquery.Bootstrap-PersianDateTimePicker.css" rel="stylesheet" />*@
+
+    <style type="text/css">
+        div.jtable-main-container div.jtable-title {
+            text-align: center !important;
+            padding-right: 10px;
+        }
+
+        div.jtable-main-container > table.jtable > thead th.jtable-column-header div.jtable-column-header-container {
+            text-align: right !important;
+            padding-left: 10px;
+            background-position: left !important;
+        }
+
+        div.jtable-main-container table.jtable thead th {
+            text-align: right !important;
+            padding-right: 10px;
+        }
+
+        .jtable-dialog-form input,
+        .jtable-dialog-form select {
+            width: 100%;
+        }
+
+        .ui-dialog .ui-dialog-title {
+            width: 100%;
+        }
+    </style>
+
+    @RenderSection("head", required: false)
+}
+
+@RenderBody()
+
+@*<div class="modal fade" id="my-details-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div id="details-block"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="my-warning-modal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="my-confirm-modal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">تایید</h4>
+                <p>
+                    آیا مطمئن هستید؟
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="modal-btn-no">خیر</button>
+                <button type="button" class="btn btn-primary" id="modal-btn-yes">بله</button>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<a class="flex items-center text-success" data-tw-toggle="modal" id="warningModal" style="display:none" data-tw-target="#my-warning-modal"> </a>
+<div class="modal fade" id="my-warning-modal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeWarningModal" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="Danger-confirmation-modal" class="modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="p-5 text-center">
+                    <i data-lucide="alert-circle" class="w-16 h-16 text-warning mx-auto mt-3"></i>
+                    <div class="text-3xl mt-5" id="DangerConfirmationModalQuestion">تأیید</div>
+                    <div class="text-slate-500 mt-2" id="DangerConfirmationModalQuestionDetail">
+                        امکان بازگشت وجود ندارد آیا از تأیید  فرم اطمینان دارید
+                    </div>
+                </div>
+                <div class="px-5 pb-8 text-center">
+                    <button type="button" class="btn btn-secondary w-24 mr-1 confirmButton">بله</button>
+                    <button type="button" data-tw-dismiss="modal" class="btn btn-danger w-24">خیر</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<a class="flex items-center text-success" data-tw-toggle="modal" id="teniacoWarningModal" style="display:none" data-tw-target="#teniaco-warning-modal"> </a>
+<div class="modal fade" id="teniaco-warning-modal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="relative max-w-sm bg_error  shadow-lg p-4 ">
+            <div class="flex items-center justify-center">
+
+                <div class="icon-container">
+                    <i class="material-symbols-outlined icon_error">priority_high</i>
+                </div>
+
+
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800">هشدار!</h2>
+                    <p class="text-gray-600 error_text">خطا.</p>
+                </div>
+            </div>
+            <button class="absolute btn-popup  hover:text-gray-600"
+                    type="button" id="closeWarningModal" data-dismiss="modal">
+                <i class="material-symbols-outlined">close</i>
+            </button>
+        </div>
+        @* <div class="modal-content">
+        <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body">
+        <p id="error"></p>
+        </div>
+        <div class="modal-footer">
+        <button type="button" id="closeWarningModal" class="btn btn-default" data-dismiss="modal">بستن</button>
+        </div>
+        *@
+    </div>
+
+</div>
+
+
+@section scripts {
+    <script src="/Gentelella_theme/vendors/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-cookie/jquery.cookie.js"></script>
+    <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+
+    @*    <script src="/Enigma v1.0.5/dist/js/app.js"></script>*@
+    @*<script src="~/lib/highcharts-11.1.0/code/highcharts.js"></script>*@
+    @*<script src="~/lib/highcharts-11.1.0/code/highcharts.js"></script>*@
+    <script src="/lib/Highcharts-Gantt-11.1.0/code/highcharts-gantt.js"></script>
+    <script src="/lib/Highcharts-11.1.0/code/highcharts-more.js"></script>
+    <script src="/lib/Highcharts-11.1.0/code/modules/exporting.js"></script>
+    <script src="/lib/Highcharts-11.1.0/code/modules/accessibility.js"></script>
+    <script src="~/lib/highcharts-11.1.0/code/modules/solid-gauge.js"></script>
+
+    <script src="~/lib/jquery-cookie/jquery.cookie.js"></script>
+    <script src="~/lib/jquery-chosen/chosen.jquery.js"></script>
+    <script src="~/lib/jquery-scroll/jquery.mousewheel.min.js"></script>
+    <script src="~/lib/google-scrolling-carousel/jquery.gscrollingcarousel.js"></script>
+    <script src="/lib/jquery.twbsPagination/jquery.twbsPagination.min.js"></script>
+
+
+    <script src="/Lib/TinySlider/tiny-slider.js"></script>
+    <script src="/Lib/Tippy/popper.min.js"></script>
+    <script src="/Lib/Tippy/tippy-bundle.umd.js"></script>
+
+    @*    <script src="~/lib/jquery.scrollbar-gh-pages/includes/prettify/prettify.js"></script>
+    <script src="~/lib/jquery.scrollbar-gh-pages/jquery.scrollbar.js"></script>*@
+    <script src="~/lib/jquery-scroll/scrollbox.js"></script>
+    <script src="~/lib/jqueryloading/jquery.loading.js"></script>
+    <script src="~/js/OuterPublic.js"></script>
+
+
+
+    @*<script src="~/lib/simulate-scrollbar/abscrollbar-v1.2.source.js"></script>*@
+    @*<script src="~/lib/jquery.horizontal.scroll/jquery.horizontal.scroll.js"></script>*@
+
+    @*<script src="~/lib/jquery.scrollbar-gh-pages/jquery.scrollbar.js"></script>*@
+    @*    <script src="~/lib/multiscroll/jquery.easing.1.3.js"></script>
+    <script src="~/lib/multiscroll/jquery.multiscroll.min.js"></script>*@
+    @*    <script src="/outter_theme/assets/js/jquery.js"></script>
+    <script src="/outter_theme/assets/js/bootstrap.min.js"></script>*@
+    @*    <script src="/Enigma v1.0.5/dist/js/app.js"></script>
+
+    <script src="~/lib/bootstrap-persiandatetimepicker/calendar.js"></script>
+    <script src="~/lib/bootstrap-persiandatetimepicker/jquery.Bootstrap-PersianDateTimePicker.js"></script>*@
+
+    <script type="text/javascript">
+        //<![CDATA[
+        $(document).ready(function () {
+            debugger;
+            //$('body').addClass('py-5 md:py-0');
+            $(document).Loading();
+
+            $(document.body).on('click', '#closeWarningModal', function () {
+                $('#my-warning-modal').removeClass('show');
+            });
+        })
+        //]]>
+    </script>
+
+    <script type="text/javascript">
+        //rtl = true;
+        //chosenConfig.rtl = rtl;
+
+        @{
+            // if (domainsSettings.DomainSettingId != 0)
+            // {
+            //     if (domainsSettings.NumberOfChosenItemsShow.HasValue)
+            //     {
+            //         @Html.Raw("numberOfChosenItemsShow = " + domainsSettings.NumberOfChosenItemsShow.Value)
+            //         ;
+            //     }
+                // }
+        }
+
+    </script>
+
+    <script type="text/javascript">
+                //<![CDATA[
+                var numberOfChosenItemsShow = 10;
+
+        @{
+            if (domainsSettings.DomainSettingId != 0)
+            {
+                if (domainsSettings.NumberOfChosenItemsShow.HasValue)
+                {
+                    @Html.Raw("numberOfChosenItemsShow = " + domainsSettings.NumberOfChosenItemsShow.Value)
+                    ;
+                }
+            }
+        }
+
+            //]]>
+    </script>
+
+    @RenderSection("scripts", required: false)
+
+    <script type="text/javascript">
+            //<![CDATA[
+            $(document).ready(function () {
+
+                debugger;
+                $('[data-nameFamily="nameFamily"]').html(nameFamily);
+                //if (numberOfChosenItemsShow > 0) {
+                //    var chosens = $('.chosen-container');
+                //    var selects = [];
+                //    for (var i = 0; i < chosens.length; i++) {
+                //        var chosen = chosens[i];
+                //        selects.push($(chosen).prev());
+                //    }
+
+                //    for (var i = 0; i < selects.length; i++) {
+                //        var select = selects[i];
+
+                //        search_contains = true;
+                //        rtl = true;
+                //        chosenConfig.max_shown_results = numberOfChosenItemsShow;
+                //        chosenConfig.search_contains = search_contains;
+                //        chosenConfig.rtl = rtl;
+
+                //        $(select).chosen('destroy').chosen(chosenConfig);
+
+                //        debugger;
+                //        $(select).next().attr('style', 'width: 88% !important;');
+                //        $(select).next().after('<label class="lblShowAllChosenItem"><input type="checkbox" ' +
+                //            'data-placement="top" data-toggle="tooltip"' +
+                //            'title="نمایش همه" class="showAllChosenItem"></label>');
+                //        var label = $(select).next().next();
+                //        label.css('height', $(select).next().height());
+                //    }
+
+                //    $('.lblShowAllChosenItem').on('click', function () {
+                //        debugger;
+                //        var _this = $(this);
+                //        var select = _this.prev().prev();
+                //        if (_this.find('input[type="checkbox"]').is(':checked'))
+                //            chosenConfig.max_shown_results = 1000;
+                //        else
+                //            chosenConfig.max_shown_results = numberOfChosenItemsShow;
+                //        $(select).chosen('destroy').chosen(chosenConfig);
+                //        _this.prev().attr('style', 'width: 88% !important;');
+                //    });
+                //}
+                //else {
+                //    numberOfChosenItemsShow = 1000
+                //}
+            });
+        //]]>
+    </script>
+
+    <script type="text/javascript">
+        //<![CDATA[
+        $(document).ready(function () {
+
+            debugger;
+
+            // document.addEventListener('click', this.closeWhenClickedOutside);
+
+            // function closeWhenClickedOutside(event) {
+            //     debugger;
+            //     if (!event.target.closest('.dropdown')) {
+            //         this.open = false;
+            //         document.removeEventListener('click', this.closeWhenClickedOutside);
+            //     }
+            // }
+            //alert();
+            // document.getElementById('a.mobile-menu-toggler').addEventListener("click", function () {
+            $('body').on('click', '.mobile-menu-toggler', function (e) {
+                //$('body').on('click', '.fakeMobileMenu', function (e) {
+                var _this = $(this);
+                debugger;
+                var mobileMenu = $('.mobile-menu');
+
+                if (mobileMenu.hasClass('mobile-menu--active'))
+                    $('.mobileMenuCloser').show();
+                else
+                    $('.mobileMenuCloser').hide();
+
+            });
+
+            $('body').on('click', '.mobileMenuCloser', function () {
+
+                var _this = $(this);
+                debugger;
+                //$('.mobile-menu-toggler').toggle();
+                $('.mobile-menu').removeClass('mobile-menu--active');
+                $('.mobileMenuCloser').hide();
+            });
+			
+            var sideMenus = $('a.side-menu');
+            if(sideMenus != null)
+                if(sideMenus.length > 0) {
+                    for(var i = 0; i < sideMenus.length; i++) {
+                        var sideMenu = sideMenus[i];
+                        $(sideMenu).attr('disabled', 'disabled');
+                    }
+                }
+
+            // $('body').on('click', '.mobile-menu.mobile-menu--active:before', function (e) {
+
+            //     e.preventDefault();
+
+            //     var _this = $(this);
+
+            //     $('.mobile-menu-toggler').click();
+            // });
+            //$('[data-nameFamily="nameFamily"]').html(nameFamily);
+        })
+    </script>
+
+}
+

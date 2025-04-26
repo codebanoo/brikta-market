@@ -1,0 +1,234 @@
+﻿<div class="content">
+
+    <div class="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
+        @*         <h2 class="intro-y text-lg font-medium">لیست املاک ملکاوان</h2> *@
+
+
+
+
+        @*            <div class="w-30 sm:w-auto mt-3 sm:mt-0  ml-auto">
+        <div class="w-56 relative text-slate-500">
+        <input type="text" class="form-control w-56 box pr-10" placeholder="جستوجو...">
+        <i class="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-lucide="search"></i>
+        </div>
+        </div>*@
+        <div class="dropdown inline-block ml-auto" data-tw-placement="bottom-end">
+            @*     <button class="dropdown-toggle btn btn-primary mr-2" aria-expanded="false" data-tw-toggle="dropdown"> <i data-lucide="filter" class="w-4 h-4 mr-2"></i> جستجو پیشرفته </button>
+            <div class="dropdown-menu">
+            <!--id: searchOfPropertydrp-->
+            <ul class="dropdown-content" id="searchOfPropertydrp">
+            <li>
+            <div class="grid grid-cols-12 gap-4 gap-y-3">
+            <div class="col-span-4">
+            <label>نوع ملک</label>
+            <!--id:slcPropertyTypeId-->
+            <select data-placeholder="نوع ملک خود را انتخاب کنید" class="tom-select mt-3" id="id:slcPropertyTypeId">
+            <option value="1">---</option>
+            <option value="2">ویلا</option>
+            <option value="3">زمین</option>
+            <option value="4">کلنگی</option>
+            <option value="5">سوله</option>
+            <option value="6">آپارتمان</option>
+            </select>
+            </div>
+            <div class="col-span-4">
+            <label>نوع کاربری</label>
+            <!--id:slcTypeOfUsesId-->
+            <select data-placeholder="نوع کاربری خود را انتخاب کنید" class="tom-select mt-3" id="slcTypeOfUsesId">
+            <option value="1">---</option>
+            <option value="2">مسکونی</option>
+            <option value="3">کشاورزی</option>
+            <option value="4">تجاری</option>
+            <option value="5">باغات</option>
+            <option value="6">باغات</option>
+            </select>
+            </div>
+            <div class="col-span-4">
+            <label>نوع سند</label>
+            <!--id:slcDocumentTypesId-->
+            <select data-placeholder="نوع سند خود را انتخاب کنید" class="tom-select mt-3" id="slcDocumentTypesId">
+            <option value="1">---</option>
+            <option value="2">منگوله دار</option>
+            <option value="3">تک برگ</option>
+            <option value="4">تجاری</option>
+            <option value="5">باغات</option>
+            <option value="6">بنچاقی و شورایی</option>
+            </select>
+            </div>
+            </div>
+            <div class="grid grid-cols-12 gap-4 gap-y-3 mt-2">
+            <div class="col-span-4">
+            <label>استان</label>
+            <!--id:slcStateId-->
+            <select data-placeholder="استان خود را انتخاب کنید" class="tom-select mt-3" id="slcStateId">
+            <option value="1">---</option>
+            <option value="2">آذربایجان شمالی</option>
+            <option value="3">تهران</option>
+            <option value="4">مازندران</option>
+            <option value="5">اصفهان</option>
+            <option value="6">البرز</option>
+            <option value="7">ایلام</option>
+            <option value="8">بوشهر</option>
+            </select>
+            </div>
+            <div class="col-span-4">
+            <label>بخش</label>
+            <!--id:slcCityId-->
+            <select data-placeholder="بخش خود را انتخاب کنید" class="tom-select mt-3" id="slcCityId">
+            <option value="1">---</option>
+            <option value="2">تهران</option>
+            <option value="3">تسوج</option>
+            <option value="4">بناب</option>
+            <option value="5">اهر</option>
+            </select>
+            </div>
+            <div class="col-span-4">
+            <label>شهر/منطقه</label>
+            <!--id:slcZoneId-->
+            <select data-placeholder="شهر یا منطقه خود را انتخاب کنید" class="tom-select mt-3" id="slcZoneId">
+            <option value="1">---</option>
+            </select>
+            </div>
+            </div>
+            </li>
+            <li>
+            <div class="flex p-1" id="changeButtons">
+
+            <!--id:unique-->
+            <button type="button" class="btn btn-primary py-1 px-2 mr-auto">پاک کردن همه تغییرات</button>
+            <button type="button" class="btn btn-secondary py-1 px-2 ml-auto" data-tw-dismiss="dropdown">لغو</button>
+            <button type="button" class="btn btn-primary py-1 px-2 ml-2">اعمال تغییرات</button>
+            </div>
+            </li>
+            </ul>
+            </div> *@
+        </div>
+
+    </div>
+
+    <div class="intro-y col-span-12 items-center mt-2">
+
+
+
+
+        <!-- #region Owner Properties -->
+        <div class="flex flex-col">
+            <!-- Table Header -->
+            <div class="flex bg-gray-200  border-b border-gray-300 text-gray-800 font-bold mb-5 mt-5 theader-usb flex justify-center container1_project">
+
+                <div class="w-1/5 p-2 text-center">عنوان ملک</div>
+                <div class="w-1/5 p-2 text-center">مساحت</div>
+                <div class="w-1/5 p-2 text-center">قیمت متری</div>
+                <div class="w-1/5 p-2 text-center">قیمت کل</div>
+                <div class="w-1/5 p-2 text-center">آدرس</div>
+            </div>
+
+            <!-- Table Row 1 -->
+            <div id="mainDiv">
+            </div>
+
+            <div class="divPagination bg-withe" style="display:grid; justify-content:center;" id="paginationDiv">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination" id="paginationDivUl"></ul>
+                </nav>
+            </div>
+
+
+            <!-- Table Row 2 -->
+
+        </div>
+
+
+        <!-- #endregion -->
+
+
+    </div>
+
+
+
+    @*
+    <div id="paginationDiv" class="d-none divPagination bg-withe md:col-span-12 xl:col-span-3 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mt-5">
+    <nav aria-label="Page navigation">
+    <ul class="pagination" id="paginationDiv"></ul>
+    </nav>
+    </div> *@
+</div>
+
+<!-- BEGIN: Map Modal -->
+<div id="Map-Modal" class="modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-5 text-center" id="MapModal">
+                <div class="row col-12">
+                    <div id="mapLeft" class="col-xl-6 col-lg-6 col-md-6 col-sm-12"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Map Modal -->
+<!-- BEGIN : ProfileModal -->
+<div id="ProfileModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-l">
+        <div class="modal-content">
+            <div class="modal-body text-center" style="border-radius: 0.375rem;" id="Contracts-Modal">
+                <div class="intro-x">
+                    <div class="items-center">
+                        <div class="text-center">
+                            <a data-tw-toggle="modal" style="cursor:default !important" data-tw-target="#ProfileModal" class="btn w-full mb-3 px-4 py-4 flex items-center bg-primary/10">
+                                <div class="flex ">
+                                    <div class="grid grid-cols-2 gap-5 pl-4 pr-4">
+                                        <div id="name" class="table-title">نام</div>
+                                        <div class="table-text" id="personNameValue"></div>
+                                        <div id="family" class="table-title"> نام خانوادگی</div>
+                                        <div class="table-text" id="personLastNameValue"></div>
+                                        <div id="call" class="table-title"> موبایل</div>
+                                        <div class="table-text" id="personPhoneValue"></div>
+                                        <div id="State" class="table-title">استان</div>
+                                        <div class="table-text" id="personStateValue"></div>
+                                        <div id="city" class="table-title">شهر </div>
+                                        <div class="table-text" id="personCityValue"></div>
+
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END : ProfileModal -->
+<!-- BEGIN : ChartModal -->
+<div id="ChartModal" class="modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div style="padding:0px;" class="modal-content">
+            <div class="modal-body text-center" id="">
+                <div class="intro-x">
+                    <div id="te" class="text-right mb-2">
+                        <select id="select_tags" style="cursor:pointer !important;" data-placeholder="نوع مرتب سازی را انتخاب کنید" class="tom-select">
+                            <option selected value="7days">7 روز اخیر</option>
+                            <option value="15days"> 15 روز اخیر</option>
+                            <option value="30days"> 30 روز اخیر</option>
+                            <option value="60days"> 60 روز اخیر</option>
+                        </select>
+                    </div>
+                    <div class=" mb-3 ">
+                        <div id="container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END : ChartModal -->
+
+
+<div class="row">
+    <div id="largeImagePreview" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000;">
+
+        <video class="hidden" controls src="" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" id="largeVideoContainer"></video>
+
+    </div>
+</div>

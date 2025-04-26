@@ -1,0 +1,153 @@
+﻿@using VM.Teniaco;
+@using Newtonsoft.Json;
+
+
+<script type="text/javascript">
+    @{
+        List<MapLayerCategoriesVM> mapLayerCategoriesList = new List<MapLayerCategoriesVM>();
+        @Html.Raw("var mapLayerCategoriesList  = [];")
+        ;
+
+        if (ViewData["MapLayerCategoriesList"] != null)
+        {
+            mapLayerCategoriesList = (List<MapLayerCategoriesVM>)ViewData["MapLayerCategoriesList"];
+
+            var mapLayerCategoriesListData = mapLayerCategoriesList.Select(a =>
+
+            new
+            {
+                DisplayText = $"{a.MapLayerCategoryTitle}",
+                Value = a.MapLayerCategoryId,
+                Data_Parent = a.ParentMapLayerCategoryId
+            });
+
+            @Html.Raw("debugger; mapLayerCategoriesList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(mapLayerCategoriesListData))+" ;debugger;")
+            ;
+        }
+    }
+
+</script>
+
+
+
+<!-- Openlayers -->
+<link rel="stylesheet" href="https://openlayers.org/en/latest/legacy/ol.css" />
+<script type="text/javascript" src="https://openlayers.org/en/latest/legacy/ol.js"></script>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
+
+
+
+
+<!-- ol-ext -->
+<link rel="stylesheet" href="~/lib/ol-ext/dist/ol-ext.css" />
+<script type="text/javascript" src="~/lib/ol-ext/dist/ol-ext.js"></script>
+
+
+
+
+
+
+<style type="text/css">
+
+
+    .map-container {
+        display: flex;
+        margin: 2rem 2rem;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .tools {
+        text-align: center;
+        display: inline-block;
+        width: 2.5em;
+        height: 500px;
+        background: #eee;
+    }
+
+
+        .tools i {
+            font-size: 2em;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+    #compare {
+        position: relative;
+        float: left;
+        height: 500px;
+        width: 100%;
+    }
+
+    .fullscreen .tools {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        padding: 6em 0;
+        touch-action: none;
+    }
+
+    .fullscreen #compare {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        height: auto;
+    }
+
+    #map,
+    #map2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #compare.view1 #map2 {
+        display: none;
+    }
+
+    #compare.view2 #map {
+        display: none;
+    }
+
+    #compare.swipev #map .ol-control,
+    #compare.swipeh #map .ol-control,
+    #compare.clip #map .ol-control {
+        display: none;
+    }
+
+    #compare.swipev .ol-target-overlay,
+    #compare.swipeh .ol-target-overlay {
+        display: none;
+    }
+
+    .compare #map {
+        width: 50%;
+    }
+
+    .compare #map2 {
+        left: 50%;
+        width: 50%;
+    }
+
+    .ol-popup {
+        max-width: 300px;
+        min-width: 100px;
+        min-height: 1em;
+        z-index: 1;
+    }
+
+        .ol-popup img {
+            float: left;
+            margin: 0 0.5em 0 0;
+            max-width: 100px;
+            max-height: 100px;
+        }
+
+</style>

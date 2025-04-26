@@ -1,0 +1,203 @@
+﻿@using VM.Melkavan
+@using VM.Public;
+
+
+
+<div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header bg-white shadow-sm osahan-header">
+
+    <div class="d-flex align-items-center gap-2">
+        <a href="#" class="heartIcon bg-white shadow rounded-circle icon">
+            <span id="h-icon" class="mdi mdi-cards-heart-outline mdi-18px text-primary"></span>
+        </a>
+        <a href="#" class="shareIcon bg-white shadow rounded-circle icon">
+            <span id="h-icon" class="mdi mdi-share-variant-outline mdi-18px text-primary"></span>
+        </a>
+    </div>
+    <h6 class="mb-0 ms-3 me-auto fw-bold">جزئیات آگهی  </h6>
+    <a id="backButton" class="text-dark bg-white shadow rounded-circle icon">
+        <span class="mdi mdi-arrow-left mdi-18px"></span>
+    </a>
+</div>
+
+<div class="vh-100 my-auto overflow-auto body-fix-osahan-footer">
+    <div class="p-3">
+
+        <div class="title mb-5">
+            <span style="background-color:#0147ff;" class="float-start p-1 rounded text-white" id="ad_type"></span>
+        </div>
+
+        <div class="bg-white rounded-4 mt-4  shadow-sm carousel slide tab-content mb-3 " id="pills-tabContent">
+            <div id="demo" class="carousel slide" data-bs-ride="carousel">
+
+                <!-- Indicators/dots -->
+                <div class="carousel-indicators" id="slider-buttons">
+                </div>
+
+                <!-- The slideshow/carousel -->
+                <div class="carousel-inner" id="AdvertisementDetailImage">
+                </div>
+
+                <!-- Left and right controls/icons -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <h6 class="mb-4 mt-4 title">
+            <span class="fs-5" id="ad_title">عنوان آگهی</span>
+        </h6>
+
+        <div class="text-end">
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm ">
+                <h6 class=" title" id="">مساحت</h6>
+                <p class="text-muted mb-2 description" id="area"><br></p>
+            </div>
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm " id="FoundationDiv" style="display:none">
+                <h6 class=" title">زیر بنا</h6>
+                <p class="text-muted mb-2 description" id="Foundation"><br></p>
+            </div>
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm" id="prices">
+                <div class="sale-only">
+                    <h6 class="title" id="offerPriceTitle">قیمت</h6>
+                    <p class="text-muted mb-2 description " id="offerPrice"><br></p>
+                </div>
+                <div class="rent-only">
+                    <h6 class=" title" id="rentPriceTitle"> اجاره</h6>
+                    <p class="text-muted mb-2" id="rentPrice"><br></p><br />
+
+                    <h6 class=" title" id="deositPriceTitle"> ودیعه</h6>
+                    <p class="text-muted mb-2" id="deositPrice"><br></p><br />
+
+
+                    <h6 class="title" id="convertableTitle" style="display:none"> قابل تبدیل</h6>
+                    <p class="text-muted mb-2" id="convertable"><br></p><br />
+
+
+                    <h6 class=" title" id="maritalStatusTitle" style="display:none"> وضعیت تاهل</h6>
+                    <p class="text-muted mb-2" id="maritalStatus"><br></p>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div id="mapLeft" class="" style="height:200px !important; width: 100% !important;"></div>
+            </div>
+            @*       <div class=" rounded-4 mx-0 mt-3 row col-12 rounded-4 mb-3 w-100" style="min-height: 10rem!important">
+            <div id="mapLeft" class=" rounded-4 "></div>
+            </div>*@
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm" id="yearsDiv" style="display:none;">
+                <h6 class=" title" id="buildingLifeTitle" style="display:none;">عمر بنا</h6>
+                <p class="text-muted mb-2 description" id="buildingLife" style="display:none;"><br></p><br />
+
+                <h6 class=" title" id="rebuiltYearTitle" style="display:none">سال بازسازی</h6>
+                <p class="text-muted mb-2 description" id="rebuiltYear"><br></p>
+            </div>
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm">
+                <h6 class=" title" id="">نوع ملک</h6>
+                <p class="text-muted mb-2 description" id="typeOfProperty"><br></p><br />
+
+                <h6 class=" title" id="">نوع کاربری</h6>
+                <p class="text-muted mb-2 description" id="TypeOfUse"><br></p><br />
+
+                <div class="sale-only" id="documents">
+                    <h6 class=" title" id="documentTypeTitle" style="display:none">نوع سند</h6>
+                    <p class="text-muted mb-2 description" id="documentType"><br></p><br />
+
+                    <h6 class=" title" id="documentRootTypeTitle" style="display:none">نوع ریشه سند</h6>
+                    <p class="text-muted mb-2 description" id="documentRootType"><br></p><br />
+
+
+                    <h6 class="title" id="documentOwnershipTypeTitle" style="display:none">نوع مالکیت سند</h6>
+                    <p class="text-muted mb-2 description" id="documentOwnershipType"><br></p>
+
+
+                </div>
+
+            </div>
+            <div id="features">
+            </div>
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm" id="descriptionDiv" style="display:none">
+                <h6 class="mb-3 title" id=""> توضیحات</h6>
+                <p class="text-muted mb-2 description" id="description"><br></p>
+            </div>
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm">
+                <h6 class="mb-3 title" id="">زمان ثبت آگهی</h6>
+                <p class="text-muted mb-2 description" id="time"><br></p>
+            </div>
+            <h6 class="text-muted mb-2" id="address" style="text-align:center"><br></h6>
+            @{
+                AdvertisementVM advertisementVM = (AdvertisementVM)ViewData["AdvertisementVM"];
+            }
+            @if (advertisementVM.AdvertisementSelectedCallersVM.CallerType == "Advertiser")
+            {
+                <button class="btn btn-primary py-3 shadow-lg" id="advertiser-chat-btn" style="width:45% !important">پیامک به آگهی دهنده</button>
+                <button class="btn btn-primary py-3 shadow-lg" id="advertiser-call-btn" style="width:45% !important; float:left">تماس با آگهی دهنده</button>
+            }
+            @if (advertisementVM.AdvertisementSelectedCallersVM.CallerType == "Agency")
+            {
+                <button class="btn btn-primary py-3 shadow-lg" id="agency-chat-btn" style="width:45% !important">پیامک به مشاور</button>
+                <button class="btn btn-primary py-3 shadow-lg" id="agency-call-btn" style="width:45% !important; float:left">تماس با مشاور</button>
+            }
+            @if (advertisementVM.AdvertisementSelectedCallersVM.CallerType == "Both")
+            {
+                @*                 <button class="btn btn-primary py-3 shadow-lg" id="advertiser-chat-btn" style="width:45% !important">پیامک به آگهی دهنده</button>
+            <button class="btn btn-primary py-3 shadow-lg" id="advertiser-call-btn" style="width:45% !important; float:left">تماس با آگهی دهنده</button>
+            <button class="btn btn-primary py-3 shadow-lg mt-2" id="agency-chat-btn" style="width:45% !important">پیامک به مشاور</button>
+            <button class="btn btn-primary py-3 shadow-lg mt-2" id="agency-call-btn" style="width:45% !important; float:left">تماس با مشاور</button> *@
+
+                <button class="btn btn-primary py-3 shadow-lg" id="both-chat-btn" style="width:45% !important">پیامک</button>
+                <button class="btn btn-primary py-3 shadow-lg" id="both-call-btn" style="width:45% !important; float:left">تماس</button>
+
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+@*footer*@
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a id="melkavan-icon" class="col footer-bottom-nav  active">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>

@@ -1,0 +1,305 @@
+﻿@{
+    Layout = null;
+}
+<script>
+    var firstTime = true;
+    var current_last = 0;
+    var isLoading = false;
+
+    function convertToPersianAndFormat(priceString) {
+        // Convert the string to a number and format it with commas
+        const number = Number(priceString);
+        const formattedNumber = number.toLocaleString('en-US');
+
+        // Convert each digit to Persian
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const persianNumber = formattedNumber.replace(/\d/g, (d) => persianDigits[d]);
+
+        return persianNumber;
+    }
+
+    $(document).ready(function () {
+        $(window).on('scroll', function () {
+            if ((firstTime && !isLoading) ||
+                ($(window).scrollTop() + $(window).height() == $(document).height() && current_last % 10 == 0 && !isLoading)) {
+                $("#loading-div").show();
+                isLoading = true;
+                $.ajax({
+                    cache: false,
+                    type: "Post",
+                    url: "/UserMelkavan/MelkavanPanel/WatchedAdvertisements",
+                    data: {
+                        'startIndex': current_last,
+                        'pageSize': 10
+                    },
+                    success: function (response) {
+                        debugger;
+                        if (response.Result == "OK" && response.Records.length == 0) {
+                            $("#loading-div").hide();
+                            return;
+                        }
+                        current_last += response.Records.length;
+                        if (response.Records.length == 0) {
+                            if (firstTime) {
+                                var div = $('<div></div>');
+                                div.html('<div class="justify-content-between gap-3 bg-white p-2 my-4 mx-2 shadow-sm rounded-5 shadow-sm property-card">' +
+                                    '<p style="text-align:center;font-size: 1rem;">شما آگهی ثبت شده ای ندارید</p>' +
+                                    '</div>');
+                                $('#main-container').append(div);
+                            }
+                        }
+                        for (var i = 0; i < response.Records.length; i++) {
+                            var item = response.Records[i];
+                            var address = "";
+
+
+                            if ((item.StateName != null) ||
+                                (item.StateName != "") &&
+                                (item.CityName != null) ||
+                                (item.CityName != "") &&
+                                (item.ZoneName != null) ||
+                                (item.ZoneName != "") &&
+                                (item.TownName != null) ||
+                                (item.TownName != "")) {
+                                address += item.CityName + '، ' + item.TownName;
+                            } else {
+
+                                if (item.StateName != null) {
+                                    if (item.StateName != "") {
+
+                                        address += item.StateName + '، ';
+                                    }
+                                }
+
+
+                                if (item.CityName != null) {
+                                    if (item.CityName != "") {
+                                        address += item.CityName + '، ';
+                                    }
+                                }
+
+
+                                if (item.ZoneName != null) {
+                                    if (item.ZoneName != "") {
+                                        address += item.ZoneName + '، ';
+                                    }
+                                }
+
+
+                                if (item.TownName != null) {
+                                    if (item.TownName != "") {
+                                        address += item.TownName;
+                                    }
+                                }
+                            }
+
+
+                            var priceString = "";
+                            var rentString = "";
+                            var depositString = "";
+
+
+
+                            if (item.OfferPrice != null) {
+                                priceString = item.OfferPrice.toString();
+
+                            }
+
+
+                            if (item.RentPrice != null) {
+                                rentString = item.RentPrice.toString();
+                            }
+
+
+                            if (item.DepositPrice != null) {
+                                depositString = item.DepositPrice.toString();
+                            }
+
+
+                            // var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            // var codedRent = rentString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            // var codedDeposit = depositString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            var timeInMilliseconds = (new Date(item.CurrentDate)) - (new Date(item.CreateEnDate));
+
+                            var timeInHours = Math.ceil(timeInMilliseconds / (1000 * 60 * 60)) - 1;
+
+                            var timeInDays = Math.ceil(timeInHours / 24) - 1;
+
+                            var heartClass = "";
+
+
+                            var displayTime = "";
+                            if (timeInDays >= 1)
+                                displayTime = timeInDays.toString() + ' روز پیش ';
+                            else {
+                                if (timeInHours >= 1)
+                                    displayTime = timeInHours.toString() + ' ساعت پیش ';
+                                else
+                                    displayTime = "دقایقی پیش";
+                            }
+
+
+
+                            var imgSrc = "";
+
+                            if (item.RecordType == "Properties") {
+
+                                if (item.AdvertisementFilesVM != null && item.AdvertisementFilesVM.length != 0) {
+                                    imgSrc = '/Files/PropertiesFiles/my.teniaco.com/' + item.AdvertisementId +
+                                        '/Media/' + 'thumb_' + item.AdvertisementFilesVM[0].AdvertisementFilePath;
+                                }
+                                else {
+                                    imgSrc = "/images/Invert_Melkavan.jpg";
+                                }
+
+
+                            } else if (item.RecordType == "Advertisement") {
+
+                                if (item.AdvertisementFilesVM != null && item.AdvertisementFilesVM.length != 0) {
+                                    imgSrc = '/Files/AdvertisementsFiles/melkavan.com/' + item.AdvertisementId +
+                                        '/Media/' + 'thumb_' + item.AdvertisementFilesVM[0].AdvertisementFilePath;
+                                }
+                                else {
+                                    imgSrc = "/images/Invert_Melkavan.jpg";
+                                }
+                            }
+
+
+
+                            var labels = "";
+                            var priceDiv = "";
+
+                            if (item.TagId) {
+                                const tagIds = item.TagId + ',';
+
+                                if (tagIds.includes('1')) {
+                                    labels += '<span class="badge badge-pill bg-danger ms-1">فوری</span>';
+                                }
+                                if (tagIds.includes('2')) {
+                                    labels += '<span class="badge badge-pill bg-warning ms-1">مشارکت</span>';
+                                }
+                                if (tagIds.includes('3')) {
+                                    labels += '<span class="badge badge-pill bg-info ms-1">معاوضه</span>';
+                                }
+                                if (tagIds.includes('4')) {
+                                    labels += '<span class="badge badge-pill bg-success ms-1">زیر قیمت</span>';
+                                }
+
+                            }
+
+                            if (item.AdvertisementTypeId == 2) {
+                                //labels = '<div><span class="badge badge-pill bg-danger">فوری</span></div>';
+                                //if (codedPrice !== "") {
+                                if (priceString !== '0') {
+                                    priceDiv = '<div class="mb-1 fs-14 pl-2 card-price" >' + convertToPersianAndFormat(priceString) + ' تومان </div>';
+                                } else {
+                                    priceDiv = '<div class="mb-1 fs-14 pl-2 card-price">قیمت توافقی</div>';
+                                }
+
+                            } else {
+                                priceDiv = '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">ودیعه:</span><span class="float-start"> ' + convertToPersianAndFormat(depositString) + ' تومان </span><br/></div></div>';
+                                priceDiv += '<div><div class="mb-1 fs-14 pl-2 card-price" ><span class="float-end">اجاره:</span><span class="float-start"> ' + convertToPersianAndFormat(rentString) + ' تومان </span><br/></div></div>';
+
+
+
+
+                                //href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + ' ? Id = ' + item.AdvertisementId' & Type=' + item.RecordType + ''
+
+
+
+
+                            }
+
+                            //href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + ? Id = ' + item.AdvertisementId + ' & Type=' + item.RecordType + '
+                            var div = $('<div id="ad_' + (i + current_last) + '"></div>');
+
+                            if (address.includes('null')) {
+                                address = "";
+                            }
+
+                            div.html('<a   class="advertisementDetail d-flex justify-content-between gap-3 bg-white p-2 my-1 mx-2 shadow-sm rounded-4 shadow-sm property-card" data-recordType="' + item.RecordType + '" data-advertisementId="' + item.AdvertisementId + '">' +
+                                '<div style="width: 100%;">' +
+                                '<h6 class="mb-1 fs-14 fw-bold" >' + item.AdvertisementTitle + '</h6>' +
+                                labels +
+                                priceDiv +
+                                '<div class="">' +
+                                '<span class="float-end">' + address + '</span>' +
+                                '</div>' +
+                                '<br />' +
+                                '<span class="float-end pt-2" >' + 'آخرین بازدید : ' + displayTime + '</span>' +
+                                '<span id="heart_' + item.AdvertisementId + '" class="text-primary heartIcon pt-1 float-start rounded-circle icon mdi ' +
+                                heartClass + ' mdi-18px"' + 'style=" width: 18px!important; min-width: 18px!important;">' +
+                                '</span>' +
+                                '</div>' +
+
+                                '<img class="rounded-4" style="height:125px;width:125px" src="' + imgSrc + '" title="' + item.AdvertisementTitle + '" />' +
+                                '</a>' +
+                                '</div>');
+                            $('#main-container').append(div);
+                            current_last += response.Records.length;
+
+                            isLoading = false;
+                            $("#loading-div").hide();
+
+                        }
+                        isLoading = false;
+                        $("#loading-div").hide();
+                        firstTime = false;
+
+                    },
+                    error: function () {
+                        $("#loading-div").hide();
+                        //$('#warningModal').modal("show");
+                        //$('#warningModal_text').html("خطا!");
+                    }
+                });
+            }
+        });
+        $(window).trigger("scroll");
+
+        $('body').on('click', '.advertisementDetail', function (e) {
+
+
+            e.preventDefault();
+            var _this = $(this);
+            var recordType = _this.attr('data-recordType');
+            var advertisementId = _this.attr('data-advertisementId');
+
+            // $.ajax({
+            //     cache: false,
+            //     type: "Post",
+            //     url: "/UserMelkavan/MelkavanPanel/AdvertisementDetails",
+
+            //     data: {
+            //         'Id': parseFloat(advertisementId),
+            //         'Type': recordType
+            //     },
+
+            //     success: function (result) {
+            //         if (result.Result == "OK") {
+
+            //         }
+            //         else
+            //             if (result.Result == "ERROR") {
+            //                 $('#my-warning-modal').find('.modal-title').html('خطا');
+            //                 $('#my-warning-modal').find('#error').html('خطا');
+            //                 $('#my-warning-modal').modal("show");
+            //             }
+            //     }
+
+            // });
+
+            window.location.href = "/UserMelkavan/MelkavanPanel/AdvertisementDetails" + '?Id=' + advertisementId + '&Type=' + recordType;
+
+        });
+
+        $('body').on('click', '#chart-btn', function (e) {
+
+            var id = $(e.target).attr('data-id');
+            window.location.href = '/UserMelkavan/MelkavanPanel/ViewChart/' + id;
+        });
+    });
+</script>

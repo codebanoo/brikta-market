@@ -1,0 +1,695 @@
+﻿@{
+    Layout = null;
+}
+
+<script type="text/javascript">
+    let advertiserMobile = null;
+    let agencyMobile = null;
+    $(document).ready(function () {
+
+
+
+        $(document).on('click', '.shareIcon', function (e) {
+            e.preventDefault();
+
+            const pageUrl = window.location.href; // Get the current page URL
+            if (navigator.share) {
+                // Use Web Share API if supported
+                navigator.share({
+                    title: document.title, // Optional: the title of the page
+                    url: pageUrl
+                }).then(() => {
+                    console.log('Page shared successfully!');
+                }).catch((error) => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                // Fallback: Copy the link to clipboard
+                const tempInput = $('<input>');
+                $('body').append(tempInput);
+                tempInput.val(pageUrl).select();
+                document.execCommand('copy');
+                tempInput.remove();
+                alert('Page URL copied to clipboard!');
+            }
+        });
+
+
+
+
+        if (advertisement.AdvertisementDetailsVM != null) {
+
+            if (advertisement.AdvertisementDetailsVM.AdvertisementTypeId == 1) {
+                $(".sale-only").hide();
+            } else {
+                $(".rent-only").hide();
+
+            }
+        }
+
+        debugger;
+
+        if (advertisement.AdvertisementSelectedCallersVM != null) {
+
+            if (advertisement.AdvertisementSelectedCallersVM.CallerType == "Advertiser") {
+                advertiserMobile = advertisement.AdvertisementSelectedCallersVM.AdvertiserNumber;
+            }
+            else if (advertisement.AdvertisementSelectedCallersVM.CallerType == "Agency") {
+                agencyMobile = advertisement.AdvertisementSelectedCallersVM.AgencyNumber;
+            }
+            else if (advertisement.AdvertisementSelectedCallersVM.CallerType == "Both") {
+                advertiserMobile = advertisement.AdvertisementSelectedCallersVM.AdvertiserNumber;
+                agencyMobile = advertisement.AdvertisementSelectedCallersVM.AgencyNumber;
+            }
+
+
+            if (advertiserMobile) {
+                if (advertiserMobile[0] == '0') {
+                    advertiserMobile = advertiserMobile.replace(/0/, '+98');
+                }
+            }
+            if (agencyMobile) {
+                if (agencyMobile[0] == '0') {
+                    agencyMobile = agencyMobile.replace(/0/, '+98');
+                }
+            }
+
+
+        }
+
+
+
+        // Event listener for play button
+        $('body').on('click', '.play-icon', function () {
+            const video = $(this).siblings('video');
+            const thumbnail = $(this).siblings('img');
+            video.removeClass('d-none'); // Show the video
+            thumbnail.removeClass('d-block').addClass('d-none');
+            video[0].play(); // Start playing the video
+            $(this).hide(); // Hide the play icon
+
+            $('#demo').carousel('pause');
+            $('#slider-buttons').remove();
+        });
+
+        function isVideoFile(filePath) {
+            const videoExtensions = ['mp4', 'webm', 'ogg'];
+            const fileExtension = filePath.split('.').pop().toLowerCase();
+            return videoExtensions.includes(fileExtension);
+        }
+
+
+        function createVideoThumbnail(videoUrl) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                video.src = videoUrl;
+                video.currentTime = 1; // Capture the thumbnail at 1 second
+
+                video.addEventListener('loadeddata', () => {
+                    try {
+                        // Set canvas size to match video dimensions (scaled down if needed)
+                        canvas.width = video.videoWidth / 4;
+                        canvas.height = video.videoHeight / 4;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                        // Convert canvas content to a data URL
+                        const thumbnailUrl = canvas.toDataURL('image/jpeg');
+                        resolve(thumbnailUrl);
+                    } catch (error) {
+                        reject('Error generating video thumbnail: ' + error.message);
+                    }
+                });
+
+                video.addEventListener('error', () => {
+                    reject('Failed to load video for thumbnail generation.');
+                });
+            });
+        }
+
+
+
+        if (advertisement.AdvertisementFilesVM != null && advertisement.AdvertisementFilesVM.length > 0) {
+            for (var i = 0; i < advertisement.AdvertisementFilesVM.length; i++) {
+                var classes = "";
+                if (i == 0) classes = "active";
+                $("#slider-buttons").append($('<button type="button" data-bs-target="#demo" data-bs-slide-to="' + i.toString() + '" class="' + classes + '"></button>'));
+
+
+                if (advertisement.RecordType == 'Properties') {
+
+                    let filePath = advertisement.AdvertisementFilesVM[i].AdvertisementFilePath;
+                    let fileUrl = "/Files/PropertiesFiles/my.teniaco.com/" + advertisement.AdvertisementId + "/Media/" + filePath;
+                    let isVideo = isVideoFile(filePath);
+
+                    if (isVideo) {
+
+                        $("#AdvertisementDetailImage").append($('<div class="carousel-item ' + classes + '">' +
+                            '<div class="video-thumbnail-wrapper" style="position: relative; height: 15rem;">' +
+                            '<img loading="lazy" class="d-block w-100 rounded-4" style="height:15rem; object-fit: cover;" src="/images/black.webp" alt="Video Thumbnail" />' +
+                            '<button class="play-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.5); border: none; border-radius: 50%; padding: 10px; cursor: pointer;">▶</button>' +
+                            '<video class="d-none" style="width: 100%; height: 15rem; object-fit: cover; border-radius:10px;" controls>' +
+                            '<source src="' + fileUrl + '" type="video/mp4">' +
+                            'Your browser does not support the video tag.' +
+                            '</video>' +
+                            '</div>' +
+                            '</div>'));
+
+                    }
+                    else {
+                        $("#AdvertisementDetailImage").append($('<div class="carousel-item ' + classes + '">' +
+                            '<img loading="lazy" class="d-block w-100 rounded-4" style="height:15rem" src="/Files/PropertiesFiles/my.teniaco.com/' + advertisement.AdvertisementId + '/Media/' +
+                            advertisement.AdvertisementFilesVM[i].AdvertisementFilePath + '"  alt="' + advertisement.AdvertisementTitle + '"/>' +
+                            '</div>'));
+                    }
+
+
+                }
+                else {
+
+
+                    let filePath = advertisement.AdvertisementFilesVM[i].AdvertisementFilePath;
+                    let fileUrl = "/Files/AdvertisementsFiles/melkavan.com/" + advertisement.AdvertisementId + "/Media/" + filePath;
+                    let isVideo = isVideoFile(filePath);
+
+                    if (isVideo) {
+
+                        // async function generateThumbnail() {
+                        // const thumbnailUrl = await createVideoThumbnail(fileUrl);
+                        // }
+
+                        $("#AdvertisementDetailImage").append($('<div class="carousel-item ' + classes + '">' +
+                            '<div class="video-thumbnail-wrapper" style="position: relative; height: 15rem;">' +
+                            '<img loading="lazy" class="d-block w-100 rounded-4" style="height:15rem; object-fit: cover;" src="/images/black.webp" alt="Video Thumbnail" />' +
+                            '<button class="play-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.5); border: none; border-radius: 50%; padding: 10px; cursor: pointer;"><span style="font-size:3rem;" class="mdi mdi-play mdi-16px text-white"></span></button>' +
+                            '<video class="d-none" style="width: 100%; height: 15rem; object-fit: cover; border-radius:10px;" controls>' +
+                            '<source src="' + fileUrl + '" type="video/mp4">' +
+                            'Your browser does not support the video tag.' +
+                            '</video>' +
+                            '</div>' +
+                            '</div>'));
+
+
+                        //generateThumbnail();
+
+
+                    }
+                    else {
+                        $("#AdvertisementDetailImage").append($('<div class="carousel-item ' + classes + '">' +
+                            '<img loading="lazy" class="d-block w-100 rounded-4" style="height:15rem" src="/Files/AdvertisementsFiles/melkavan.com/' + advertisement.AdvertisementId + '/Media/' +
+                            advertisement.AdvertisementFilesVM[i].AdvertisementFilePath + '"  alt="' + advertisement.AdvertisementTitle + '"/>' +
+                            '</div>'));
+                    }
+
+                }
+
+            }
+
+        }
+        else {
+            // $("#slider-buttons").append($('<button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>'));
+            $("#AdvertisementDetailImage").append($(
+                '<img loading="lazy" class="d-block rounded-4 mx-auto" style="height:10rem" src="/images/Invert_Melkavan.jpg"  alt="' + advertisement.AdvertisementTitle + '"/>'));
+        }
+
+        if (advertisement.IsFavorite) {
+            $("#h-icon").removeClass("mdi-cards-heart-outline");
+            $("#h-icon").addClass("mdi-cards-heart");
+        }
+        if (advertisement.AdvertisementTitle != null)
+            $("#ad_title").html(advertisement.AdvertisementTitle);
+
+
+
+        if (advertisement.AdvertisementDetailsVM != null) {
+            if (advertisement.AdvertisementDetailsVM.AdvertisementTypeId != null) {
+                if (advertisement.AdvertisementDetailsVM.AdvertisementTypeId == 1) {
+                    $("#ad_type").html('اجاره');
+                } else if (advertisement.AdvertisementDetailsVM.AdvertisementTypeId == 2) {
+                    $("#ad_type").html('فروش');
+                }
+            }
+        }
+
+
+
+        if (advertisement.Area != null)
+            $("#area").html(advertisement.Area + ' متر مربع');
+
+        if (advertisement.AdvertisementPricesHistoriesVM != null && advertisement.AdvertisementPricesHistoriesVM.OfferPrice != null) {
+            var priceString = advertisement.AdvertisementPricesHistoriesVM.OfferPrice.toString();
+            var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            //$("#prices").css("display","flow");
+            //$("#offerPriceTitle").css("display","flow");
+            $("#offerPrice").html(codedPrice + ' تومان');
+
+
+        } else {
+            $("#offerPrice").html('قیمت توافقی');
+        }
+
+
+
+
+        if (advertisement.AdvertisementPricesHistoriesVM != null && advertisement.AdvertisementPricesHistoriesVM.RentPrice != null) {
+            var priceString = advertisement.AdvertisementPricesHistoriesVM.RentPrice.toString();
+            var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            //$("#prices").css("display","flow");
+            $("#rentPrice").html(codedPrice + ' تومان');
+
+        }
+        if (advertisement.AdvertisementPricesHistoriesVM != null && advertisement.AdvertisementPricesHistoriesVM.DepositPrice != null) {
+            var priceString = advertisement.AdvertisementPricesHistoriesVM.DepositPrice.toString();
+            var codedPrice = priceString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            $("#deositPrice").html(codedPrice + ' تومان');
+        }
+
+        if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.Convertable == 1) {
+            $("#convertableTitle").css("display", "flow");
+            $("#convertable").html('بله');
+        } else {
+            $("#convertableTitle").css("display", "flow");
+            $("#convertable").html('خیر');
+        }
+
+
+
+        if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.MaritalStatusId == 0) {
+            $("#maritalStatusTitle").css("display", "flow");
+            $("#maritalStatus").html("مجرد و متاهل");
+        }
+
+        if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.MaritalStatusId == 1) {
+            $("#maritalStatusTitle").css("display", "flow");
+            $("#maritalStatus").html("متاهل");
+        }
+
+
+
+        if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.MaritalStatusId == 2) {
+            $("#maritalStatusTitle").css("display", "flow");
+            $("#maritalStatus").html("مجرد");
+        }
+
+
+        // if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.BuildingLifeId != null) {
+        //     $("#yearsDiv").css("display", "flow");
+        //     $("#buildingLifeTitle").css("display", "flow");
+        //     $("#buildingLife").html(advertisement.AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle);
+        // }
+
+
+
+        if (advertisement.AdvertisementDetailsVM != null) {
+            if (advertisement.AdvertisementDetailsVM.BuildingLifeId != null) {
+                if (advertisement.AdvertisementDetailsVM.BuildingLifeId != 0) {
+                    $("#yearsDiv").css("display", "flow");
+                    $("#buildingLifeTitle").css("display", "flow");
+                    $('#buildingLife').css("display", "flow");
+                    $("#buildingLife").html(advertisement.AdvertisementDetailsVM.BuildingLifesVM.BuildingLifeTitle);
+                }
+            }
+        }
+
+        if (advertisement.AdvertisementDetailsVM != null && advertisement.AdvertisementDetailsVM.Foundation != null) {
+
+            $("#FoundationDiv").css("display", "flow");
+            $("#Foundation").html(advertisement.AdvertisementDetailsVM.Foundation + ' متر مربع');
+        }
+        //if (advertisement.BuiltInYearFa != null)
+        //    $("#builtYear").html(advertisement.BuiltInYearFa);
+
+        if (advertisement.RebuiltInYearFa != null) {
+            $("#yearsDiv").css("display", "flow");
+            $("#rebuiltYearTitle").css("display", "flow");
+            $("#rebuiltYear").html(advertisement.RebuiltInYearFa);
+        }
+
+
+        if (advertisement.PropertyTypeTilte != null)
+            $("#typeOfProperty").html(advertisement.PropertyTypeTilte);
+        if (advertisement.TypeUseTitle != null)
+            $("#TypeOfUse").html(advertisement.TypeUseTitle);
+
+        if (advertisement.DocumentTypeTitle != null) {
+            $("#documentTypeTitle").css("display", "flow");
+            $("#documentType").html(advertisement.DocumentTypeTitle);
+        }
+
+
+        if (advertisement.DocumentOwnershipTypeTitle != null) {
+            $("#documentOwnershipTypeTitle").css("display", "flow");
+            $("#documentOwnershipType").html(advertisement.DocumentOwnershipTypeTitle);
+        }
+
+
+        if (advertisement.DocumentRootTypeTitle != null) {
+            $("#documentRootTypeTitle").css("display", "flow");
+            $("#documentRootType").html(advertisement.DocumentRootTypeTitle);
+        }
+
+
+        if (
+            (advertisement.DocumentTypeTitle == null) &&
+            (advertisement.DocumentOwnershipTypeTitle == null) &&
+            (advertisement.DocumentRootTypeTitle == null)
+        ) {
+            $("#documents").remove();
+        }
+
+        if (advertisement.AdvertisementDescriptions != null) {
+            $("#descriptionDiv").css("display", "flow");
+            $("#description").html(advertisement.AdvertisementDescriptions);
+        }
+
+
+        if (advertisement.CurrentDate != null && advertisement.CreateEnDate != null) {
+            var timeInMilliseconds = (new Date(advertisement.CurrentDate)) - (new Date(advertisement.CreateEnDate));
+            var timeInMinutes = Math.ceil(timeInMilliseconds / (1000 * 60)) - 1;
+            var timeInHours = Math.ceil(timeInMilliseconds / (1000 * 60 * 60)) - 1;
+            var timeInDays = Math.ceil(timeInHours / 24) - 1;
+            var displayTime = "";
+            if (timeInDays >= 1)
+                displayTime = timeInDays.toString() + ' روز پیش ';
+            else {
+                if (timeInHours >= 1)
+                    displayTime = timeInHours.toString() + ' ساعت پیش ';
+                else
+                    displayTime = "چند دقیقه پیش ";
+            }
+            $("#time").html(displayTime);
+        }
+
+
+        if (advertisement.AdvertisementAddressVM != null) {
+            var displayAddress = "";
+            if (advertisement.AdvertisementAddressVM.StateName != null && advertisement.AdvertisementAddressVM.StateName != "")
+                displayAddress += advertisement.AdvertisementAddressVM.StateName;
+            if (advertisement.AdvertisementAddressVM.CityName != null && advertisement.AdvertisementAddressVM.CityName != "")
+                displayAddress += '/' + advertisement.AdvertisementAddressVM.CityName;
+            if (advertisement.AdvertisementAddressVM.DistrictName != null && advertisement.AdvertisementAddressVM.DistrictName != "")
+                displayAddress += '/' + advertisement.AdvertisementAddressVM.DistrictName;
+            if (advertisement.AdvertisementAddressVM.ZoneName != null && advertisement.AdvertisementAddressVM.ZoneName != "")
+                displayAddress += '/' + advertisement.AdvertisementAddressVM.ZoneName;
+            if (advertisement.AdvertisementAddressVM.TownName != null && advertisement.AdvertisementAddressVM.TownName != "")
+                displayAddress += '/' + advertisement.AdvertisementAddressVM.TownName;
+
+            $("#address").html(displayAddress);
+            createMap(advertisement.AdvertisementAddressVM.LocationLon, advertisement.AdvertisementAddressVM.LocationLat);
+        }
+
+
+        if (advertisement.AdvertisementFeaturesValuesVM != null && advertisement.AdvertisementFeaturesValuesVM.length > 0) {
+            var div = $('<div class="bg-white rounded-4 p-3 mb-3 shadow-sm"></div>');
+            for (var i = 0; i < advertisement.AdvertisementFeaturesValuesVM.length; i++) {
+                var item = advertisement.AdvertisementFeaturesValuesVM[i];
+                var featureHead = $('<h6 class=" title" id=""></h6>');
+                featureHead.html(item.FeaturesVMList[0].FeatureTitle)
+                var featureP = $('<p class="text-muted mb-3 description" id="builtYear"></p><br/>');
+                var featureValues = item.FeatureValue.split(';');
+                for (var j = 0; j < (featureValues.length - 1); j++) {
+                    featureP.html(featureP.html() + featureValues[j] + '<br>');
+                }
+                div.append(featureHead);
+                div.append(featureP);
+                $("#features").append(div);
+            }
+        }
+
+        $('body').on('click', '#advertiser-chat-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'sms'
+                },
+                success: function (response) {
+
+                    if (advertiserMobile != "") {
+                        window.location.href = "sms:" + advertiserMobile;
+                    }
+                    //
+                },
+                error: function () {
+                    //$('#warningModal').modal("show");
+                    //$('#warningModal_text').html("خطا!");
+                }
+            });
+        });
+
+        $('body').on('click', '#advertiser-call-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'tel'
+                },
+                success: function (response) {
+
+                    if (advertiserMobile != "") {
+                        window.location.href = "tel:" + advertiserMobile;
+                    }
+
+                },
+                error: function () {
+                    //$('#warningModal').modal("show");
+                    //$('#warningModal_text').html("خطا!");
+                }
+            });
+        });
+
+        $('body').on('click', '#agency-chat-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'sms'
+                },
+                success: function (response) {
+
+                    if (agencyMobile != "") {
+                        window.location.href = "sms:" + agencyMobile;
+                    }
+                    //
+                },
+                error: function () {
+                    //$('#warningModal').modal("show");
+                    //$('#warningModal_text').html("خطا!");
+                }
+            });
+        });
+
+        $('body').on('click', '#agency-call-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'tel'
+                },
+                success: function (response) {
+
+                    if (agencyMobile != "") {
+                        window.location.href = "tel:" + agencyMobile;
+                    }
+                    //
+                },
+                error: function () {
+                    //$('#warningModal').modal("show");
+                    //$('#warningModal_text').html("خطا!");
+                }
+            });
+        });
+
+        $('body').on('click', '#both-call-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'tel'
+                },
+                success: function (response) {
+
+                    const choice = prompt("لطفا یک شماره را انتخاب کنید:\n \n1. " + advertiserMobile.replace('+98', '0') + " (مشاور) " + "\n2. " + agencyMobile.replace('+98', '0') + " (دفتر املاک)");
+
+                    if (choice === "1") {
+                        window.location.href = "tel:" + advertiserMobile;
+                    } else if (choice === "2") {
+                        window.location.href = "tel:" + agencyMobile;
+                    } else {
+                        alert("لطفا بین دو گزینه 1 و 2 یکی را انتخاب نمایید");
+                    }
+
+
+                },
+                error: function () {
+
+                }
+            });
+        });
+
+        $('body').on('click', '#both-chat-btn', function (e) {
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/CallAdRegisterer",
+                data: {
+                    'id': advertisement.AdvertisementId,
+                    'type': 'tel'
+                },
+                success: function (response) {
+
+                    const choice = prompt("لطفا یک شماره موبایل را انتخاب کنید:\n \n1. " + advertiserMobile.replace('+98', '0') + " (آگهی دهنده) " + "\n2. " + agencyMobile.replace('+98', '0') + " (مشاور)");
+
+                    if (choice === "1") {
+                        window.location.href = "sms:" + advertiserMobile;
+                    } else if (choice === "2") {
+                        window.location.href = "sms:" + agencyMobile;
+                    } else {
+                        alert("لطفا بین دو گزینه 1 و 2 یکی را انتخاب نمایید");
+                    }
+
+
+                },
+                error: function () {
+
+                }
+            });
+        });
+
+
+        $('body').on('click', '.heartIcon', function (e) {
+
+            e.preventDefault();
+            if (!isAuthenticated) {
+                $('#loginModal').modal('show');
+                return;
+            }
+            var selectedHeartid = advertisement.AdvertisementId;
+            var type = advertisement.RecordType;
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/AdvertisementFavorite",
+                data: { 'id': selectedHeartid, 'type': type },
+                success: function (response) {
+
+                    if (response.Result == "OK") {
+                        var heartId = '#h-icon';
+                        if ($(heartId).hasClass('mdi-cards-heart-outline') && !response.Record.IsDeleted) {
+                            $(heartId).removeClass('mdi-cards-heart-outline');
+                            $(heartId).addClass('mdi-cards-heart');
+                        } else {
+                            $(heartId).removeClass('mdi-cards-heart');
+                            $(heartId).addClass('mdi-cards-heart-outline');
+                        }
+                    }
+                },
+                error: function () {
+                    alert('Error');
+                }
+            });
+        });
+    });
+
+    function createMap(lon, lat) {
+        //var LocationLon = 51.24494;
+        //var LocationLat = 36.66517;
+        var iconGeometry = new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'));
+        var raster = new ol.layer.Tile({
+            source: new ol.source.OSM,
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+        });
+
+        var view = new ol.View({
+            center: ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'),
+            //center: ol.proj.fromLonLat([116.5, 40]),
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+            constrainOnlyCenter: true,
+        });
+
+        var mapLeft = new ol.Map({
+            logo: false,
+            //ol.interaction.defaults.defaults({
+            //    attributionOptions: ({
+            //        collapsible: false
+            //    })
+            //}),
+            layers: [raster],
+            target: 'mapLeft',
+            view: view
+        });
+
+
+
+        var layer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [
+                    new ol.Feature({
+                        //geometry: new ol.geom.Point(ol.proj.fromLonLat([4.35247, 50.84673]))
+                        //geometry: new ol.geom.Point(ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'))
+                        geometry: iconGeometry
+                    })
+                ]
+            }),
+            style: new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [0.5, 46],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'pixels',
+                    src: '/images/mapmarker1.png',
+                    //src: 'https://openlayers.org/en/latest/examples/data/icon.png'
+                    //src: '<i class="fa fa-2x fa-map-marker">&nbsp;</i>'
+                })
+            })
+        });
+
+
+        mapLeft.addLayer(layer);
+    }
+</script>

@@ -1,0 +1,95 @@
+﻿@using VM.Public;
+
+
+@*<div style="position: fixed; z-index: 1; width: 100%;" class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header bg-white shadow-sm osahan-header">*@
+<div class="bg-white shadow-sm" style="position: fixed; z-index: 1; width: 100%;">
+    <div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header">
+
+        @*<div class="d-flex align-items-center gap-2">
+        <a class="toggle bg-white shadow rounded-circle icon d-flex align-items-center justify-content-center"
+        href="#"><i class="bi bi-list text-primary fs-5 d-flex"></i></a>
+        </div>*@
+        <h6 class="mb-0 ms-3 me-auto fw-bold">آگهی های من</h6>
+        <a id="backButton" class="text-dark bg-white shadow rounded-circle icon">
+            <span class="mdi mdi-arrow-left mdi-18px"></span>
+        </a>
+    </div>
+</div>
+
+<div style=" padding-bottom: 4rem!important; padding-top:4.5rem !important">
+
+    <div class="my-auto " id="main-container">
+
+        <!-- Properties List -->
+
+    </div>
+    <div id="loading-div" class="justify-content-center w-100" style="text-align: center;">
+        <div class="spinner-border text-secondary" role="status" style="width: 3rem; height: 3rem;">
+        </div>
+    </div>
+</div>
+
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a id="melkavan-icon" class="col footer-bottom-nav active">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav ">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>
+
+
+
+
+<!-- Modal -->
+<div dir="ltr" class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 mx-auto" id="exampleModalLabel">حذف آگهی</h1>
+                @*                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> *@
+            </div>
+            <div class="modal-body mx-auto">
+                آیا از حذف این آگهی اطمینان دارید ؟
+            </div>
+            <div class="modal-footer d-flex justify-content-center gap-5">
+                <button data-bs-dimiss="modal" type="button" style="width:100px; height:40px;" class="btn btn-danger confirmDelete">حذف آگهی</button>
+                <button id="cancelBtn" type="button" style="background-color:#ced4da; width:100px; height:40px;" class="btn" data-bs-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>

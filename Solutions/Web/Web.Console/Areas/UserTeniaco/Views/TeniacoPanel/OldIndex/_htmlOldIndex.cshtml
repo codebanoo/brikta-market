@@ -1,0 +1,124 @@
+﻿@using VM.Teniaco;
+
+
+<div class="map-section w-full flex">
+
+    <div class="col-xs-12 col-lg-6 property-value">
+        <div class="map-menu">
+            <span class="icon-layers"></span>
+            <h2 id="mapLayerCategories">لایه های نقشه</h2>
+            <div class="dropdown right">
+                <button id="showMapLayerCategories" name="showMapLayerCategories" class="dropbtn arrow  icon-left-arrow">
+                </button>
+                <div id="MapLayerCategoriesDrp" class="dropdown-content"></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-lg-6 area-value">
+        <div class="map-menu">
+            <span class="icon-layers"></span>
+            <h2 id="propertyValue">ارزش منطقه</h2>
+            <div class="dropdown left">
+                <button id="showPropertyValues" name="showPropertyValues" class="dropbtn arrow  icon-right-arrow">
+                </button>
+                <div id="PropertiesDrp" class="dropdown-content">
+                    @*<a id="satellite">ماهواره</a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@*--Map-block--*@
+<div class="map-container">
+    <div id="compare" class="compare">
+        <div id="map"></div>
+        <div id="map2"></div>
+    </div>
+</div>
+
+
+
+@*--Other Blocks--*@
+
+<div class="statics-section">
+    <div class="statics-item col-xs-12 col-sm-6 col-lg-6">
+        <div class="statics-item-right-col xs:w-2/3">
+            <h2>بیشترین معاملات مناطق تهران</h2>
+            <ul>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+            </ul>
+        </div>
+
+        <div class="statics-item-left-col xs:w-1/3">
+            <img src="~/outter_theme/assets/img/diagram.jpg" alt="">
+        </div>
+
+    </div>
+
+    <div class="statics-item col-xs-12 col-sm-6 col-lg-6">
+        <div class="statics-item-right-col xs:w-2/3">
+            <h2>بیشترین معاملات مناطق شمال</h2>
+            <ul>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+                <li>منطقه ۴: ده هزار معامله</li>
+            </ul>
+        </div>
+        <div class="statics-item-left-col xs:w-1/3">
+            <img src="~/outter_theme/assets/img/diagram.jpg" alt="">
+        </div>
+    </div>
+</div>
+
+<div class="tab-section">
+    <h2 class="title">وضعیت پروژه های من</h2>
+    <img class="w-full" src="~/outter_theme/assets/img/diagram-table.jpg" alt="">
+</div>
+
+<div class="project-suggestion">
+    <div class="suggestion-right-col  col-xs-12 col-sm-6 col-lg-6">
+
+        <div class="right-col-top-section">
+            <h2>پروژه پیشنهادی</h2>
+            <h3>ویلای مدرن عباس آباد</h3>
+            <p>
+                شما که این مطلب را می خوانید یا ساختمان ساز هستید.یا طراح هستید، یا یک فرد کنجکاو و به
+                دنبال ایده های جدید هستید. در هر صورت جزء انسان هایی هستید که با دیگران متفاوت است و
+                دوست دارید که کارهای خاص و منحصر به فرد انجام دهید.
+            </p>
+        </div>
+        <div class="right-col-middle-section">
+            <div class="item">
+                <h2>۲۵۰</h2>
+                <h3>متراژ زمین</h3>
+            </div>
+            <div class="item">
+                <h2>۱۱۷۱</h2>
+                <h3>زیربنا</h3>
+            </div>
+            <div class="item">
+                <h2>۷</h2>
+                <h3>طبقات</h3>
+            </div>
+        </div>
+        <a href="#">
+            <h5>مشاهده جزیات بیشتر</h5>
+        </a>
+
+    </div>
+    <div class="suggestion-left-col col-xs-12 col-sm-6 col-lg-6">
+        <img src="~/outter_theme/assets/img/bulding.jpg" class="full-width" alt="">
+    </div>
+
+</div>

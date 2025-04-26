@@ -1,0 +1,2940 @@
+﻿<link rel="stylesheet" href="~/lib/FlickitySlider/flickity.min.css" rel="stylesheet">
+<script type="text/javascript" src="~/lib/FlickitySlider/flickity.pkgd.min.js"></script>
+
+<script>
+
+    //set array for storing id of deleted photos
+    let RemovedPhotosIDs = [];
+    let RemovedPhotosPaths = [];
+
+    $(document).ready(function () {
+
+
+
+        var dispersionData = [];
+        ////
+        for (var i = 0; i < myFundsDispersionList.length; i++) {
+            var myFund = myFundsDispersionList[i];
+
+            if (sumOfDispersion > 0)
+                myFund.Growth = (myFund.MyFundPrice / sumOfDispersion) * 100
+
+
+            dispersionData.push({
+                name: myFund.MyFundTitle,
+                y: myFund.Growth
+            })
+            //}
+        }
+
+
+
+        for (var i = 0; i < propertyTypesList.length; i++) {
+
+            var item = propertyTypesList[i];
+            $('#PropertyTypeId, #EditPropertyTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < typeOfUsesList.length; i++) {
+
+            var item = typeOfUsesList[i];
+            $('#TypeOfUseId, #EditTypeOfUseId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < documentTypesList.length; i++) {
+
+            var item = documentTypesList[i];
+            $('#DocumentTypeId, #EditDocumentTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < documentRootTypesList.length; i++) {
+
+            var item = documentRootTypesList[i];
+            $('#DocumentRootTypeId, #EditDocumentRootTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < documentOwnershipTypesList.length; i++) {
+
+            var item = documentOwnershipTypesList[i];
+            $('#DocumentOwnershipTypeId, #EditDocumentOwnershipTypeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        for (var i = 0; i < buildingLifesList.length; i++) {
+
+            var item = buildingLifesList[i];
+            $('#BuildingLifeId, #EditBuildingLifeId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+
+
+
+        $('.grid').on('click', '.photos', function (event) {
+            const bgImage = $(this).attr('src').replace('thumb_', '');
+            //اگر تامبنیل ویدیو بود خود ویدیو رو دانلود بکنه
+            if ($(this).attr('videoSrc') != 'undefined') {
+                $('#downloadImage').attr('href', $(this).attr('videoSrc'));
+
+                $('#largeVideoContainer').removeClass('hidden');
+                $('#largeImageContainer').attr('src', '');
+                $('#largeVideoContainer').attr('src', $(this).attr('videoSrc'));
+                document.getElementById("largeVideoContainer").autoplay = true;
+                $('#largeImagePreview').fadeIn();
+
+                $('#largeVideoContainer').removeClass('hidden');
+
+                return;
+            }
+            //اگگه عکس بود خود عکس
+            else {
+                $('#downloadImage').attr('href', bgImage);
+            }
+
+
+            if (bgImage != undefined) {
+                $('#largeImageContainer').attr('src', bgImage);
+                $('#largeImagePreview').fadeIn();
+            }
+        });
+
+
+        // Hide the overlay when clicking outside the large image container
+        $('#largeImagePreview').click(function (event) {
+            if (!$(event.target).is('#largeImageContainer') && !$(event.target).is('#largeVideoContainer')) {
+                $(this).fadeOut();
+
+
+
+                let video = document.querySelector('#largeVideoContainer').pause();
+                $('#largeVideoContainer').addClass('hidden');
+            }
+        });
+
+
+        //تبدیل تاریخ
+        function ConvertDateToPersian(date) {
+            const dateObject = new Date(date);
+            const jalaaliDate = jalaali.toJalaali(dateObject);
+            const persianDate = `${jalaaliDate.jy}/${jalaaliDate.jm.toString().padStart(2, '0')}/${jalaaliDate.jd.toString().padStart(2, '0')}`;
+            const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return persianDate.replace(/\d/g, (digit) => persianNumbers[digit]);
+            return persianDate;
+        }
+
+        // تبدیل عدد انگلیسی به فارسی
+        function ConvertNumberToPersian(input) {
+            const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return input.toString().replace(/\d/g, (digit) => persianNumbers[digit]);
+        }
+
+
+        // Kia :: Active Menu By Class Every Area Spefic has been repeated
+        $(".side-nav ul li:nth-child(4)").addClass("activemenu");
+        $(".side-nav ul li:nth-child(4) a").addClass("activemenu-link");
+        $(".side-nav ul li:nth-child(4) a").removeClass("side-menu");
+        $(".side-nav ul li:nth-child(4) a .side-menu__title").addClass("activemenu-text");
+
+        $('body').on('click', '#pic', function (e) {
+            e.preventDefault();
+
+        });
+
+        $('body').on('click', '#doc', function (e) {
+            e.preventDefault();
+
+        });
+
+        $('body').on('click', '#location', function (e) {
+            e.preventDefault();
+
+        });
+
+
+        //#region map
+        function initializeMap(targetId, lon, lat, editButtonSelector, submitButtonSelector) {
+            var raster = new ol.layer.Tile({
+                source: new ol.source.OSM(),
+            });
+
+            var view = new ol.View({
+                center: ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'),
+                zoom: 12,
+                maxZoom: 17,
+                minZoom: 1,
+                constrainOnlyCenter: true,
+            });
+
+            var map = new ol.Map({
+                logo: false,
+                controls: ol.control.defaults({
+                    attributionOptions: {
+                        collapsible: false,
+                    },
+                }),
+                layers: [raster],
+                target: targetId,
+                view: view,
+            });
+
+            var iconGeometry = new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'));
+
+            var layer = new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: [
+                        new ol.Feature({
+                            geometry: iconGeometry,
+                        }),
+                    ],
+                }),
+                style: new ol.style.Style({
+                    image: new ol.style.Icon({
+                        anchor: [0.5, 46],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'pixels',
+                        src: '/images/mapmarketDefu.png',
+                    }),
+                }),
+            });
+
+            map.addLayer(layer);
+
+            // Initially, map interaction for changing location is disabled.
+            let interactionEnabled = false;
+
+            // Enable map click interaction to change the marker location
+            map.on('singleclick', function (evt) {
+                if (interactionEnabled) {
+                    const newCoordinates = evt.coordinate;
+                    iconGeometry.setCoordinates(newCoordinates);
+
+                    // Optional: Transform to EPSG:4326 and log the new location
+                    const lonlat = ol.proj.transform(newCoordinates, 'EPSG:3857', 'EPSG:4326');
+                }
+            });
+
+            // Event to toggle the edit mode for this specific map
+            $(editButtonSelector).on('click', function () {
+
+                $(submitButtonSelector).removeClass('hidden');
+                $(editButtonSelector).addClass('hidden');
+
+                interactionEnabled = !interactionEnabled; // Toggle interaction for this map
+
+            });
+
+            // Event to submit the location
+            $(submitButtonSelector).on('click', function () {
+
+                interactionEnabled = !interactionEnabled;
+                $(submitButtonSelector).addClass('hidden');
+                $(editButtonSelector).removeClass('hidden');
+
+                const coordinates = iconGeometry.getCoordinates();
+                const lonlat = ol.proj.transform(coordinates, 'EPSG:3857', 'EPSG:4326');
+                const longitude = lonlat[0];
+                const latitude = lonlat[1];
+                const propertyId = $(this).attr('propertyId');
+
+                // AJAX call to send the coordinates to the server
+                $.ajax({
+                    cache: false,
+                    url: '/UserTeniaco/MyPropertiesLocationForInvestorsManagement/UpdateMyPropertyLocationForInvestors', // Replace with your server endpoint
+                    type: 'POST',
+                    data: { 'LocationLat': latitude, 'LocationLon': longitude, 'PropertyId': propertyId },
+                    success: function (response) {
+
+                    },
+                    error: function (xhr, status, error) {
+                        $('#my-warning-modal').find('.modal-title').html('خطا');
+                        $('#my-warning-modal').find('#error').html('خطایی رخ داده است');
+                        $('#warningModal')[0].click();
+                    },
+                });
+
+
+            });
+
+            return map;
+        }
+
+        //#endregion
+
+
+        //#region chart
+
+        const colors = ['#DD8518', '#2A4B72'];
+
+        function getRoundedValue(array, targetName) {
+            let record = array.find(item => item.name === targetName); // Find the record by name
+            if (record) {
+                return Math.round(record.y * 10) / 10; // Round to 1 decimal place
+            }
+            return null; // Return null if no matching record is found
+        }
+
+        function initializeChart(targetId, propertyName) {
+            chart = Highcharts.chart(targetId, {
+                title: {
+                    text: ''
+                },
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie',
+                    //height: '50%'
+                },
+                subtitle: {
+                    useHTML: true,
+                    text: '',
+                    floating: true,
+                    verticalAlign: 'middle',
+                    y: 30
+                },
+
+                legend: {
+                    enabled: false
+                },
+
+                tooltip: {
+                    valueDecimals: 0,
+                    valueSuffix: 'درصد'
+                },
+
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        colors,
+                        borderRadius: 5,
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                            distance: -50,
+                            filter: {
+                                property: 'percentage',
+                                operator: '>',
+                                value: 4
+                            }
+                        }
+                    }
+                },
+
+                series: [
+                    {
+                        type: 'pie',
+                        name: 'سهم',
+                        dataLabels: {
+                            enabled: true, // Enable data labels
+                            format: '{point.y:.1f}%' // Format 'y' value to 1 decimal place
+                        },
+                        data: [
+                            {
+                                name: propertyName,
+                                y: getRoundedValue(dispersionData, propertyName),
+                                color: colors[0]
+                            },
+                            {
+                                name: 'سایر',
+                                y: 100 - getRoundedValue(dispersionData, propertyName),
+                                color: colors[1]
+                            },
+
+                        ]
+
+                    }
+                ]
+            });
+        }
+        //#endregion
+
+
+
+        function RemoveBG(propertyId) {
+            // console.log(propertyId);
+            // var btnClicks = $('.btnClick');
+            // for (var i = 0; i < btnClicks.length; i++) {
+            //     var btnClick = btnClicks[i];
+            //     $(btnClick).removeClass('bg-primary');
+            //     $(btnClick).css('color', 'rgb(var(--color-slate-400) / var(--tw-text-opacity))');
+            // }
+
+            $('.btnClick').each(function () {
+                if ($(this).attr('propertyId') == propertyId) {
+                    $(this).removeClass('bg-primary');
+                    $(this).css('color', 'rgb(var(--color-slate-400) / var(--tw-text-opacity))');
+                }
+            });
+        }
+
+
+
+
+
+
+        $('body').on('click', '.iconmapsList', function (e) {
+            e.preventDefault();
+
+
+            let propertyId = $(this).attr('propertyId');
+
+            $('.backToMapsListIcon[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.deleteMapIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.addMapIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+            $('.mapsList[propertyId=' + propertyId + '] .mapsGrid').addClass('grid').css('display', 'grid');
+
+
+            $(this).siblings('.iconpriceList').find('path').attr('fill', '#94a3b8');
+
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFilesForInvestorsManagement/GetListOfMyPropertiesFilesForInvestors",
+                data: { 'PropertyId': propertyId, 'FileType': 'maps' },
+                success: function (response) {
+                    let maps = response.Records;
+                    let htmlResult = "";
+
+
+                    if (maps.length == 0) {
+                        htmlResult += '<p class="EmptyFiles mt-5">شما هیچ نقشه ای برای این پروژه ندارید !</p>';
+                        $('.mapsList[propertyId=' + propertyId + '] .grid').html(htmlResult);
+                        $('.mapsList[propertyId=' + propertyId + '] .grid').removeClass('grid').addClass('flex').css('display', 'flex');
+                        $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'hidden');
+                        return;
+                    }
+
+                    for (let i = 0; i < maps.length; i++) {
+                        htmlResult += '<a download href="/Files/PropertiesFiles/my.teniaco.com/' + propertyId + '/Maps/' + maps[i].PropertyFilePath + '" class="intro-y ">' +
+                            '<i propertyFileId=' + maps[i].PropertyFileId + ' propertyId=' + propertyId + ' title="حذف" style="z-index:10;position:absolute;right: -10px;top: -10px;padding: 5px;border-radius: 50%;background-color: rgb(255 0 0 / 59%);" class="removeMapIcon hidden tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i>' +
+                            '<div class="box px-4 py-4 flex items-center zoom-in bg-primary/10 ">' +
+                            '<div style="height:3rem;" class="w-10 ml-5 flex-none image-fit rounded-md overflow-hidden">' +
+                            '<img src="/img/2704956.png">' +
+                            '</div>' +
+                            '<div>' +
+                            '<div class="font-medium">' + maps[i].PropertyFileTitle + '</div>' +
+                            '<div class="text-slate-500 text-xs mt-0.5">' + ConvertDateToPersian(maps[i].CreateEnDate) + '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</a>';
+                    }
+
+                    $('.mapsList[propertyId=' + propertyId + '] .grid').html(htmlResult);
+
+
+                    $('.removeMapIcon').on('click', function (e) {
+                        e.preventDefault();
+                        let propertyFileId = $(this).attr('propertyFileId');
+                        $('#deleteMapsModal')[0].click();
+                        $('#myMapDeleteBtn').attr('propertyFileId', propertyFileId);
+                        $('#myMapDeleteBtn').attr('propertyId', propertyId);
+                    });
+
+                }
+            });
+
+
+
+            RemoveBG(propertyId);
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "block");
+        });
+
+
+        // باز و بسته کردن آکوردئون ها
+        $(document).on('click', '.featuresList button', function (event) {
+            const button = event.currentTarget;
+            const content = $(button).next();
+            const isOpen = !content.hasClass("hidden");
+
+            // Close all open accordions
+            $('.accordionBody').each(function () {
+                $(this).prev().find("svg").removeClass("rotate-180");
+                $(this).addClass("hidden");
+            });
+
+            if (!isOpen) {
+                // Open the clicked accordion if it was not open
+                content.removeClass("hidden");
+                $(button).find("svg").addClass("rotate-180");
+            }
+        });
+
+
+        let featureColors = ['210, 233, 225', '232, 232, 232', '235, 223, 204', '210, 230, 252', '210, 233, 225', '232, 232, 232', '235, 223, 204', '210, 230, 252', '210, 233, 225', '232, 232, 232', '235, 223, 204', '210, 230, 252', '210, 233, 225', '232, 232, 232', '235, 223, 204', '210, 230, 252'];
+
+
+        $('body').on('click', '.iconfeaturesList', function (e) {
+            e.preventDefault();
+
+            let propertyId = $(this).attr('propertyId');
+            let propertyTypeId = $(this).attr('propertyTypeId');
+            $(this).siblings('.iconpriceList').find('path').attr('fill', '#94a3b8');
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFeaturesForInvestorsManagement/GetMyPropertyFeaturesValuesForInvestors",
+                data: {
+                    'PropertyId': propertyId,
+                    'PropertyTypeId': propertyTypeId
+                },
+                success: function (response) {
+                    let record = response.Record;
+                    let htmlResult;
+
+                    htmlResult =
+                        '<i propertyTypeId="' + propertyTypeId + '" data-tw-toggle="modal" data-tw-target="#EditFeaturesModal" propertyId="' + propertyId + '" title="ویرایش امکانات" class="editFeaturesIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"></path></svg></i>' +
+                        '<div class="col-span-12 lg:col-span-8 xl:col-span-4 mt-6 grid gap-4">' +
+                        '<div class=" intro-y flex items-center h-10">' +
+                        '<h4 class="mr-2 text-medium font-medium truncate iconmatn">امکانات</h4>' +
+                        '</div>';
+
+                    if (record.FeaturesValuesVMList.length == 0) {
+                        htmlResult += '<p style="width:unset;" class="EmptyFiles mt-5">شما هیچ امکاناتی برای این ملک تعریف نکرده اید !</p>';
+                        $('.featuresList[propertyId=' + propertyId + ']').html(htmlResult);
+                        return;
+                    }
+
+                    if (record.FeaturesCategoriesVMList.length > 0)
+                        for (var k = 0; k < record.FeaturesCategoriesVMList.length; k++) {
+                            htmlResult += '<div class="gap-3 pl-1 pr-1 categorySection">' +
+                                '<div class="feature">' +
+                                '<div style="background-color:rgb(' + featureColors[k] + '); height:54px;" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                '<div class="ml-4 mr-auto">' +
+                                '<div class="font-medium">' + record.FeaturesCategoriesVMList[k].FeatureCategoryTitle + '</div>' +
+                                //   '<div class="text-slate-500 text-xs mt-0.5">'+record.FeaturesCategoriesVMList[k].FeatureCategoryTitle+'</div>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>';
+                            for (var i = 0; i < record.FeaturesVMList.length; i++) {
+                                if (record.FeaturesVMList[i].FeatureCategoryId != record.FeaturesCategoriesVMList[k].FeatureCategoryId)
+                                    continue;
+
+                                var feature = record.FeaturesVMList[i];
+
+                                var value = "";
+                                if (record.FeaturesValuesVMList != null) {
+                                    if (record.FeaturesValuesVMList.length > 0) {
+                                        var propertyFeature = record.FeaturesValuesVMList.filter(a => a.FeatureId == feature.FeatureId);
+                                        value = propertyFeature;
+                                        if (value.length == 0)
+                                            continue;
+                                    }
+
+
+                                    if (feature.ElementTypeId == 1) { //متنی
+
+                                        htmlResult += '<div class="feature">' +
+                                            '<div style="background-color:rgba(' + featureColors[k] + ',0.4)" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                            '<div class="ml-4 mr-auto">' +
+                                            '<div class="font-medium">' + feature.FeatureTitle + '</div>' +
+                                            '<div class="text-slate-500 text-xs mt-0.5">' + value[0].FeatureValue + '</div>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</div>';
+                                    }
+                                    else if (feature.ElementTypeId == 2) { //تک انتخابی
+
+                                        let OptionText = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId && f.FeatureOptionValue == value[0].FeatureValue)[0].FeatureOptionText;
+
+                                        htmlResult += '<div class="feature">' +
+                                            '<div style="background-color:rgba(' + featureColors[k] + ',0.4)" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                            '<div class="ml-4 mr-auto">' +
+                                            '<div class="font-medium">' + feature.FeatureTitle + '</div>' +
+                                            '<div class="text-slate-500 text-xs mt-0.5">' + OptionText + '</div>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</div>';
+                                    }
+                                    else if (feature.ElementTypeId == 3) { //چند انتخابی
+                                        debugger;
+                                        let featureValues = value[0].FeatureValue.split(',');
+                                        let OptionText = '';
+                                        for (let j = 0; j < featureValues.length; j++) {
+                                            debugger;
+                                            OptionText += record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId && f.FeatureOptionValue == featureValues[j])[0].FeatureOptionText + ',';
+                                        }
+                                        OptionText = OptionText.slice(0, -1);
+
+                                        htmlResult += '<div class="feature">' +
+                                            '<div style="background-color:rgba(' + featureColors[k] + ',0.4)" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                            '<div class="ml-4 mr-auto">' +
+                                            '<div class="font-medium">' + feature.FeatureTitle + '</div>' +
+                                            '<div class="text-slate-500 text-xs mt-0.5">' + OptionText + '</div>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</div>';
+                                    }
+                                    else if (feature.ElementTypeId == 4) { //توضیحات
+                                        htmlResult += '<div class="feature">' +
+                                            '<div style="background-color:rgba(' + featureColors[k] + ',0.4)" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                            '<div class="ml-4 mr-auto">' +
+                                            '<div class="font-medium">' + feature.FeatureTitle + '</div>' +
+                                            '<div class="text-slate-500 text-xs mt-0.5">' + value[0].FeatureValue + '</div>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</div>';
+                                    }
+                                    else if (feature.ElementTypeId == 5) { //چک باکس
+                                        htmlResult += '<div class="feature">' +
+                                            '<div style="background-color:rgba(' + featureColors[k] + ',0.4)" class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                                            '<div class="ml-4 mr-auto">' +
+                                            '<div class="font-medium">' + feature.FeatureTitle + '</div>' +
+                                            '<div class="text-slate-500 text-xs mt-0.5">' + (value[0].FeatureValue == 1 ? 'دارد' : 'ندارد') + '</div>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</div>';
+                                    }
+
+
+                                }
+                            }
+
+
+                            htmlResult += '</div>';
+                        }
+
+                    htmlResult += '</div>';
+
+
+                    $('.featuresList[propertyId=' + propertyId + ']').html(htmlResult);
+
+
+                    $('.categorySection').each(function () {
+                        const featureCount = $(this).find('.feature').length;
+                        if (featureCount === 1) {
+                            $(this).remove();
+                        }
+                    });
+
+                }
+            });
+
+
+            RemoveBG(propertyId);
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "block");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "none");
+        });
+
+        $('body').on('click', '.iconlocation', function (e) {
+            e.preventDefault();
+
+
+            let propertyId = $(this).attr('propertyId');
+            $(this).siblings('.iconpriceList').find('path').attr('fill', '#94a3b8');
+            RemoveBG(propertyId);
+
+
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "block");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "none");
+
+            for (let i = 0; i < maps.length; i++) {
+                maps[i].updateSize();
+            }
+
+        });
+
+        $('body').on('click', '.icondocumentList', function (e) {
+            e.preventDefault();
+
+            let propertyId = $(this).attr('propertyId');
+
+            $('.backToDocumentListIcon[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.deleteDocumentIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.addDocumentIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+            $('.documentList[propertyId=' + propertyId + '] .documentGrid').addClass('grid');
+
+            $(this).siblings('.iconpriceList').find('path').attr('fill', '#94a3b8');
+            RemoveBG(propertyId);
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFilesForInvestorsManagement/GetListOfMyPropertiesFilesForInvestors",
+                data: { 'PropertyId': propertyId, 'FileType': 'docs' },
+                success: function (response) {
+                    let docs = response.Records;
+                    let htmlResult = "";
+
+                    if (docs.length == 0) {
+                        htmlResult += '<p class="EmptyFiles mt-5">شما هیچ سندی برای این پروژه ندارید !</p>';
+                        //   $('.documentList[propertyId=' + propertyId + '] .documentGrid').html(htmlResult);
+
+                        $('.documentList[propertyId=' + propertyId + '] .documentGrid').fadeOut(200, function () { // Fade out the existing content
+                            $(this).html(htmlResult).fadeIn(200); // Update the HTML and fade in the new content
+                        });
+
+                        $('.documentList[propertyId=' + propertyId + '] .documentGrid').css('display', 'flex');
+                        $('.documentList[propertyId=' + propertyId + '] .documentGrid').removeClass('grid').addClass('flex');
+
+                        $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'hidden');
+                        return;
+                    }
+
+                    for (let i = 0; i < docs.length; i++) {
+
+                        $('.documentList[propertyId=' + propertyId + '] .documentGrid').css('display', 'grid');
+
+                        htmlResult += ' <a download href="/Files/PropertiesFiles/my.teniaco.com/' + propertyId + '/Docs/' + docs[i].PropertyFilePath + '" class="intro-y">' +
+                            '<i propertyFileId=' + docs[i].PropertyFileId + ' propertyId=' + propertyId + ' title="حذف" style="z-index:10;position:absolute;right: -10px;top: -10px;padding: 5px;border-radius: 50%;background-color: rgb(255 0 0 / 59%);" class="removeDocumentIcon hidden tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i>' +
+                            '<div class="box px-4 py-4 flex items-center zoom-in bg-primary/10 ">' +
+                            '<div style="height:3rem;" class="w-10 ml-5 flex-none image-fit rounded-md overflow-hidden">' +
+                            '<img src="/img/7515621.png">' +
+                            '</div>' +
+                            '<div>' +
+                            '<div class="font-medium">' + docs[i].PropertyFileTitle + '</div>' +
+                            '<div class="text-slate-500 text-xs mt-0.5">' + ConvertDateToPersian(docs[i].CreateEnDate) + '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</a>';
+                    }
+                    $('.documentList[propertyId=' + propertyId + '] .grid').html(htmlResult);
+
+                }
+            });
+
+
+
+
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "block");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "none");
+
+        });
+
+        $('body').on('click', '.iconpictureList', function (e) {
+            e.preventDefault();
+
+            let propertyId = $(this).attr('propertyId');
+
+
+            $('.backToPhotosIcon[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.deletePhotoIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.addPhotoIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+
+            $(this).siblings('.iconpriceList').find('path').attr('fill', '#94a3b8');
+            RemoveBG(propertyId);
+
+            $('.submitDeletePhoto[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.submitAddPhoto[propertyId=' + propertyId + ']').addClass('hidden');
+
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFilesForInvestorsManagement/GetListOfMyPropertiesFilesForInvestors",
+                data: { 'PropertyId': propertyId, 'FileType': 'media' },
+                success: function (response) {
+
+
+                    let photos = response.Records;
+                    let htmlResult = "";
+
+                    if (photos.length == 0) {
+                        htmlResult += '<p class="EmptyFiles mt-5">شما هیچ عکسی برای این پروژه ندارید !</p>';
+                        $('.pictureList[propertyId=' + propertyId + '] .photosLayout').html(htmlResult);
+                        $('.pictureList[propertyId=' + propertyId + '] .photosLayout').removeClass('grid').addClass('flex');
+                        $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'hidden');
+                    }
+
+                    for (let i = 0; i < photos.length; i++) {
+                        let filePath = photos[i].PropertyFilePath;
+                        let fileExtension = filePath.split('.').pop().toLowerCase();
+                        let isVideo = ['mp4', 'avi', 'mov', 'mkv'].includes(fileExtension); // Add other video extensions as needed
+                        let thumbSrc;
+                        let videoSrc;
+                        let fullFilePath;
+
+                        if (isVideo) {
+                            // If it's a video, use a thumbnail image for the video (you can use a placeholder or generate one)
+                            thumbSrc = '/images/myBlack.png'; // Placeholder or generated thumbnail
+                            videoSrc = '/Files/PropertiesFiles/my.teniaco.com/' + propertyId + '/Media/' + filePath;
+                            fullFilePath = videoSrc;
+                        } else {
+                            // If it's an image, use the regular image path
+                            thumbSrc = '/Files/PropertiesFiles/my.teniaco.com/' + propertyId + '/Media/thumb_' + filePath;
+                            fullFilePath = thumbSrc;
+                        }
+
+
+
+                        htmlResult += '<div propertyFileId="' + photos[i].PropertyFileId + '" class="photoParent" style="position:relative"> <img class="rounded-md photos" videoSrc="' + videoSrc + '" src="' + thumbSrc + '" alt="Property Media"> <i propertyId="' + propertyId + '" propertyFileId="' + photos[i].PropertyFileId + '" propertyFileOrder="' + photos[i].PropertyFileOrder + '" propertyFilePath="' + fullFilePath + '" title="حذف" class="removePhotoIcon tooltip w-6 h-6 hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>';
+
+                        // if(i == 0){
+                        //     htmlResult += '<div style="position:relative"> <img class="rounded-md photos mainImage" videoSrc="' + videoSrc + '" src="' + thumbSrc + '" alt="Property Media"> <i propertyfileid="5232" propertyid="51277" title="حذف" class="removePhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i> </div>'+
+                        //     '<div title="افزودن" class="sidePhotoAddContainer"><div class="sidePhotoText">عکس فرعی</div><img src="/images/PlaceHolder.jpg" class="sidePhoto rounded-md" /></div>';
+                        // }
+                        // else{
+                        //                                     htmlResult += '<div style="position:relative"> <img class="rounded-md photos" videoSrc="' + videoSrc + '" src="' + thumbSrc + '" alt="Property Media"> <i propertyfileid="5232" propertyid="51277" title="حذف" class="removePhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>';
+
+
+                        // }
+
+                    }
+
+                    $('.pictureList[propertyId=' + propertyId + '] .grid').html(htmlResult);
+                }
+            });
+
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "block");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "none");
+
+        });
+
+        $('body').on('click', '.iconpriceList', function (e) {
+            e.preventDefault();
+
+
+            var pathElement = $(this).find('path');
+            pathElement.attr('fill', '#ffffff');
+
+            let propertyId = $(this).attr('propertyId');
+            RemoveBG(propertyId);
+
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesPricesHistoriesForInvestorsManagement/GetListOfMyPropertiesPricesHistoriesForInvestors",
+                data: { 'PropertyId': propertyId },
+                success: function (response) {
+
+                    let prices = response.Records;
+
+                    let htmlResult = '<div class="mb-3 text-medium font-medium truncate">تاریخچه قیمت</div>';
+
+
+                    if (prices.length == 1 && prices[0].OfferPrice == 0) {
+                        htmlResult += '<p style="width:100%;" class="EmptyFiles">شما تا به حال هیچ قیمتی برای این پروژه ثبت نکرده اید !</p>';
+                        $('.priceList[propertyId=' + propertyId + ']').html(htmlResult);
+                        $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'hidden');
+                        return;
+                    }
+
+                    for (let i = 0; i < prices.length; i++) {
+
+                        let priceToShow = "";
+                        if (prices[i].OfferPriceType == 0 && prices[i].OfferPrice != 0) {
+                            priceToShow = prices[i].CalculatedOfferPrice.toString().slice(0, -1);
+                        }
+                        else if (prices[i].OfferPriceType == 1 && prices[i].OfferPrice != 0) {
+                            priceToShow = prices[i].OfferPrice.toString().slice(0, -1);;
+                        }
+
+                        htmlResult += '<div class="intro-x">' +
+                            '<div class="box px-5 py-3 mb-3 flex items-center zoom-in">' +
+                            '<div class="ml-4 mr-auto">' +
+                            // '<div class="font-medium">کارشناس 1</div>' +
+                            '<div class="text-slate-500 text-xs mt-0.5">' + ConvertDateToPersian(prices[i].CreateEnDate) + '</div>' +
+                            '</div>' +
+                            '<div class="text-success">' + ConvertNumberToPersian(priceToShow.replace(/\B(?=(\d{3})+(?!\d))/g, ",")) + ' تومان</div>' +
+                            '</div>' +
+                            '</div>';
+                    }
+                    $('.priceList[propertyId=' + propertyId + ']').html(htmlResult);
+                }
+            });
+
+
+
+            $(this).addClass('bg-primary');
+            $(this).css('color', '#fff');
+
+            $(".mapsList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".featuresList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".locationList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".documentList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".pictureList[propertyId=" + propertyId + "]").css("display", "none");
+            $(".priceList[propertyId=" + propertyId + "]").css("display", "block");
+
+        });
+
+        $('.iconmapsList').each(function () {
+            $(this).click();
+        });
+
+        let maps = [];
+
+        function LoadMyPropertiesWithPagination(pageNum) {
+            maps = [];
+            $('#properties').html('');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesForInvestorsManagement/GetListOfMyPropertiesForInvestors",
+                data: { 'pageNum': pageNum },
+                success: function (response) {
+
+                    debugger;
+                    let Properties = response.Records;
+                    console.log(Properties);
+                    var htmlResult = "";
+
+                    if (Properties.length == 0 || Properties == undefined || Properties == null || Properties == "undefined") {
+                        $('#my-warning-modal').find('.modal-title').html('اخطار');
+                        $('#my-warning-modal').find('#error').html('شما هیچ ملک ثبت شده ای در پلتفرم تنیاکو ندارید !');
+                        return $('#warningModal')[0].click();
+                    }
+
+                    for (let i = 0; i < Properties.length; i++) {
+                        let mainPhoto;
+                        if (Properties[i].Photos != null || Properties[i].Photos != undefined) {
+
+                            mainPhoto = Properties[i].Photos.find(photo => photo.PropertyFileOrder === 1);
+
+                        }
+                        if (i > 0) {
+                            htmlResult += '<div style="max-height:fit-content;" propertyId="' + Properties[i].PropertyId + '" class="property grid grid-cols-12 gap-6 mt-10">';
+                        }
+                        else {
+                            htmlResult += '<div propertyId="' + Properties[i].PropertyId + '" class="property grid grid-cols-12 gap-6 mt-10">';
+                        }
+
+
+
+                        htmlResult += '<div class="ParentOfMain intro-y  lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12">' +
+                            '<div class="box MainPropertyDetails">' +
+                            '<div class="boxproject flex flex-col lg:flex-row items-center p-5 border-b border-slate-200/60 dark:border-darkmode-400">' +
+                            '<div >';
+
+                        if (mainPhoto) {
+                            htmlResult += '<img class="imgproject rounded-md" src="/Files/PropertiesFiles/my.teniaco.com/' + Properties[i].PropertyId + '/Media/thumb_' + mainPhoto.PropertyFilePath + '">';
+                        }
+                        else {
+                            htmlResult += '<img class="imgproject rounded-md" src="/images/mainThumb.jpg">';
+                        }
+
+
+
+                        htmlResult += '</div>' +
+                            '<div class="Nameproject">' +
+                            '<div class="NameprojectChild">' + Properties[i].PropertyCodeName + '</div>' +
+                            '</div>' +
+                            '<div class="iconBar flex -ml-2 lg:ml-0 mt-3 lg:mt-0">' +
+                            '<a href="" propertyId="' + Properties[i].PropertyId + '" class="iconmapsList w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="نقشه ها">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-2 0 28 24" stroke-width="1.5" stroke="currentColor" class="size-6">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d= "M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />' +
+                            '</svg>' +
+
+                            '</a>' +
+                            '<a href="" propertyTypeId="' + Properties[i].PropertyTypeId + '" propertyId="' + Properties[i].PropertyId + '" class="iconfeaturesList w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="امکانات">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-3 0 31 24" stroke-width="1.5" stroke="currentColor" class="size-6">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />' +
+                            '</svg>' +
+                            '</a>' +
+                            '<a href="" propertyId="' + Properties[i].PropertyId + '" class="iconlocation w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="موقعیت">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-2 0 28 24" stroke-width="1.5" stroke="currentColor" class="size-6">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />' +
+                            '</svg>' +
+                            '</a>' +
+                            '<a href="" propertyId="' + Properties[i].PropertyId + '" class="icondocumentList w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="اسناد">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-4 0 31 24" stroke-width="1.5" stroke="currentColor" class="size-6">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />' +
+                            '</svg>' +
+                            '</a>' +
+                            '<a href="" propertyId="' + Properties[i].PropertyId + '" class="iconpictureList w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="عکس و فیلم">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-3 0 30 24" stroke-width="1.5" stroke="currentColor" class="size-6">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />' +
+                            '</svg>' +
+                            '</a>' +
+                            '<a href="" propertyId="' + Properties[i].PropertyId + '" class="iconpriceList w-8 h-8 rounded-full flex items-center justify-center border dark:border-darkmode-400 ml-2 text-slate-400 zoom-in tooltip btnClick" title="تاریخچه قیمت">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-3 0 300 290" stroke-width="1.5" stroke="currentColor" class="priceIcon size-6">' +
+                            `<g>
+                                                                          <title>Layer 1</title>
+                                                                          <g stroke="null">
+                                                                           <g stroke="null" transform="translate(0 -952.362)">
+                                                                                    <path  stroke-width="1" fill="#94a3b8" transform="translate(0 952.362)" d="m20.76727,7.54109a6.72612,6.40397 0 0 0 -6.09494,6.40333l0,211.30974a6.72612,6.40397 0 1 0 13.4509,0l0,-204.90642l121.05808,0l0,38.41995a6.72612,6.40397 0 0 0 6.72545,6.40333l40.35269,0l0,83.24323a6.72612,6.40397 0 1 0 13.4509,0l0,-89.64656a6.72612,6.40397 0 0 0 -1.99662,-4.60239l-47.07814,-44.82328a6.72612,6.40397 0 0 0 -4.72883,-1.80094l-134.50898,0a6.72612,6.40397 0 0 0 -0.63051,0zm141.86494,21.81133l24.16958,23.01195l-24.16958,0l0,-23.01195zm-84.69862,61.33185a6.72612,6.40397 0 0 0 -4.51866,2.3012l-15.44752,17.10889l-4.939,-4.70244a6.72612,6.40397 0 1 0 -9.45766,9.10473l10.08817,9.60499a6.72612,6.40397 0 0 0 9.878,-0.40021l20.17635,-22.41164a6.72612,6.40397 0 0 0 -5.77968,-10.60551zm16.81362,19.31003a6.73285,6.41037 0 1 0 0.63051,12.80665l80.70539,0a6.72612,6.40397 0 1 0 0,-12.80665l-80.70539,0a6.72612,6.40397 0 0 0 -0.63051,0zm-16.81362,28.71491a6.72612,6.40397 0 0 0 -4.51866,2.3012l-15.44752,17.10889l-4.939,-4.70244a6.72612,6.40397 0 1 0 -9.45766,9.10473l10.08817,9.60499a6.72612,6.40397 0 0 0 9.878,-0.40021l20.17635,-22.41164a6.72612,6.40397 0 0 0 -5.77968,-10.60551zm16.81362,19.31003a6.73285,6.41037 0 1 0 0.63051,12.80665l80.70539,0a6.72612,6.40397 0 1 0 0,-12.80665l-80.70539,0a6.72612,6.40397 0 0 0 -0.63051,0zm118.32587,9.60499c-26.87305,0 -49.85767,15.98721 -59.26802,38.41995l-58.42734,0a6.72612,6.40397 0 0 0 -0.63051,0a6.73285,6.41037 0 1 0 0.63051,12.80665l54.74936,0c-0.52939,3.14461 -0.94577,6.32088 -0.94577,9.60499c0,5.56417 0.93877,10.88399 2.41696,16.00831l-130.20049,0a6.72612,6.40397 0 0 0 -0.63051,0a6.73285,6.41037 0 1 0 0.63051,12.80665l135.55983,0c10.8163,18.99607 31.87735,32.01663 56.11547,32.01663c35.20678,0 63.89177,-27.31114 63.89177,-60.83159c0,-33.52045 -28.68498,-60.83159 -63.89177,-60.83159zm0,12.80665c27.93738,0 50.44087,21.42553 50.44087,48.02494c0,26.59909 -22.50349,48.02494 -50.44087,48.02494c-27.93738,0 -50.44087,-21.42585 -50.44087,-48.02494c0,-26.59941 22.50349,-48.02494 50.44087,-48.02494zm-135.13949,6.30327a6.72612,6.40397 0 0 0 -4.51866,2.3012l-15.44752,17.10889l-4.939,-4.70244a6.72612,6.40397 0 1 0 -9.45766,9.10473l10.08817,9.60499a6.72612,6.40397 0 0 0 9.878,-0.40021l20.17635,-22.41164a6.72612,6.40397 0 0 0 -5.77968,-10.60551zm134.4039,3.20166a6.72612,6.40397 0 0 0 -5.98985,6.50338l0,4.20218c-2.31083,0.65429 -4.58924,1.60371 -6.62036,3.10161c-3.94461,2.90935 -6.83053,7.939 -6.83053,13.50701a6.72612,6.40397 0 0 0 0,0.10005c0.0955,5.17869 2.86312,9.97958 6.62036,12.60655c3.75724,2.62664 7.81773,3.71665 11.87462,4.70244c3.62932,0.88174 6.23745,1.79277 7.25087,2.5013c0.98037,0.68516 1.11508,0.67891 1.15594,2.5013c0.00138,0.06083 -0.00121,0.03602 0,0.10005c-0.02455,1.76924 -0.49583,2.40509 -1.57628,3.20166c-1.08794,0.80266 -3.12485,1.45948 -5.14917,1.50078c-0.04906,0 -0.05673,0.00032 -0.10509,0c-5.0652,-0.03202 -6.28833,-1.82671 -7.35596,-3.90203a6.72612,6.40397 0 1 0 -11.97971,5.60291c2.08459,4.05209 6.45778,8.35647 12.7153,10.2053l0,4.10213a6.72612,6.40397 0 1 0 13.4509,0l0,-4.20218c2.30982,-0.6801 4.59005,-1.70437 6.62036,-3.20166c3.94461,-2.90775 6.83053,-7.83895 6.83053,-13.40696a6.72612,6.40397 0 0 0 0,-0.2001c-0.0955,-5.17869 -2.86309,-9.97958 -6.62036,-12.60655c-3.75727,-2.62696 -7.81773,-3.6166 -11.87462,-4.60239c-3.62932,-0.88174 -6.23745,-1.89282 -7.25087,-2.60135c-0.98037,-0.68548 -1.11508,-0.67891 -1.15594,-2.5013c0.02455,-1.76924 0.49583,-2.40509 1.57628,-3.20166c1.08794,-0.80266 3.12461,-1.45948 5.14917,-1.50078c0.0495,0 0.05633,-0.00032 0.10509,0c5.06413,0.03202 6.28843,1.72698 7.35596,3.80197a6.72612,6.40397 0 1 0 11.97971,-5.60291c-2.08459,-4.05305 -6.45778,-8.18425 -12.7153,-10.0052l0,-4.20218a6.72612,6.40397 0 0 0 -7.46105,-6.50338z"/>
+                                                                           </g>
+
+                                                                          </g>
+                                                                         </g>
+                                                                        `+
+                            '</svg>' +
+                            '</a>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="progressParent flex flex-wrap lg:flex-nowrap items-center justify-center p-5">' +
+                            '<div class="progressDiv w-full lg:w-1/2 mb-4 lg:mb-0 mr-auto">' +
+                            '<div class="flex text-slate-500 text-xs">' +
+                            '<div class="mr-auto">' + Properties[i].SharePercent + ' درصد مالکیت</div>' +
+                            '<div>100%</div>' +
+                            '</div>' +
+                            '<div class="progress h-1 mt-2">' +
+                            '<div style="width:' + Properties[i].SharePercent + '%" class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' +
+                            ' </div>' +
+                            '</div>' +
+                            '<button propertyId="' + Properties[i].PropertyId + '" class="DetailsButton btn btn-outline-secondary py-1 px-2 mr-2">جزئیات</button>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="ParentOfMap intro-y col-span-8 xl:col-span-4 lg:col-span-8 md:col-span-8 sm:col-span-12">' +
+                            '<div class="box">' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="tab-pane active active-users" id="active-users" role="tabpanel" aria-labelledby="active-users-tab">' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="mapsList m-5 scrolled">' +
+                            '<i propertyId="' + Properties[i].PropertyId + '" title="حذف" class="deleteMapIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"></path></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="بازگشت" class="backToMapsListIcon tooltip w-8 h-8 hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"></path></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="افزودن" class="addMapIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg></i>' +
+                            '<div style="height:15rem;" class="col-span-12 lg:col-span-8 xl:col-span-4 mt-6">' +
+                            ' <div class=" intro-y flex items-center h-10">' +
+                            '<h4 class="mr-2 mt-5 text-medium font-medium truncate iconmatn">نقشه ها</h4>' +
+                            '</div>' +
+                            '<div class="mapsGrid mt-3 grid grid-cols-2 gap-3 pl-1 pr-1">' +
+
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="featuresList m-5 scrolled" style="display:none">' +
+                            '<div style="height:15rem;" class="col-span-12 lg:col-span-8 xl:col-span-4 mt-6 ">' +
+                            '<div class=" intro-y flex items-center h-10">' +
+                            '<h4 class="mr-2 text-medium font-medium truncate iconmatn">امکانات</h4>' +
+                            '</div>' +
+                            '<div class="gap-3 pl-1 pr-1">' +
+                            '<div class="feature">' +
+                            '<div class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                            '<div class="ml-4 mr-auto">' +
+                            '<div class="font-medium"> حیاط</div>' +
+                            '<div class="text-slate-500 text-xs mt-0.5">دارد</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="feature">' +
+                            '<div class="box px-2 py-2 mb-3 flex items-center zoom-in bg-primary/10 ">' +
+                            '<div class="ml-4 mr-auto">' +
+                            '<div class="font-medium"> آشپزخانه</div>' +
+                            '<div class="text-slate-500 text-xs mt-0.5">دارد</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="locationList" style="display:none">' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="map" id="mapLeft' + i + '"><i propertyId="' + Properties[i].PropertyId + '" title="ویرایش" class="editMapIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="ثبت موقعیت" class="submitMapIcon hidden tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="ویرایش آدرس" class="editAddressIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="M120-120v-560h240v-80l120-120 120 120v240h240v400H120Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm240 320h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm240 480h80v-80h-80v80Zm0-160h80v-80h-80v80Z"></path></svg></i></div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="hidden addressForm"> <i propertyId="' + Properties[i].PropertyId + '" title="بازگشت به نقشه" class="backToMapIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"></path></svg></i>' +
+
+                            `<div>
+                                    <label class="mr-3 addressLabel">استان</label>
+                                    <select val=`+ Properties[i].StateId + ` propertyId="` + Properties[i].PropertyId + `" style="width: 60%;margin-top: 1rem;" type="text" class="addressState pr-10 p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                            <option disabled selected></option>
+                                </select>
+                                    </div>
+
+                                        <div>
+                                    <label class="mr-3 addressLabel">بخش</label>
+                                    <select val=`+ Properties[i].CityId + ` propertyId="` + Properties[i].PropertyId + `" style="width: 60%;margin-top: 1rem;" type="text" class="addressCity pr-10 p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                        <option disabled selected></option>
+                                </select>
+                                    </div>
+
+                                        <div>
+                                    <label class="mr-3 addressLabel" style="
+                                ">شهر</label>
+                                    <select val=`+ Properties[i].ZoneId + ` propertyId="` + Properties[i].PropertyId + `" style="width: 60%;margin-top: 1rem;" type="text" class="addressZone pr-10 p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                        <option disabled selected></option>
+                                </select>
+                                    </div>
+
+                                        <div>
+                                        <label propertyId="` + Properties[i].PropertyId + `" class="mr-3 addressLabel addDistrict" style="display: inline;">ناحیه
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="16px" fill="#5f6368" style="
+                                    display: inline-block;
+                                "><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"></path></svg>
+                                </label>
+                                    <select val=`+ Properties[i].DistrictId + ` propertyId="` + Properties[i].PropertyId + `" style="width: 60%;margin-top: 1rem;" type="text" class="addressDistrict pr-10 p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                        <option disabled selected></option>
+                                </select>
+                                    </div>
+
+
+                                <div style="
+                                    margin-top: 1rem;
+                                ">
+                                    <label class="mr-3 mb-1 addressLabel" style="
+                                    display: block;
+                                ">آدرس</label>
+                                    <textarea val="`+ (Properties[i].Address == null ? '' : Properties[i].Address) + `" propertyId="` + Properties[i].PropertyId + `" style="width: -webkit-fill-available;height: 84px;" type="text" class="addressAddress p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="آدرس">
+
+                                </textarea>
+                                    </div>
+
+
+
+                                    <div style="
+                                    display: flex;
+                                    justify-content: center;
+                                "><button  propertyId="` + Properties[i].PropertyId + `" class="submitAddress btn btn-primary mt-3" style="
+                                    height: 30px;
+                                    width: 100px;
+                                ">ثبت</button></div>`
+
+                            + '</div>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="documentList m-5 scrolled" style="display:none">' +
+                            '<i propertyId="' + Properties[i].PropertyId + '" title="حذف" class="deleteDocumentIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"></path></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="بازگشت" class="backToDocumentListIcon tooltip w-8 h-8 hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"></path></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="افزودن" class="addDocumentIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg></i>' +
+                            '<div style="height:15rem;" class="col-span-12 lg:col-span-8 xl:col-span-4 mt-6 ">' +
+                            '<div class=" intro-y flex items-center h-10">' +
+                            '<h4 class="mt-5 mr-2 text-medium font-medium truncate iconmatn">اسناد</h4>' +
+                            '</div>' +
+                            '<div class="documentGrid grid grid-cols-2 gap-3  pl-1 pr-1 mt-3">' +
+
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="pictureList m-5 scrolled" style="display:none">' +
+                            '<input propertyId="' + Properties[i].PropertyId + '" type="file" class="hidden addMainPhotoInput" >' +
+                            '<input multiple propertyId="' + Properties[i].PropertyId + '" type="file" class="hidden addSidePhotoInput" >' +
+                            '<i propertyId="' + Properties[i].PropertyId + '" title="حذف" class="deletePhotoIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"></path></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="افزودن" class="addPhotoIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg></i><i propertyId="' + Properties[i].PropertyId + '" title="لغو" class="backToPhotosIcon tooltip w-8 h-8 hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"></path></svg></i>' +
+                            '<div style="height:15rem;" class="col-span-12 lg:col-span-8 xl:col-span-4 mt-6 ">' +
+                            '<div style="margin-top:30px;" class=" intro-y flex items-center h-10">' +
+                            '<h4 class="mr-2 text-medium font-medium truncate iconmatn">عکس و فیلم</h4>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="photosLayout grid grid-cols-4 gap-2  pl-1 pr-1">' +
+
+                            '</div>' +
+                            '</div>' +
+                            '<button propertyId="' + Properties[i].PropertyId + '" style="margin:0 auto; margin-top:1rem;" class="btn btn-primary mt-3 flex hidden submitDeletePhoto">ثبت</button>' +
+                            '<button propertyId="' + Properties[i].PropertyId + '" style="margin:0 auto; margin-top:1rem;" class="btn btn-primary mt-3 flex hidden submitAddPhoto">ثبت</button>' +
+                            '</div>' +
+                            '<div propertyId="' + Properties[i].PropertyId + '" class="priceList m-5 scrolled" style="display:none; height:13.5rem;">' +
+                            '<div style="margin-top:30px;" class="mr-2 text-medium font-medium truncate">تاریخچه قیمت</div>' +
+
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="ParentOfNmodar intro-y col-span-6 sm:col-span-12 lg:col-span-4 xl:col-span-2 md:col-span-4">' +
+                            '<div class="box nmodar">' +
+                            '<div class="tab-pane active p-5 active-users" role="tabpanel" aria-labelledby="active-users-tab">' +
+                            '<div class="relative">' +
+                            '<div class="h-[208px]">' +
+                            '<div style="line-height:0px; margin-top:10px;" class="chartTitle alert w-full alert-primary text-center text-xs" data-constructionprojectid="10" role="alert">' +
+                            'سهم از کل سرمایه' +
+                            '</div>' +
+                            '<div class="h-full report-donut" id="report-donut-chart-' + i + '"></div>' +
+                            '</div>' +
+                            '</div>' +
+                            ' </div>' +
+                            '</div>' +
+                            '</div>';
+
+
+                        htmlResult += '</div>';
+
+
+                        htmlResult += `<div propertyId="` + Properties[i].PropertyId + `" class="PropertySideDetails grid grid-cols-12 gap-6 mt-5">
+                                                                                      <div class="intro-y col-span-12">
+                                                                                          <i propertyId="` + Properties[i].PropertyId + `" data-tw-toggle="modal" data-tw-target="#EditPropertyModal" propertyId="' + Properties[i].PropertyId + '" title="ویرایش جزئیات" class="editDetailsIcon tooltip w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#ffffff" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></i>
+                                                                                        <div class="box">
+                                                                                          <div class="grid grid-cols-12 gap-6 p-2">
+
+                                                                                            <!-- Details Section -->
+                                                                                                <div class="DetailsSection md:col-span-8 lg:col-span-6 xl:col-span-8 pr-5">`;
+
+                        if (Properties[i].StateName) {
+                            let address = Properties[i].StateName + ' ، ' + Properties[i].CityName + ' ، ' + Properties[i].ZoneName + ' ، ' + Properties[i].DistrictName;
+                            address = address.replace(' ، null', '');
+                            htmlResult += `<h3 class="text-lg font-bold mb-4">` + address + `</h3>`;
+                            htmlResult += `<h4 class="propertyAddress">` + (Properties[i].Address == null ? '' : Properties[i].Address) + `</h4>`;
+                        }
+                        else {
+                            htmlResult += `<h3 class="text-lg font-bold mb-4">آدرس وارد نشده</h3>`;
+                            htmlResult += `<h4 class="propertyAddress">` + (Properties[i].Address == null ? '' : Properties[i].Address) + `</h4>`;
+                        }
+
+
+
+                        htmlResult += `<div class="detailsParent grid grid-cols-3 gap-4">
+                                                                                                <div>
+                                                                                                  <span class="detailSpan">
+                                                                                                    <label class="text-slate-400">نوع ملک:</label>
+                                                                                                                <span class="text-primary">`+ Properties[i].PropertyTypeTilte + `</span>
+                                                                                                  </span>
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                  <span class="detailSpan">
+                                                                                                    <label class="text-slate-400">زیربنا:</label>
+                                                                                                                    <span class="text-primary">`+ (Properties[i].Foundation == null ? '-' : Properties[i].Foundation) + `</span>
+                                                                                                  </span>
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                  <span class="detailSpan">
+                                                                                                    <label class="text-slate-400">نوع سند:</label>
+                                                                                                                <span class="text-primary">`+ Properties[i].DocumentTypeTitle + `</span>
+                                                                                                  </span>
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                  <span class="detailSpan">
+                                                                                                    <label class="text-slate-400">نوع کاربری:</label>
+                                                                                                            <span class="text-primary">`+ Properties[i].TypeOfUseTitle + `</span>
+                                                                                                  </span>
+                                                                                                </div>
+                                                                                                      <div>
+                                                                                                      <span class="detailSpan">
+                                                                                                        <label class="text-slate-400">عمر بنا:</label>
+                                                                                                                        <span class="text-primary">`+ (Properties[i].BuildingLifeTitle === null ? '-' : Properties[i].BuildingLifeTitle) + `</span>
+                                                                                                      </span>
+                                                                                                    </div>
+                                                                                                          <div>
+                                                                                                      <span class="detailSpan">
+                                                                                                        <label class="text-slate-400">نوع ریشه سند:</label>
+                                                                                                                    <span class="text-primary">`+ Properties[i].DocumentRootTypeTitle + `</span>
+                                                                                                      </span>
+                                                                                                    </div>
+                                                                                                          <div>
+                                                                                                      <span class="detailSpan">
+                                                                                                        <label class="text-slate-400">مساحت:</label>
+                                                                                                                <span class="text-primary">`+ Properties[i].Area + ` متر مربع</span>
+                                                                                                      </span>
+                                                                                                    </div>
+                                                                                                          <div>
+                                                                                                          <span class="detailSpan">
+                                                                                                            <label class="text-slate-400">سال بازسازی:</label>
+                                                                                                                            <span class="text-primary">`+ ((Properties[i].RebuiltInYearFa === 0 || Properties[i].RebuiltInYearFa === null) ? '-' : Properties[i].RebuiltInYearFa) + `</span>
+                                                                                                          </span>
+                                                                                                        </div>
+                                                                                                              <div class="DocumentOwnershipType">
+                                                                                                          <span class="detailSpan">
+                                                                                                            <label class="text-slate-400">نوع مالکیت سند:</label>
+                                                                                                                        <span class="text-primary">`+ Properties[i].DocumentOwnershipTypeTitle + `</span>
+                                                                                                          </span>
+                                                                                                        </div>
+
+                                                                                                        <div class="TotalPrice">
+                                                                                                          <span class="detailSpan">
+                                                                                                            <label class="text-slate-400">قیمت:</label>
+                                                                                                                        <span class="text-primary">`;
+
+                        let priceToShow = Properties[i].TotalPrice.toString().slice(0, -1);
+                        priceToShow = priceToShow.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                        htmlResult += (Properties[i].TotalPrice > 0 ? ConvertNumberToPersian(priceToShow) + ' تومان' : 'بدون قیمت') + `</span>
+                                                                                                          </span>
+                                                                                                        </div>
+
+                                                                                                        <div class="Exchangeable">
+                                                                                                          <span class="detailSpan">
+                                                                                                            <label class="text-slate-400">قابل معاوضه:</label>
+                                                                                                                        <span class="text-primary">`+ (Properties[i].Exchangeable == true ? 'بله' : 'خیر') + `</span>
+                                                                                                          </span>
+                                                                                                        </div>
+
+                                                                                                        <div class="Participable">
+                                                                                                          <span class="detailSpan">
+                                                                                                            <label class="text-slate-400">قابل مشارکت:</label>
+                                                                                                                        <span class="text-primary">`+ (Properties[i].Participable == true ? 'بله' : 'خیر') + `</span>
+                                                                                                          </span>
+                                                                                                        </div>
+
+                                                                                              </div>
+                                                                                              <div class="descriptionDiv" style="margin-top:3rem;">
+                                                                                                <span class="detailSpan">
+                                                                                                  <label class="text-slate-400">توضیحات:</label>
+                                                                                                              <span class="mt-2 text-primary">`+ (Properties[i].PropertyDescriptions === null ? '-' : Properties[i].PropertyDescriptions) + `</span>
+                                                                                                </span>
+                                                                                              </div>
+                                                                                            </div>
+
+
+                                                                                                 <!-- Image Section -->
+                                                                                                            <div class="ImageSection sm:col-span-12 md:col-span-12 lg:col-span-6 xl:col-span-4">
+                                                                                                     <div class="carousel">`;
+
+
+                        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                        if (Properties[i].Photos == null || Properties[i].Photos == undefined) {
+
+                            htmlResult += `
+                                                                                        <div class="carousel-cell"> <img style="min-height:300px; max-height:300px" height="968" width="1591"
+                                                                                                src="/images/teniacoThumbnail.jpg"
+                                                                                    alt="Property Image"
+                                                                                    class="rounded-md" /></div>`;
+
+                        } else if (Properties[i].Photos.length == 0) {
+                            htmlResult += `
+                                                                                    <div class="carousel-cell"> <img style="min-height:300px; max-height:300px" height="968" width="1591"
+                                                                                            src="/images/teniacoThumbnail.jpg"
+                                                                                alt="Property Image"
+                                                                                class="rounded-md" /></div>`;
+                        }
+                        else {
+                            for (let j = 0; j < Properties[i].Photos.length; j++) {
+                                const fileExtension = Properties[i].Photos[j].PropertyFilePath.split('.').pop().toLowerCase();
+                                if (imageExtensions.includes(fileExtension))
+                                    htmlResult += `
+                                                                                    <div class="carousel-cell"> <img style="min-height:300px; max-height:300px" height="968" width="1591"
+                                                                                            src="/Files/PropertiesFiles/my.teniaco.com/` + Properties[i].PropertyId + `/media/` + Properties[i].Photos[j].PropertyFilePath + `"
+                                                                                alt="Property Image"
+                                                                                class="rounded-md" /></div>`;
+                            }
+                        }
+
+
+
+
+
+
+
+                        htmlResult += ` </div>
+                                                                                                </div>
+
+
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                    </div>
+                                                                                    `;
+
+
+                        $('#properties').append(htmlResult);
+
+                        var DefaultLocationLon = 51.24494;
+                        var DefaultLocationLat = 36.66517;
+
+                        let map = initializeMap('mapLeft' + i, (Properties[i].LocationLon > 0 ? Properties[i].LocationLon : DefaultLocationLon), (Properties[i].LocationLat > 0 ? Properties[i].LocationLat : DefaultLocationLat), '.editMapIcon[propertyId=' + Properties[i].PropertyId + ']', '.submitMapIcon[propertyId=' + Properties[i].PropertyId + ']');
+                        initializeChart('report-donut-chart-' + i, Properties[i].PropertyCodeName);
+                        htmlResult = "";
+                        maps.push(map);
+                    }
+
+
+
+                    for (var i = 0; i < statesList.length; i++) {
+                        var item = statesList[i];
+                        $('.addressState').each(function () {
+                            $(this).append($("<option></option>")
+                                .attr("value", item.StateId)
+                                .text(item.StateName));
+                        });
+                    }
+
+
+
+
+                    //Pagination
+                    var paginationDiv = $("#paginationDiv");
+                    if (response.TotalRecordCount !== null && response.TotalRecordCount !== 0 && response.TotalRecordCount > 5) {
+                        var pageNumber = parseInt(pageNum);
+                        var pageSize = 5;
+                        var count = Math.ceil(response.TotalRecordCount / pageSize);
+                        window.pagObj = $('#paginationDiv').twbsPagination({
+                            totalPages: count,
+                            activeClass: "activePage",
+                            visiblePages: 3,
+                            last: ">>",
+                            first: "<<",
+                            prev: "<",
+                            next: ">",
+                            onPageClick: function (event, pageNumber) {
+                                LoadMyPropertiesWithPagination(pageNumber)
+                            }
+                        }).on('page', function (event) {
+
+                        });
+                    }
+
+
+
+                    $('.iconlocation').each(function () {
+                        $(this).trigger('click');
+                    });
+
+                    $('.carousel').flickity({
+                        pageDots: false,
+                    });
+
+                    // let defaultImage = $('img[src="/images/teniacoThumbnail.jpg"]');
+                    //     if (defaultImage.length > 0) {
+                    //    defaultImage.closest('.carousel').find('.flickity-button').remove();
+                    //  }
+
+                    $('.flickity-slider').each(function () {
+                        const cellCount = $(this).find('.carousel-cell').length;
+
+                        if (cellCount === 1) {
+                            $(this).closest('.carousel').find('.flickity-button').remove();
+                        }
+                    });
+
+
+                    const propertiesDetails = document.querySelectorAll('.PropertySideDetails');
+
+                    propertiesDetails.forEach((propertyDetails, index) => {
+                        if (index > 0) {
+                            propertyDetails.classList.add('hidden');
+                        }
+                    });
+
+                    $('.DetailsButton').on('click', function () {
+                        let propertyId = $(this).attr('propertyId');
+
+                        $('.PropertySideDetails').each(function () {
+                            if ($(this).attr('propertyId') != propertyId) {
+                                $(this).addClass('hidden');
+                            }
+                        })
+
+                        $('.PropertySideDetails[propertyId=' + propertyId + ']').toggleClass('hidden');
+                        if ($('.PropertySideDetails[propertyId=' + propertyId + ']').hasClass('hidden')) {
+                            $('.property[propertyId=' + propertyId + ']').css('max-height', 'unset');
+                        }
+                        else {
+                            $('.property[propertyId=' + propertyId + ']').css('max-height', '270px');
+                        }
+                        if (window.matchMedia('(max-width: 1023px)').matches) {
+                            let nextProperty = $('.property[propertyId=' + propertyId + ']').nextAll('.property').first();
+                            if (nextProperty.length > 0) {
+                                nextProperty.css('margin-top', '6rem');
+                            }
+                        }
+                    });
+
+
+
+                    $('.deletePhotoIcon').on('click', function () {
+                        let propertyId = $(this).attr('propertyId');
+
+                        $(this).addClass('hidden');
+                        $('.addPhotoIcon[propertyId=' + propertyId + ']').addClass('hidden');
+                        $('.backToPhotosIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+                        // خالی کردن لیست عکس های حذف شده
+                        RemovedPhotosIDs = RemovedPhotosIDs.filter(record => record.propertyId !== propertyId);
+                        RemovedPhotosPaths = RemovedPhotosPaths.filter(record => record.propertyId !== propertyId);
+
+
+                        $('.removePhotoIcon[propertyId=' + propertyId + ']').each(function () {
+                            $(this).toggleClass('hidden');
+                        });
+                        $('.submitDeletePhoto[propertyId=' + propertyId + ']').toggleClass('hidden');
+                    })
+
+
+
+                    $('body').on('click', '.addDistrict', function (e) {
+                        e.preventDefault();
+                        let propertyId = $(this).attr('propertyId');
+                        let zoneId = $('.addressZone[propertyId=' + propertyId + ']').val()
+
+                        if (!zoneId) {
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('لطفا ابتدا شهر مورد نظر را انتخاب نمایید');
+                            $('#warningModal')[0].click();
+                            return;
+                        }
+
+                        $('#addDistrict').attr('propertyId', propertyId);
+                        $('#addDistrict').attr('zoneId', zoneId);
+                        $('#openDistrictModalButton').click();
+                    });
+
+
+
+
+                    $('#addDistrict').on('click', function () {
+                        let propertyId = $(this).attr('propertyId');
+                        let zoneId = $(this).attr('zoneId');
+                        let districtName = $('#addDistrictName').val();
+                        if (!districtName) {
+
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('لطفا نام ناحیه را وارد نمایید');
+                            $('#warningModal')[0].click();
+                            return;
+                        }
+
+                        var formData = new FormData();
+
+
+                        formData.append("DistrictName", districtName);
+                        formData.append("ZoneId", zoneId);
+
+                        $.ajax({
+                            url: '/UserTeniaco/MyPropertiesForInvestorsManagement/AddToDistricts',
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (result) {
+                                let districtId = result.Record.DistrictId;
+                                $('.addressDistrict[propertyId=' + propertyId + ']')
+                                    .append($("<option></option>")
+                                        .attr("value", districtId)
+                                        .text(districtName));
+
+                                $('.addressDistrict[propertyId=' + propertyId + ']').val(districtId);
+                                $('#DistrictModal').removeClass('show');
+
+                            }
+
+
+
+                        });
+
+
+                    });
+
+
+
+
+                    $('body').on('click', '.backToMapsListIcon', function (e) {
+                        e.preventDefault();
+                        let propertyId = $(this).attr('propertyId');
+                        $('.iconmapsList[propertyId=' + propertyId + ']').click();
+                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    $('body').on('click', '.deleteMapIcon', function (e) {
+                        e.preventDefault();
+                        let propertyId = $(this).attr('propertyId');
+                        $('.removeMapIcon[propertyId=' + propertyId + ']').each(function () {
+                            $(this).removeClass('hidden');
+                        });
+                        $(this).addClass('hidden');
+                        $('.backToMapsListIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+                    });
+
+
+                    $('.addMapIcon').on('click', function () {
+
+                        let propertyId = $(this).attr('propertyId');
+
+                        $(this).addClass('hidden');
+                        $('.deleteMapIcon[propertyId=' + propertyId + ']').addClass('hidden');
+                        $('.backToMapsListIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+                        let htmlResult = `<div style="display:block;" class="items-center">
+                                                                        <label style="width:50%;">عنوان نقشه</label>
+                                                                       <input propertyId=`+ propertyId + ` style="width: 60%;" ;="" type="text" class="MapTitle p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                                                      <div>
+                                                                     <label style="width:50%;">انتخاب نقشه</label>
+                                                                      <input propertyId=`+ propertyId + ` type="file" class="btn btn-primary mt-2 mapFile" style="
+                                                                         width: 60%;">
+                                                                       </div>
+                                                                       <button propertyId=`+ propertyId + ` class="btn btn-primary mt-2 uploadMap" style="
+                                                                         display: block;">آپلود</button>
+                                                                    </div>`;
+
+                        //$('.documentList[propertyId=' + propertyId + '] .documentGrid').html(htmlResult).removeClass('grid');
+
+                        $('.mapsList[propertyId=' + propertyId + '] .mapsGrid').slideUp(400, function () { // Fade out the existing content
+                            $(this).html(htmlResult).slideDown(400).removeClass('grid').css('display', 'flex'); // Update the HTML and fade in the new content
+                        });
+
+                    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+            });
+
+        }
+
+
+        LoadMyPropertiesWithPagination(1);
+
+
+        $('input[type=text], select').on('focus', function () {
+            $(this).css('background-color', 'white');
+            $(this).css('border-color', 'rgb(226, 232, 240)');
+        });
+
+
+        $('#Area, #Foundation, #OfferPrice, #RebuiltInYearFa, #EditOfferPrice, #EditRebuiltInYearFa').on('keypress', function (e) {
+            var charCode = e.which ? e.which : e.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault(); // Prevent entry if it's not a digit
+            }
+        });
+
+        $('#OfferPrice, #EditOfferPrice').on('input', function () {
+            let inputVal = $(this).val().replace(/,/g, '');
+            if (!isNaN(inputVal) && inputVal !== '') {
+                let formattedVal = Number(inputVal).toLocaleString();
+                $(this).val(formattedVal);
+            }
+        });
+
+
+
+        $('#createPropertyBtn').on('click', function () {
+
+            var formData = new FormData();
+
+            var PropertyCodeName = $('#PropertyCodeName').val();
+            var PropertyTypeId = $('#PropertyTypeId').val();
+            var TypeOfUseId = $('#TypeOfUseId').val();
+            var DocumentTypeId = $('#DocumentTypeId').val();
+            var DocumentRootTypeId = $('#DocumentRootTypeId').val();
+            var DocumentOwnershipTypeId = $('#DocumentOwnershipTypeId').val();
+            var Area = $('#Area').val();
+            var Foundation = $('#Foundation').val();
+            var BuildingLifeId = $('#BuildingLifeId').val();
+            var RebuiltInYearFa = $('#RebuiltInYearFa').val();
+            var OfferPrice = $('#OfferPrice').val();
+            var PropertyDescriptions = $('#PropertyDescriptions').val();
+
+            var isValidated = true;
+
+            if (!PropertyCodeName) {
+                $('#PropertyCodeName').css('background-color', '#ffe7e7');
+                $('#PropertyCodeName').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!PropertyTypeId) {
+                $('#PropertyTypeId').css('background-color', '#ffe7e7');
+                $('#PropertyTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!TypeOfUseId) {
+                $('#TypeOfUseId').css('background-color', '#ffe7e7');
+                $('#TypeOfUseId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentTypeId) {
+                $('#DocumentTypeId').css('background-color', '#ffe7e7');
+                $('#DocumentTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentRootTypeId) {
+                $('#DocumentRootTypeId').css('background-color', '#ffe7e7');
+                $('#DocumentRootTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentOwnershipTypeId) {
+                $('#DocumentOwnershipTypeId').css('background-color', '#ffe7e7');
+                $('#DocumentOwnershipTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!Area) {
+                $('#Area').css('background-color', '#ffe7e7');
+                $('#Area').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (isValidated == false) {
+                $('#my-warning-modal').find('.modal-title').html('خطا');
+                $('#my-warning-modal').find('#error').html('لطفا تمام فیلد های ضروری را پر نمایید');
+                $('#warningModal')[0].click();
+                return;
+            }
+
+
+            var Exchangeable;
+            if ($('#Exchangeable').is(':checked')) {
+                Exchangeable = 'true';
+            }
+            else {
+                Exchangeable = 'false';
+            }
+            var Participable;
+            if ($('#Participable').is(':checked')) {
+                Participable = 'true';
+            }
+            else {
+                Participable = 'false';
+            }
+
+
+            formData.append('PropertyCodeName', PropertyCodeName);
+            formData.append('PropertyTypeId', PropertyTypeId);
+            formData.append('TypeOfUseId', TypeOfUseId);
+            formData.append('DocumentTypeId', DocumentTypeId);
+            formData.append('DocumentRootTypeId', DocumentRootTypeId);
+            formData.append('DocumentOwnershipTypeId', DocumentOwnershipTypeId);
+            formData.append('Area', Area);
+            formData.append('PropertiesDetailsVM.Foundation', Foundation);
+            formData.append('PropertiesDetailsVM.BuildingLifeId', BuildingLifeId);
+            formData.append('RebuiltInYearFa', RebuiltInYearFa);
+            formData.append('OfferPrice', OfferPrice.replace(/,/g, ''));
+            formData.append('StrOfferPrice', OfferPrice);
+            formData.append('StrCalculatedOfferPrice', Number(OfferPrice.replace(/,/g, '')) / Area);
+            formData.append('PropertiesDetailsVM.Exchangeable', Exchangeable);
+            formData.append('PropertiesDetailsVM.Participable', Participable);
+            formData.append('PropertyDescriptions', PropertyDescriptions);
+            formData.append('OfferPriceType', 1);
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesForInvestorsManagement/AddToPropertiesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+
+
+                    if (result.Result == "OK") {
+                        window.location.reload();
+
+                    } else {
+                        $('#my-warning-modal').find('.modal-title').html('خطا');
+                        $('#my-warning-modal').find('#error').html('عملیات با خطا رو به رو شد...');
+                        $('#warningModal')[0].click();
+                    }
+                },
+                error: function (jqXHR) {
+
+                    $('#my-warning-modal').find('.modal-title').html('خطا');
+                    $('#my-warning-modal').find('#error').html('عملیات با خطا رو به رو شد...');
+                    $('#warningModal')[0].click();
+
+                }
+            });
+
+
+
+
+
+        });
+
+
+
+
+        $('body').on('click', '.removeDocumentIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            let propertyFileId = $(this).attr('propertyFileId');
+            $('#deleteModal')[0].click();
+            $('#myFileDeleteBtn').attr('propertyFileId', propertyFileId);
+            $('#myFileDeleteBtn').attr('propertyId', propertyId);
+        });
+
+
+
+        $('body').on('click', '#myMapDeleteBtn', function (e) {
+
+            e.preventDefault();
+            let propertyFileId = $(this).attr('propertyFileId');
+            let propertyId = $(this).attr('propertyId');
+
+            $.ajax({
+                cache: false,
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/CompleteDeletePropertyFilesForInvestors',
+                type: 'POST',
+                data: { 'PropertyFileId': propertyFileId, 'fileType': 'maps' },
+                success: function (response) {
+                    $('.iconmapsList[propertyId=' + propertyId + ']').trigger('click');
+                },
+                error: function (xhr, status, error) {
+                    $('#my-warning-modal').find('.modal-title').html('خطا');
+                    $('#my-warning-modal').find('#error').html('خطایی رخ داده است');
+                    $('#warningModal')[0].click();
+                },
+            });
+        })
+
+
+
+
+        $('body').on('click', '.deleteDocumentIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $(this).addClass('hidden');
+            $('.backToDocumentListIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.removeDocumentIcon[propertyId=' + propertyId + ']').each(function () {
+                $(this).toggleClass('hidden');
+            });
+        });
+
+
+
+        $('body').on('click', '.backToDocumentListIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.icondocumentList[propertyId=' + propertyId + ']').click();
+        })
+
+
+
+        $('body').on('click', '.editDetailsIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesForInvestorsManagement/GetPropertyDetailsWithPropertyId",
+                data: { 'PropertyId': propertyId },
+                success: function (response) {
+                    let property = response.Record;
+
+                    $('#EditPropertyCodeName').val(property.PropertyCodeName);
+                    $('#EditPropertyTypeId').val(property.PropertyTypeId);
+                    $('#EditTypeOfUseId').val(property.TypeOfUseId);
+                    $('#EditDocumentTypeId').val(property.DocumentTypeId);
+                    $('#EditDocumentRootTypeId').val(property.DocumentRootTypeId);
+                    $('#EditDocumentOwnershipTypeId').val(property.DocumentOwnershipTypeId);
+                    $('#EditArea').val(property.Area);
+                    $('#EditFoundation').val(property.PropertiesDetailsVM.Foundation);
+                    $('#EditBuildingLifeId').val(property.PropertiesDetailsVM.BuildingLifeId);
+
+                    if (property.RebuiltInYearFa != 0)
+                        $('#EditRebuiltInYearFa').val(property.RebuiltInYearFa);
+
+                    $('#EditOfferPrice').val(property.StrOfferPrice).trigger('input');
+
+                    if (property.PropertiesDetailsVM.Exchangeable == true)
+                        $('#EditExchangeable').prop('checked', true);
+
+                    if (property.PropertiesDetailsVM.Participable == true)
+                        $('#EditParticipable').prop('checked', true);
+
+                    $('#EditPropertyDescriptions').val(property.PropertyDescriptions);
+
+                    $('#EditPropertyBtn').attr('propertyId', property.PropertyId)
+                }
+
+            });
+
+        });
+
+
+
+
+
+
+        $('#EditPropertyBtn').on('click', function () {
+            let propertyId = $(this).attr('propertyId');
+
+
+            var formData = new FormData();
+
+            var PropertyCodeName = $('#EditPropertyCodeName').val();
+            var PropertyTypeId = $('#EditPropertyTypeId').val();
+            var TypeOfUseId = $('#EditTypeOfUseId').val();
+            var DocumentTypeId = $('#EditDocumentTypeId').val();
+            var DocumentRootTypeId = $('#EditDocumentRootTypeId').val();
+            var DocumentOwnershipTypeId = $('#EditDocumentOwnershipTypeId').val();
+            var Area = $('#EditArea').val();
+            var Foundation = $('#EditFoundation').val();
+            var BuildingLifeId = $('#EditBuildingLifeId').val();
+            var RebuiltInYearFa = $('#EditRebuiltInYearFa').val();
+            var OfferPrice = $('#EditOfferPrice').val();
+            var PropertyDescriptions = $('#EditPropertyDescriptions').val();
+
+            var isValidated = true;
+
+            if (!PropertyCodeName) {
+                $('#EditPropertyCodeName').css('background-color', '#ffe7e7');
+                $('#EditPropertyCodeName').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!PropertyTypeId) {
+                $('#EditPropertyTypeId').css('background-color', '#ffe7e7');
+                $('Edit#PropertyTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!TypeOfUseId) {
+                $('#EditTypeOfUseId').css('background-color', '#ffe7e7');
+                $('#EditTypeOfUseId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentTypeId) {
+                $('#EditDocumentTypeId').css('background-color', '#ffe7e7');
+                $('#EditDocumentTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentRootTypeId) {
+                $('#EditDocumentRootTypeId').css('background-color', '#ffe7e7');
+                $('#EditDocumentRootTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!DocumentOwnershipTypeId) {
+                $('#EditDocumentOwnershipTypeId').css('background-color', '#ffe7e7');
+                $('#EditDocumentOwnershipTypeId').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (!Area) {
+                $('#EditArea').css('background-color', '#ffe7e7');
+                $('#EditArea').css('border-color', 'red');
+                isValidated = false;
+            }
+
+            if (isValidated == false) {
+                $('#my-warning-modal').find('.modal-title').html('خطا');
+                $('#my-warning-modal').find('#error').html('لطفا تمام فیلد های ضروری را پر نمایید');
+                $('#warningModal')[0].click();
+                return;
+            }
+
+
+            var Exchangeable;
+            if ($('#EditExchangeable').is(':checked')) {
+                Exchangeable = 'true';
+            }
+            else {
+                Exchangeable = 'false';
+            }
+            var Participable;
+            if ($('#EditParticipable').is(':checked')) {
+                Participable = 'true';
+            }
+            else {
+                Participable = 'false';
+            }
+
+
+            formData.append('PropertyId', propertyId);
+            formData.append('PropertyCodeName', PropertyCodeName);
+            formData.append('PropertyTypeId', PropertyTypeId);
+            formData.append('TypeOfUseId', TypeOfUseId);
+            formData.append('DocumentTypeId', DocumentTypeId);
+            formData.append('DocumentRootTypeId', DocumentRootTypeId);
+            formData.append('DocumentOwnershipTypeId', DocumentOwnershipTypeId);
+            formData.append('Area', Area);
+            formData.append('PropertiesDetailsVM.Foundation', Foundation);
+            formData.append('PropertiesDetailsVM.BuildingLifeId', BuildingLifeId);
+            formData.append('RebuiltInYearFa', RebuiltInYearFa);
+            formData.append('OfferPrice', OfferPrice.replace(/,/g, ''));
+            formData.append('StrOfferPrice', OfferPrice);
+            formData.append('StrCalculatedOfferPrice', Number(OfferPrice.replace(/,/g, '')) / Area);
+            formData.append('PropertiesDetailsVM.Exchangeable', Exchangeable);
+            formData.append('PropertiesDetailsVM.Participable', Participable);
+            formData.append('PropertyDescriptions', PropertyDescriptions);
+            formData.append('OfferPriceType', 1);
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesForInvestorsManagement/UpdateMyPropertiesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+
+
+                    if (result.Result == "OK") {
+                        window.location.reload();
+
+                    } else {
+                        $('#my-warning-modal').find('.modal-title').html('خطا');
+                        $('#my-warning-modal').find('#error').html('عملیات با خطا رو به رو شد...');
+                        $('#warningModal')[0].click();
+                    }
+                },
+                error: function (jqXHR) {
+
+                    $('#my-warning-modal').find('.modal-title').html('خطا');
+                    $('#my-warning-modal').find('#error').html('عملیات با خطا رو به رو شد...');
+                    $('#warningModal')[0].click();
+
+                }
+            });
+
+
+
+
+
+        });
+
+
+
+
+
+        $('body').on('click', '.backToMapIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.addressForm[propertyId=' + propertyId + ']').slideUp(800, function () {
+                $('.map[propertyId=' + propertyId + ']').fadeIn(400);
+            });
+
+            // $('.addressForm[propertyId='+propertyId+']').css('display','none');
+            // $('.map[propertyId='+propertyId+']').css('display','unset');
+
+        })
+
+
+        $('body').on('click', '.editAddressIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+
+            let stateVal = $('.addressState[propertyId=' + propertyId + ']').attr('val');
+            $('.addressState[propertyId=' + propertyId + ']').val(stateVal).trigger('change');
+
+            let cityVal = $('.addressCity[propertyId=' + propertyId + ']').attr('val');
+            $('.addressCity[propertyId=' + propertyId + ']').val(cityVal).trigger('change');
+
+            let zoneVal = $('.addressZone[propertyId=' + propertyId + ']').attr('val');
+            $('.addressZone[propertyId=' + propertyId + ']').val(zoneVal).trigger('change');
+
+            let districtVal = $('.addressDistrict[propertyId=' + propertyId + ']').attr('val');
+            $('.addressDistrict[propertyId=' + propertyId + ']').val(districtVal).trigger('change');
+
+            let addressVal = $('.addressAddress[propertyId=' + propertyId + ']').attr('val');
+            $('.addressAddress[propertyId=' + propertyId + ']').val(addressVal).trigger('change');
+
+
+
+            let htmlResult = "";
+
+            $('.map[propertyId=' + propertyId + ']').fadeOut(300, function () {
+                $('.addressForm[propertyId=' + propertyId + ']').slideDown(800);
+            });
+
+
+
+
+
+
+
+        });
+
+
+
+
+        $('body').on('change', '.addressState', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            var stateId = $(this).val();
+
+            $('.addressCity[propertyId=' + propertyId + ']').find('option')
+                .remove()
+                .end();
+
+            for (var i = 0; i < citiesList.length; i++) {
+                var item = citiesList[i];
+                if (item.StateId == stateId)
+                    $('.addressCity[propertyId=' + propertyId + ']')
+                        .append($("<option></option>")
+                            .attr("value", item.CityId)
+                            .text(item.CityName));
+            }
+
+        });
+
+
+
+        $('body').on('change', '.addressCity', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            var cityId = $(this).val();
+
+            $('.addressZone[propertyId=' + propertyId + ']').find('option')
+                .remove()
+                .end();
+
+            for (var i = 0; i < zonesList.length; i++) {
+                var item = zonesList[i];
+                if (item.CityId == cityId)
+                    $('.addressZone[propertyId=' + propertyId + ']')
+                        .append($("<option></option>")
+                            .attr("value", item.ZoneId)
+                            .text(item.ZoneName));
+            }
+
+        });
+
+
+
+        $('body').on('change', '.addressZone', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            var zoneId = $(this).val();
+
+            $('.addressDistrict[propertyId=' + propertyId + ']').find('option')
+                .remove()
+                .end()
+                .append('<option selected></option>');
+
+            for (var i = 0; i < districtsList.length; i++) {
+                var item = districtsList[i];
+                if (item.ZoneId == zoneId)
+                    $('.addressDistrict[propertyId=' + propertyId + ']')
+                        .append($("<option></option>")
+                            .attr("value", item.DistrictId)
+                            .text(item.DistrictName));
+            }
+
+        });
+
+
+
+        var propertyFileUploadPVMList = [];
+
+
+        $('body').on('click', '.mainImage', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.addMainPhotoInput[propertyId=' + propertyId + ']').click();
+        });
+
+        $('body').on('click', '.sidePhotoAddContainer', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.addSidePhotoInput[propertyId=' + propertyId + ']').click();
+        });
+
+
+        // show uploaded main photo
+        $('body').on('change', '.addMainPhotoInput', function (event) {
+            event.preventDefault();
+            debugger;
+            let propertyId = $(this).attr('propertyId');
+
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+
+                    $('.mainImage[propertyId=' + propertyId + ']').replaceWith('<div class="photoParent" style="position:relative; height:100%;"> <img propertyId=' + propertyId + ' style="height:100%;" src="' + e.target.result + '" class="rounded-md mainImage"><i propertyId=' + propertyId + ' title="حذف" class="removeTemporaryMainPhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+
+
+        // show uploaded side photos
+        $('body').on('change', '.addSidePhotoInput', function (event) {
+            event.preventDefault();
+            const files = event.target.files;
+            const propertyId = $(this).attr('propertyId');
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                propertyFileUploadPVMList.push({
+                    propertyId: propertyId,
+                    File: file
+                });
+            }
+
+            if (files.length > 0) {
+                const gridElement = $('.pictureList[propertyId=' + propertyId + '] .grid');
+
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+                        if (file.type.startsWith('image/')) {
+                            gridElement.append('<div class="photoParent" style="position:relative; height:100%;"> <img style="height:100%;" src="' + e.target.result + '" class="rounded-md mainImage"><i data-file=' + file.name + ' propertyId=' + propertyId + ' title="حذف" class="removeTemporarySidePhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>');
+                        } else if (file.type.startsWith('video/')) {
+                            gridElement.append('<div class="photoParent" style="position:relative; height:100%;"> <img style="height:100%;" src="/images/myBlack.png" class="rounded-md mainImage"><i data-file=' + file.name + ' propertyId=' + propertyId + ' title="حذف" class="removeTemporarySidePhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>');
+                        }
+
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+
+
+
+
+
+
+            }
+            // Reset the input value to allow selecting the same file again
+            //$(this).val('');
+        });
+
+
+        // delete temporary side photo
+        $('body').on('click', '.removeTemporarySidePhotoIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            var fileName = $(this).attr('data-file');
+            var index = propertyFileUploadPVMList.findIndex(fileObj => fileObj.File.name === fileName && fileObj.propertyId === propertyId);
+            if (index !== -1) {
+                propertyFileUploadPVMList.splice(index, 1);
+            }
+
+            $(this).closest('.photoParent').remove();
+        });
+
+
+        // delete temporary main photo
+        $('body').on('click', '.removeTemporaryMainPhotoIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('.addMainPhotoInput[propertyId=' + propertyId + ']').val('');
+            $(this).siblings().first().replaceWith('<span propertyid=' + propertyId + ' style="cursor:pointer; height: 100%;" title="افزودن" class="rounded-md rounded-md flex justify-items-center items-center mainImage">عکس اصلی</span>');
+            $(this).remove();
+        });
+
+
+
+
+
+        $('body').on('click', '.removePhotoIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            let propertyFileId = $(this).attr('propertyFileId');
+            let propertyFileOrder = $(this).attr('propertyFileOrder');
+            let propertyFilePath = $(this).attr('propertyFilePath');
+
+            if (propertyFileOrder == 1) {
+                $('#my-warning-modal').find('.modal-title').html('خطا');
+                $('#my-warning-modal').find('#error').html('برای حذف عکس اصلی روی آیکن + کلیک کنید');
+                $('#warningModal')[0].click();
+                return;
+            }
+
+            $('.photoParent[propertyFileId=' + propertyFileId + ']').remove();
+
+            RemovedPhotosIDs.push({
+                propertyId: propertyId,
+                propertyFileId: propertyFileId
+            });
+
+            RemovedPhotosPaths.push({
+                propertyId: propertyId,
+                propertyFilePath: propertyFilePath
+            });
+
+        });
+
+
+
+
+
+
+
+        $('body').on('click', '.uploadMap', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            var propertyFileUploadPVMList = [];
+
+            var file = $('.mapFile[propertyId=' + propertyId + ']')[0];
+            var title = $('.MapTitle[propertyId=' + propertyId + ']').val();
+
+            if ((!file.value) && (!title)) {
+                $('.MapTitle[propertyId=' + propertyId + ']').css('background-color', '#ffe7e7');
+                $('.MapTitle[propertyId=' + propertyId + ']').css('border-color', 'red');
+                $('.mapFile[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                return;
+            }
+            else if (!title) {
+                $('.MapTitle[propertyId=' + propertyId + ']').css('background-color', '#ffe7e7');
+                $('.MapTitle[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                $('.mapFile[propertyId=' + propertyId + ']').css('border-color', 'unset');
+                return;
+            }
+            else if (!file.value) {
+                $('.mapFile[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                $('.MapTitle[propertyId=' + propertyId + ']').css('background-color', 'unset');
+                $('.MapTitle[propertyId=' + propertyId + ']').css('border-color', 'unset');
+                return;
+            }
+
+            // debugger;
+            // if ((!file.value) || (!title)) {
+            //     $('#my-warning-modal').find('.modal-title').html('خطا');
+            //     $('#my-warning-modal').find('#error').html('لطفا اطلاعات را به درستی وارد نمایید');
+            //     $('#warningModal')[0].click();
+            //     return;
+            // }
+
+            propertyFileUploadPVMList.push({
+                PropertyFileTitle: title,
+                File: file.files[0],
+                PropertyFileOrder: '1'
+            });
+
+            var formData = new FormData();
+
+
+            formData.append("propertyFileUploadPVMList[0].PropertyFileTitle", title);
+            formData.append("propertyFileUploadPVMList[0].PropertyFileOrder", '1');
+            formData.append("propertyFileUploadPVMList[0].File", file.files[0]);
+
+            formData.append('PropertyId', propertyId);
+
+
+            formData.append('fileType', 'maps');
+
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/AddToMyPropertyFilesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    $('.mapsList[propertyId=' + propertyId + '] .mapsGrid').removeClass('flex').css('display', 'grid');
+                    $('.iconmapsList[propertyId=' + propertyId + ']').trigger('click');
+                }
+            });
+        });
+
+
+
+
+
+
+        $('body').on('click', '.uploadDocument', function (e) {
+            e.preventDefault();
+
+            let propertyId = $(this).attr('propertyId');
+            var propertyFileUploadPVMList = [];
+
+            var file = $('.documentFile[propertyId=' + propertyId + ']')[0];
+            var title = $('.DocumentTitle[propertyId=' + propertyId + ']').val();
+
+            if ((!file.value) && (!title)) {
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('background-color', '#ffe7e7');
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('border-color', 'red');
+                $('.documentFile[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                return;
+            }
+            else if (!title) {
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('background-color', '#ffe7e7');
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                $('.documentFile[propertyId=' + propertyId + ']').css('border-color', 'unset');
+                return;
+            }
+            else if (!file.value) {
+                $('.documentFile[propertyId=' + propertyId + ']').css('border-color', 'red');
+
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('background-color', 'unset');
+                $('.DocumentTitle[propertyId=' + propertyId + ']').css('border-color', 'unset');
+                return;
+            }
+
+            // if ((!file.value) || (!title)) {
+            //     $('#my-warning-modal').find('.modal-title').html('خطا');
+            //     $('#my-warning-modal').find('#error').html('لطفا اطلاعات را به درستی وارد نمایید');
+            //     $('#warningModal')[0].click();
+            //     return;
+            // }
+
+            propertyFileUploadPVMList.push({
+                PropertyFileTitle: title,
+                File: file.files[0],
+                PropertyFileOrder: '1'
+            });
+
+            var formData = new FormData();
+
+
+            formData.append("propertyFileUploadPVMList[0].PropertyFileTitle", title);
+            formData.append("propertyFileUploadPVMList[0].PropertyFileOrder", '1');
+            formData.append("propertyFileUploadPVMList[0].File", file.files[0]);
+
+            formData.append('PropertyId', propertyId);
+
+            formData.append('fileType', 'docs');
+
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/AddToMyPropertyFilesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    $('.documentList[propertyId=' + propertyId + '] .documentGrid').removeClass('flex').css('display', 'grid');
+                    $('.icondocumentList[propertyId=' + propertyId + ']').trigger('click');
+                }
+            });
+
+        });
+
+
+
+
+        $('body').on('click', '#myFileDeleteBtn', function (e) {
+
+            e.preventDefault();
+            let propertyFileId = $(this).attr('propertyFileId');
+            let propertyId = $(this).attr('propertyId');
+
+            $.ajax({
+                cache: false,
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/CompleteDeletePropertyFilesForInvestors',
+                type: 'POST',
+                data: { 'PropertyFileId': propertyFileId, 'fileType': 'docs' },
+                success: function (response) {
+                    $('.icondocumentList[propertyId=' + propertyId + ']').trigger('click');
+                },
+                error: function (xhr, status, error) {
+                    $('#my-warning-modal').find('.modal-title').html('خطا');
+                    $('#my-warning-modal').find('#error').html('خطایی رخ داده است');
+                    $('#warningModal')[0].click();
+                },
+            });
+        })
+
+
+
+
+
+        $('body').on('click', '.backToPhotosIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+
+            $(this).addClass('hidden');
+            $('.submitAddPhoto[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.deletePhotoIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.addPhotoIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+            $('.iconpictureList[propertyId=' + propertyId + ']').click();
+
+        });
+
+
+        $('body').on('click', '.addPhotoIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            $('#active-users[propertyId=' + propertyId + ']').css('overflow', 'auto');
+
+            // خالی کردن لیست عکس های اضافه شده
+            propertyFileUploadPVMList = propertyFileUploadPVMList.filter(record => record.propertyId !== propertyId);
+
+
+            let mainPhotoPath = $('.removePhotoIcon[propertyId=' + propertyId + '][propertyFileOrder=1]').attr('propertyFilePath');
+            let htmlResult;
+
+            $(this).addClass('hidden');
+
+
+            $('.deletePhotoIcon[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.backToPhotosIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+            $('.submitAddPhoto[propertyId=' + propertyId + ']').removeClass('hidden');
+
+            if (mainPhotoPath) {
+                htmlResult = '<div class="photoParent" style="position:relative; height:100%;"> <img propertyId=' + propertyId + ' style="height:100%;" src="' + mainPhotoPath + '" class="rounded-md mainImage"><i propertyId=' + propertyId + ' title="حذف" class="removeTemporaryMainPhotoIcon tooltip w-6 h-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#ffffff"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"></path></svg></i></div>' +
+                    '<div propertyId="' + propertyId + '" title="افزودن" class="sidePhotoAddContainer"><div class="sidePhotoText">عکس فرعی</div><img src="/images/PlaceHolder.jpg" class="sidePhoto rounded-md" /></div>';
+            }
+            else {
+                htmlResult = '<span propertyId="' + propertyId + '" style="cursor:pointer" title="افزودن" class="rounded-md rounded-md flex justify-items-center items-center mainImage">عکس اصلی</span>' +
+                    '<div propertyId="' + propertyId + '" title="افزودن" class="sidePhotoAddContainer"><div class="sidePhotoText">عکس فرعی</div><img src="/images/PlaceHolder.jpg" class="sidePhoto rounded-md" /></div>';
+            }
+
+            $('.photosLayout[propertyId=' + propertyId + ']').addClass('grid');
+            $('.pictureList[propertyId=' + propertyId + '] .photosLayout').html(htmlResult);
+
+        });
+
+
+
+        $('body').on('click', '.submitDeletePhoto', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+
+
+            const hasMatchingRecord = RemovedPhotosIDs.some(record => record.propertyId === propertyId);
+
+            if (!hasMatchingRecord) {
+                $('#my-warning-modal').find('.modal-title').html('خطا');
+                $('#my-warning-modal').find('#error').html('هیچ عکسی حذف نشده است');
+                $('#warningModal')[0].click();
+                return;
+            }
+
+            var formData = new FormData();
+
+            RemovedPhotosIDs.forEach(record => {
+                if (record.propertyId === propertyId) {
+                    formData.append('DeletedPhotosIDs', record.propertyFileId);
+                }
+            });
+
+            RemovedPhotosPaths.forEach(record => {
+                if (record.propertyId === propertyId) {
+                    formData.append('DeletedPhotosPaths', record.propertyFilePath.replace('thumb_', ''));
+                }
+            });
+
+            formData.append('PropertyId', propertyId);
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/AddToMyPropertyMediaFilesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    // $('.iconpictureList[propertyId=' + propertyId + ']').click();
+                    LoadMyPropertiesWithPagination(1);
+                }
+            });
+
+
+
+        })
+
+
+        $('body').on('click', '.submitAddPhoto', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+            debugger;
+
+            //اگر عکس اصلی انتخاب نکرده بود
+            if ($('img.mainImage[propertyId=' + propertyId + ']').length == 0) {
+                $('#my-warning-modal').find('.modal-title').html('خطا');
+                $('#my-warning-modal').find('#error').html('عکس اصلی انتخاب نکرده اید');
+                $('#warningModal')[0].click();
+                return;
+            }
+
+
+            var formData = new FormData();
+
+
+            var mainFile = $('.addMainPhotoInput[propertyId=' + propertyId + ']');
+            if (mainFile.val()) {
+                propertyFileUploadPVMList.unshift({
+                    File: mainFile[0].files[0],
+                    propertyId: propertyId
+                });
+                formData.append('IsMainChanged', 'true');
+            }
+
+
+
+            if (propertyFileUploadPVMList.length > 0) {
+
+                formData.append('PropertyId', propertyId);
+
+                for (var i = 0; i < propertyFileUploadPVMList.length; i++) {
+
+                    var file = propertyFileUploadPVMList[i].File;
+                    if (file) {
+
+                        if (mainFile.length > 0 && i == 0) {
+                            formData.append("PropertyFileUploadPVMList[" + i + "].PropertyFileOrder", 1);
+                        }
+                        else {
+                            formData.append("PropertyFileUploadPVMList[" + i + "].PropertyFileOrder", 1000);
+                        }
+                        formData.append("PropertyFileUploadPVMList[" + i + "].PropertyFileTitle", file.name);
+                        formData.append("PropertyFileUploadPVMList[" + i + "].File", file);
+                    }
+
+                }
+            }
+
+
+            $.ajax({
+                url: '/UserTeniaco/MyPropertiesFilesForInvestorsManagement/AddToMyPropertyMediaFilesForInvestors',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    $('.iconlocation[propertyId=' + propertyId + ']').click();
+                    window.location.reload();
+                }
+            });
+
+
+
+        })
+
+
+
+
+        var featureIds = [];
+        // edit features
+        $('body').on('click', '.editFeaturesIcon', function () {
+            let propertyId = $(this).attr('propertyId');
+            let propertyTypeId = $(this).attr('propertyTypeId');
+            $('#editFeaturesBtn').attr('propertyId', propertyId);
+            $('#EditFeaturesModal').addClass('show');
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFeaturesForInvestorsManagement/GetMyPropertyFeaturesValuesForInvestors",
+                data: {
+                    'PropertyId': propertyId,
+                    'PropertyTypeId': propertyTypeId
+                },
+                success: function (response) {
+                    let record = response.Record;
+
+                    if (record.FeaturesVMList != null) {
+                        if (record.FeaturesVMList.length > 0) {
+                            var htmlResult = '';
+
+                            for (var k = 0; k < record.FeaturesCategoriesVMList.length; k++) {
+                                htmlResult += '<button class="accordion">' + record.FeaturesCategoriesVMList[k].FeatureCategoryTitle + '</button>' +
+                                    '<div class="accordion-content grid grid-cols-12 gap-6">';
+
+                                for (var i = 0; i < record.FeaturesVMList.length; i++) {
+                                    if (record.FeaturesVMList[i].FeatureCategoryId != record.FeaturesCategoriesVMList[k].FeatureCategoryId)
+                                        continue;
+
+                                    var feature = record.FeaturesVMList[i];
+
+                                    if (feature.ElementTypeId == 5) {
+                                        htmlResult += "<div class=\"  col-span-6 lg:col-span-4 sm:col-span-12 mb-5 mt-5  \">" +
+                                            "<label style='display:block;' class='form-label mb-1 titles'>" +
+                                            feature.FeatureTitle +
+                                            "</label>";
+                                    } else {
+                                        htmlResult += "<div class=\" col-span-6 lg:col-span-4 sm:col-span-12 mb-5 mt-5 \">" +
+                                            "<label style='display:block;' class='form-label mb-1 titles'>" +
+                                            feature.FeatureTitle +
+                                            "</label>";
+                                    }
+
+                                    var value = "";
+                                    if (record.FeaturesValuesVMList != null) {
+                                        if (record.FeaturesValuesVMList.length > 0) {
+                                            var propertyFeature = record.FeaturesValuesVMList.filter(a => a.FeatureId == feature.FeatureId);
+                                            value = propertyFeature;
+                                        }
+                                        if (feature.ElementTypeId == 1) {
+                                            featureIds.push(feature.FeatureId);
+                                            //متنی
+                                            htmlResult += "<input data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"form-control features-input\" placeholder=\"" + feature.FeatureTitle +
+                                                "\" type=\"text\" id=" + feature.FeatureId + " name=\"" + feature.FeatureId + "\" />";
+                                        } else if (feature.ElementTypeId == 2) {
+                                            featureIds.push(feature.FeatureId);
+                                            //تک انتخابی
+                                            htmlResult += "<select data-ElementTypeId=\"" + feature.ElementTypeId + "\" class=\"form-control features-input\" placeholder=\"" + feature.FeatureTitle + "\" id='" + feature.FeatureId + "' name=\"" + feature.FeatureId + "\">" +
+                                                "<option value='' selected disabled></option>";
+
+                                            var featureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+
+                                            if (featureOptions != null) {
+                                                if (featureOptions.length > 0) {
+                                                    for (var j = 0; j < featureOptions.length; j++) {
+                                                        var featureOption = featureOptions[j];
+                                                        htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                    }
+                                                }
+                                            }
+
+                                            htmlResult += "</select>";
+
+                                        } else if (feature.ElementTypeId == 3) {
+                                            featureIds.push(feature.FeatureId);
+                                            //چند انتخابی
+                                            htmlResult += "<select data-ElementTypeId=\"" + feature.ElementTypeId + "\" multiple class=\"form-control features-input\" placeholder=\"" + feature.FeatureTitle + "\" name=\"" + feature.FeatureId + "\" id='" + feature.FeatureId + "'>" +
+                                                "<option value='' selected disabled></option>";
+
+                                            var multiFeatureOptions = record.FeaturesOptionsVMList.filter(f => f.FeatureId == feature.FeatureId);
+                                            if (multiFeatureOptions != null) {
+                                                if (multiFeatureOptions.length > 0) {
+                                                    for (var h = 0; h < multiFeatureOptions.length; h++) {
+                                                        var featureOption = multiFeatureOptions[h];
+                                                        htmlResult += "<option value=\"" + featureOption.FeatureOptionValue + "\">" + featureOption.FeatureOptionText + "</option>";
+                                                    }
+                                                }
+                                            }
+                                            htmlResult += "</select>";
+                                        } else if (feature.ElementTypeId == 4) {
+                                            featureIds.push(feature.FeatureId);
+                                            //توضیحات
+                                        } else if (feature.ElementTypeId == 5) {
+                                            featureIds.push(feature.FeatureId);
+                                            //چک باکس
+                                            htmlResult += "<input value='1' style='border-radius:5px;' data-ElementTypeId=\"" + feature.ElementTypeId +
+                                                "\" type=\"checkbox\" id=\"" + feature.FeatureId + "\" name=\"" + feature.FeatureId +
+                                                "\" data-placement=\"top\" data-toggle=\"tooltip\" title=\"" + feature.FeatureTitle +
+                                                "\" class=\"w-100 h-100 features-input\">";
+                                        }
+                                        htmlResult += "</div>";
+                                    }
+                                }
+                                htmlResult += "</div>";
+                            }
+
+                            $(".container").html(htmlResult);
+
+                            $('select[data-elementtypeid=3]').each(function () {
+                                $(this).chosen();
+                            })
+
+                            // opening accordions function
+                            const accordionBtns = document.querySelectorAll(".accordion");
+                            accordionBtns.forEach((accordion) => {
+                                accordion.onclick = function () {
+                                    this.classList.toggle("is-open");
+
+                                    let content = this.nextElementSibling;
+
+                                    if (content.style.maxHeight) {
+                                        content.style.maxHeight = null;
+                                    } else {
+                                        content.style.maxHeight = content.scrollHeight + "px";
+                                    }
+                                };
+                            });
+                            // end of function
+
+
+                        }
+                    }
+
+
+                    console.log(record);
+                    //fill features
+                    debugger;
+                    for (let i = 0; i < record.FeaturesValuesVMList.length; i++) {
+                        let featureId = record.FeaturesValuesVMList[i].FeatureId;
+                        let featureValue = record.FeaturesValuesVMList[i].FeatureValue;
+                        debugger;
+
+                        if (featureValue.includes(',')) {
+                            featureValue = featureValue.split(',');
+                        }
+
+                        let $input = $('[name="' + featureId + '"]');
+
+
+                        if ($input.is(':checkbox')) {
+                            $input.prop('checked', featureValue === '1');
+                        } else {
+                            $input.val(featureValue).trigger('chosen:updated');
+                        }
+                    }
+
+
+                } // End of success callback
+            }); // End of AJAX
+        }); // End of click icon event
+
+
+
+
+
+
+        $('body').on('click', '.addDocumentIcon', function (e) {
+            e.preventDefault();
+            let propertyId = $(this).attr('propertyId');
+
+            $(this).addClass('hidden');
+            $('.deleteDocumentIcon[propertyId=' + propertyId + ']').addClass('hidden');
+            $('.backToDocumentListIcon[propertyId=' + propertyId + ']').removeClass('hidden');
+
+
+            let htmlResult = `<div style="display:block;" class="items-center">
+                                                                        <label style="width:50%;">عنوان سند</label>
+                                                                       <input propertyId=`+ propertyId + ` style="width: 60%;" ;="" type="text" class="DocumentTitle p-2.5 mr-1 z-20 text-sm text-gray-900 bg-gray-50 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="عنوان">
+                                                                      <div>
+                                                                     <label style="width:50%;">انتخاب سند</label>
+                                                                      <input propertyId=`+ propertyId + ` type="file" class="btn btn-primary mt-2 documentFile" style="
+                                                                         width: 60%;">
+                                                                       </div>
+                                                                       <button propertyId=`+ propertyId + ` class="btn btn-primary mt-2 uploadDocument" style="
+                                                                         display: block;">آپلود</button>
+                                                                    </div>`;
+
+
+
+            $('.documentList[propertyId=' + propertyId + '] .documentGrid').slideUp(400, function () { // Fade out the existing content
+                $(this).html(htmlResult).slideDown(400).removeClass('grid').css('display', 'flex'); // Update the HTML and fade in the new content
+            });
+
+        });
+
+
+
+
+        $('#editFeaturesBtn').on('click', function () {
+            let propertyId = $(this).attr('propertyId');
+
+            var features = $('.features-input');
+
+            var featuresValuesVMList = [];
+
+            for (var i = 0; i < features.length; i++) {
+                debugger;
+                var feature = features[i];
+                var featureId = $(feature).attr('id');
+                var featureValue = $(feature).val();
+
+                var elementTypeId = $(feature).attr('data-ElementTypeId');
+
+                if (elementTypeId == '3') {
+                    featureValue = (featureValue == null) ? '' : featureValue.join(',');
+                }
+
+                if (elementTypeId == '5') {
+                    if (!$(feature).is(':checked')) {
+                        continue;;
+                    }
+                }
+
+                var featuresValues = {
+                    'FeatureId': featureId,
+                    'FeatureValue': featureValue
+                };
+
+                if (featureValue)
+                    featuresValuesVMList.push(featuresValues);
+            }
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesFeaturesForInvestorsManagement/UpdatePropertyFeaturesForInvestors",
+                data: {
+                    'PropertyId': propertyId,
+                    'FeaturesValuesVMList': featuresValuesVMList,
+                },
+                success: function (result) {
+                    debugger;
+                    if (result.Result == "OK") {
+                        $('#EditFeaturesModal').removeClass('show');
+                        $('.iconfeaturesList[propertyId=' + propertyId + ']').click();
+                    }
+                },
+
+            });
+
+
+        });
+
+
+
+        $('body').on('click', '.submitAddress', function (e) {
+            e.preventDefault();
+            var propertyId = $(this).attr('propertyId');
+            var stateId = $('.addressState[propertyId=' + propertyId + ']').val();
+            var cityId = $('.addressCity[propertyId=' + propertyId + ']').val();
+            var zoneId = $('.addressZone[propertyId=' + propertyId + ']').val();
+            var districtId = $('.addressDistrict[propertyId=' + propertyId + ']').val();
+            var address = $('.addressAddress[propertyId=' + propertyId + ']').val();
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/MyPropertiesLocationForInvestorsManagement/UpdateMyPropertyLocationForInvestors",
+                data: {
+                    'PropertyId': propertyId,
+                    'StateId': stateId,
+                    'CityId': cityId,
+                    'ZoneId': zoneId,
+                    'DistrictId': districtId,
+                    'Address': address,
+
+                },
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+
+
+
+
+
+        });
+
+
+
+
+
+    });
+</script>

@@ -1,0 +1,482 @@
+﻿<script src="~/lib/openlayers-v6.9.0/build/ol.js"></script>
+<script src="~/lib/ol-ext/dist/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
+<link rel="stylesheet" href="~/lib/ol-ext/dist/ol-ext.css" />
+<script type="text/javascript" src="~/lib/ol-ext/dist/ol-ext.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+
+
+<script>
+
+
+    function updateProgressBar(startDate, endDate) {
+        var start = new Date(startDate).getTime();
+        var end = new Date(endDate).getTime();
+        var now = new Date().getTime();
+
+        if (now < start) {
+            $("#progressBar").css("width", "0%").text("0%");
+            return;
+        }
+
+        var progress = ((now - start) / (end - start)) * 100;
+        progress = Math.max(0, Math.min(100, progress)); // Keep within 0-100%
+        return Math.round(progress);
+    }
+
+
+
+
+    function ConvertNumberToPersian(input) {
+        const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return input.toString().replace(/\d/g, (digit) => persianNumbers[digit]);
+    }
+
+
+    //تبدیل تاریخ
+    function ConvertDateToPersian(date) {
+        const dateObject = new Date(date);
+        const jalaaliDate = jalaali.toJalaali(dateObject);
+        const persianDate = `${jalaaliDate.jy}/${jalaaliDate.jm.toString().padStart(2, '0')}/${jalaaliDate.jd.toString().padStart(2, '0')}`;
+        const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return persianDate.replace(/\d/g, (digit) => persianNumbers[digit]);
+        return persianDate;
+    }
+
+    function progress_bar() {
+
+        var path = $(".progress2");
+
+        path.each(function () {
+            var $this = $(this);
+            var totalProgress = $this.find("path").attr("stroke-dasharray");
+            var progress = $this.parent().attr("data-percent");
+            var total = $this.parent().attr("total-data");
+            var offuse = $this.parent().attr("offuse-data");
+
+            var percent = parseInt($this.parent().attr("data-percent"));
+            $this.parent().attr('persian-percent', '%' + ConvertNumberToPersian(percent));
+
+
+            var offsetData = parseInt($this.parent().attr("offuse-data"));
+            var usedData = percent + offsetData;
+            var all = (totalProgress * progress) / total;
+            var act = totalProgress - all;
+
+            $this.find(".online").css("stroke-dashoffset", act);
+
+            var offdata = (totalProgress * usedData) / total;
+            var offdatas = totalProgress - offdata;
+            $this.find(".offline").css("stroke-dashoffset", offdatas);
+
+            $this.find(".white1").css("stroke-dashoffset", act + 5);
+        });
+
+    }
+
+
+    $(document).ready(function () {
+        // Kia :: Active Menu By Class Every Area Spefic has been repeated
+        $(".side-nav ul li:nth-child(5)").addClass("activemenu");
+        $(".side-nav ul li:nth-child(5) a").addClass("activemenu-link");
+        $(".side-nav ul li:nth-child(5) a").removeClass("side-menu");
+        $(".side-nav ul li:nth-child(5) a .side-menu__title").addClass("activemenu-text");
+
+        var maps = [];
+
+        //#region map
+        function initializeMap(targetId, lon, lat) {
+
+            destroyAllMaps();
+
+            var raster = new ol.layer.Tile({
+                source: new ol.source.OSM(),
+                zoom: 12,
+                maxZoom: 17,
+                minZoom: 1,
+            });
+
+            var view = new ol.View({
+                center: ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'),
+                zoom: 12,
+                maxZoom: 17,
+                minZoom: 1,
+                constrainOnlyCenter: true,
+            });
+
+            var map = new ol.Map({
+                logo: false,
+                controls: ol.control.defaults({
+                    attributionOptions: {
+                        collapsible: false,
+                    },
+                }),
+                layers: [raster],
+                target: targetId,
+                view: view,
+            });
+
+            var iconGeometry = new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857'));
+
+            var layer = new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: [
+                        new ol.Feature({
+                            geometry: iconGeometry,
+                        }),
+                    ],
+                }),
+                style: new ol.style.Style({
+                    image: new ol.style.Icon({
+                        anchor: [0.5, 46],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'pixels',
+                        src: '/images/mapmarker1.png',
+                    }),
+                }),
+            });
+
+            map.addLayer(layer);
+
+            maps.push(map);
+
+            return map;
+        }
+
+        function destroyAllMaps() {
+            maps.forEach(function (map) {
+                map.setTarget(null); // Detach the map from DOM
+            });
+            maps = []; // Clear the array
+        }
+
+
+        $('body').on('click', '.blog-slider__button', function () {
+            let projectId = $(this).attr('projectId');
+            let lon = $(this).attr('lon');
+            let lat = $(this).attr('lat');
+            $('.detailSection[projectId=' + projectId + ']').toggleClass('hidden');
+            $('.detailSection').each(function () {
+                if ($(this).attr('projectId') != projectId) {
+                    $(this).addClass('hidden');
+                }
+            });
+            $('.blog-slider__img').each(function () {
+                if ($(this).attr('projectId') != projectId) {
+                    $(this).removeClass('blueFilter');
+                }
+            })
+
+            $('.blog-slider__img[projectId=' + projectId + ']').toggleClass('blueFilter');
+
+            initializeMap('map-' + projectId, lon, lat);
+
+        });
+
+        $.ajax({
+            cache: false,
+            type: "Post",
+            url: "/UserTeniaco/TeniacoSuggestionsManagement/GetListOfTeniacoSuggestedProjects",
+            success: function (response) {
+
+                let projects = response.Records;
+                let htmlResult = ``;
+                console.log(projects);
+                for (let i = 0; i < projects.length; i++) {
+                    htmlResult += `
+                                          <div style="margin-top:20px;" class="project">
+                            <div dir="ltr" class="blog-slider">
+                                <div class="blog-slider__wrp swiper-wrapper">
+                                    <div class="blog-slider__item swiper-slide">
+                                            <div projectId="`+ projects[i].ConstructionProjectId + `" class="blog-slider__img">
+                                                    <img src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/` + projects[i].suggestionFiles[0].SuggestionFilePath + `" alt="">
+                                        </div>
+                                        <div class="blog-slider__content">
+                                                <span class="blog-slider__code">`+ projects[i].ConstructionProjectTitle + `</span>
+                                                <div class="blog-slider__title">`+ projects[i].SuggestionTitle + `</div>
+                                                    <div style="text-align:justify;" dir="rtl" class="blog-slider__text">`+ projects[i].suggestionFiles[0].SuggestionFileDescription + `</div>
+                                                                    <a lon="`+ projects[i].propertyAddressVM.LocationLon + `" lat="` + projects[i].propertyAddressVM.LocationLat + `" style="cursor:pointer;" projectId=` + projects[i].ConstructionProjectId + ` class="blog-slider__button">جزئیات</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="blog-slider__pagination"></div>
+                            </div>
+
+                                <div dir="ltr" projectId=`+ projects[i].ConstructionProjectId + ` class="detailSection hidden">
+                                <div class="grid grid-cols-12 gap-6 detailsGrid">
+
+
+                                    <div class=" intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12">
+                                                                            <img onerror="this.style.display='none'" class="HalfImage" src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/${projects[i].suggestionFiles[1]?.SuggestionFilePath ?? ''}" alt="">
+                                    </div>
+
+
+
+                                     <div dir="rtl" class="text-justify intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12" style="line-height: 25px;">
+            <div class="p-20 ${projects[i].suggestionFiles[1]?.SuggestionFileDescription ? 'halfDescription' : ''}" >
+                <div style="overflow:auto; max-height:230px;">
+                    <p class="pl-3">${projects[i].suggestionFiles[1]?.SuggestionFileDescription ?? ''}</p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+                                        <div class=" intro-y col-span-12 xl:order-4" style="height: fit-content;">
+                                                        <img onerror="this.style.display='none'" class="FullImage" src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/${projects[i].suggestionFiles[2]?.SuggestionFilePath ?? ''}" alt="">
+                                    </div>
+
+                                        <div dir="rtl" class="text-justify intro-y col-span-12 xl:order-5" style=" line-height: 25px;">
+                                                    <p class="mb-6 fullDescription">${projects[i].suggestionFiles[2]?.SuggestionFileDescription ?? ''}</p>
+                                    </div>
+
+
+
+                                              <div dir="rtl" class="text-justify intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12 xl:order-7" style="line-height: 25px;">
+                <div class="p-20 ${projects[i].suggestionFiles[3]?.SuggestionFileDescription ? 'halfDescription' : ''}" >
+                    <div style="overflow:auto; max-height:230px;">
+                        <p class="pl-3">${projects[i].suggestionFiles[3]?.SuggestionFileDescription ?? ''}</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+                                    <div class=" intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12 xl:order-6">
+                                                        <img onerror="this.style.display='none'" class="HalfImage" src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/${projects[i].suggestionFiles[3]?.SuggestionFilePath ?? ''}" alt="">
+                                    </div>
+
+
+
+                                    <div dir="rtl" class="text-center intro-y col-span-12 xl:order-8" style=" line-height: 25px;">
+
+
+                                        <div class="grid grid-cols-12 gap-6 items-center" style="margin-block:2rem; row-gap:3rem;">
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+                                                <div class="report-box ">
+                                        <div class="box p-5">
+                                            <div class="flex justify-center">
+                                                <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">payments</i>
+
+                                            </div>
+                                                        <div class="text-3xl font-medium text-primary mt-6">`+ ConvertNumberToPersian(projects[i].constructionProjectPriceHistoriesVM.CurrentValueOfProject.toLocaleString()) + ` <span class="text-xl"> تومان</span></div>
+                                                <div class="text-base text-slate-500 mb-2">ارزش جاری ملک</div>
+                                                   </div>
+                                              </div>
+
+
+
+                                            </div>
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+                                          <div class="report-box ">
+                                            <div class="box p-5">
+                                                <div class="flex justify-center">
+                                                    <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">construction</i>
+
+                                                </div>
+                                                                <div class="text-3xl font-medium text-primary mt-6">`+ ConvertNumberToPersian(projects[i].constructionProjectPriceHistoriesVM.PrevisionOfCost.toLocaleString()) + ` <span class="text-xl"> تومان</span></div>
+                                                        <div class="text-base text-slate-500 mb-2">برآورد هزینه ساخت</div>
+                                                       </div>
+                                                  </div>
+
+
+
+                                            </div>
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+                                                                                      <div class="report-box ">
+                                                <div class="box p-5">
+                                                    <div class="flex justify-center">
+                                                        <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">apartment</i>
+
+                                                    </div>
+                                                                            <div class="text-3xl font-medium text-primary mt-6">`+ ConvertNumberToPersian(projects[i].constructionProjectPriceHistoriesVM.ProjectEstimate.toLocaleString()) + `<span class="text-xl"> تومان</span> </div>
+                                                                <div class="text-base text-slate-500 mb-2">ارزش برآورد پایان پروژه</div>
+                                                           </div>
+                                                      </div>
+
+
+
+                                            </div>
+
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+
+                                                  <div class="report-box ">
+                                                    <div class="box p-5">
+                                                        <div class="flex justify-center mb-6">
+                                                            <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">calendar_month</i>
+
+                                                        </div>
+                                                                           <div>
+                                                        <div class="flex" style="justify-content:space-between;">
+                                                            <label>شروع پروژه:<span class="mr-1" style="opacity:0.5;">`+ ConvertDateToPersian(projects[i].StartDateEn) + `</span></label>
+                                                            <label>پایان پروژه:<span class="mr-1" style="opacity:0.5;">`+ ConvertDateToPersian(projects[i].EndDateEn) + `</span></label>
+                                                        </div>
+
+                                                        <div class="progress3 my-6">
+                                                                    <div style="width:`+ updateProgressBar(projects[i].StartDateEn, projects[i].EndDateEn) + `%;" class="progress-value">%` + ConvertNumberToPersian(updateProgressBar(projects[i].StartDateEn, projects[i].EndDateEn)) + `</div>
+                                                        </div>
+                                                    </div>
+
+                                                               </div>
+                                                          </div>
+
+
+
+
+                                            </div>
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+                                                 <div class="report-box ">
+                                                        <div style="height:220px;" class="box">
+
+                                                                                    <div class="progress-main-all">
+                                                                        <div class="progressdiv" data-percent="`+ (projects[i].Operation == null ? '0' : Math.ceil(projects[i].Operation.replace('%', ''))) + `" total-data="100" offuse-data="0">
+                                                            <svg class="progress2" width="200" height="165" viewport="0 0 150 150" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                                                <path class="grey" d="M 45 156 A 80 80 124 1 1 137 155" fill='none' stroke-dasharray="404" stroke-dashoffset="0" />
+                                                                <path class="grey-path-2" d="M 45 156 A 80 80 124 1 1 137 155" fill='none' stroke-dasharray="404" stroke-dashoffset="0" />
+                                                                <path class="offline" fill='transparent' stroke-dasharray="404.5" stroke-dashoffset="404" d="M 45 156 A 80 80 124 1 1 137 155" />
+                                                                <path class="online" fill='transparent' stroke-dasharray="404.5" stroke-dashoffset="404" d="M 45 156 A 80 80 124 1 1 137 155" />
+                                                                <path class="white1" fill='transparent' stroke-dasharray="0 408" stroke-dashoffset="404" d="M 45 156 A 80 80 124 1 1 137 155" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+
+                                                                   </div>
+                                                              </div>
+
+
+
+
+
+
+                                            </div>
+
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+                                                        <div class="map `+ (projects[i].propertyAddressVM.LocationLon ? '' : 'hidden') + `" id="map-` + projects[i].ConstructionProjectId + `"></div>
+                                            </div>
+
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+                                                     <div class="report-box  `+ (projects[i].propertyAddressVM.StateName ? '' : 'hidden') + `">
+                                            <div class="box p-5">
+                                                <div class="flex justify-center">
+                                                    <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">location_on</i>
+
+                                                </div>
+                                                                        <div class="text-2xl font-medium text-primary mt-6">`+ (projects[i].propertyAddressVM.StateName ? projects[i].propertyAddressVM.StateName + `، ` + projects[i].propertyAddressVM.ZoneName + `، ` + projects[i].propertyAddressVM.CityName + (projects[i].propertyAddressVM.DistrictName ? ',' + projects[i].propertyAddressVM.DistrictName : '') : '') + `</div>
+                                                    <div class="text-base text-slate-500 mb-2">موقعیت</div>
+                                                       </div>
+                                                  </div>
+
+
+
+
+
+                                            </div>
+
+                                            <div class="xxl:col-span-4 xl:col-span-6 col-span-12">
+
+
+
+
+
+
+                                                                  <div class="report-box  `+ (projects[i].propertyAddressVM.Address ? '' : 'hidden') + `">
+                                                        <div class="box p-5">
+                                                            <div class="flex justify-center">
+                                                                <i style="font-size:36px;" class="material-symbols-outlined report-box__icon text-pending">home</i>
+
+                                                            </div>
+                                                                            <div class="text-2xl font-medium text-primary mt-6">${projects[i].propertyAddressVM.Address ?? ''}</div>
+                                                                <div class="text-base text-slate-500 mb-2">آدرس</div>
+                                                                   </div>
+                                                              </div>
+
+
+
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+
+
+
+
+                                    <div class=" intro-y col-span-12 xl:order-9" style="height: fit-content;">
+                                                            <img onerror="this.style.display='none'" class="FullImage" src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/${projects[i].suggestionFiles[4]?.SuggestionFilePath ?? ''}" alt="">
+                                    </div>
+
+                                    <div dir="rtl" class="text-justify intro-y col-span-12 xl:order-10" style=" line-height: 25px;">
+                                                <p class="mb-6 fullDescription">${projects[i].suggestionFiles[4]?.SuggestionFileDescription ?? ''}</p>
+                                    </div>
+
+
+                                              <div class=" intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12 xl:order-11">
+                                                                                        <img onerror="this.style.display='none'" class="HalfImage" src="/Files/TeniacoSuggestionFiles/my.teniaco.com/`+ projects[i].ConstructionProjectId + `/Media/${projects[i].suggestionFiles[5]?.SuggestionFilePath ?? ''}" alt="">
+                                        </div>
+
+                                                                                      <div dir="rtl" class="text-justify intro-y col-span-12 lg:col-span-12 xl:col-span-6 md:col-span-12 sm:col-span-12 xl:order-12" style="line-height: 25px;">
+                    <div class="p-20 ${projects[i].suggestionFiles[5]?.SuggestionFileDescription ? 'halfDescription' : ''}" >
+                        <div style="overflow:auto; max-height:230px;">
+                            <p class="pl-3">${projects[i].suggestionFiles[5]?.SuggestionFileDescription ?? ''}</p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>`;
+
+                    $('#projectsContainer').append(htmlResult);
+                    htmlResult = ``;
+                    //initializeMap('map-' + projects[i].ConstructionProjectId, '51.314438410690975', '36.683094482224988');
+                    var swiper = new Swiper('.blog-slider', {
+                        spaceBetween: 30,
+                        effect: 'fade',
+                        loop: true,
+                        pagination: {
+                            el: '.blog-slider__pagination',
+                            clickable: true,
+                        }
+                    });
+                    progress_bar();
+                }
+
+
+
+
+            }
+        });
+
+
+    });
+</script>

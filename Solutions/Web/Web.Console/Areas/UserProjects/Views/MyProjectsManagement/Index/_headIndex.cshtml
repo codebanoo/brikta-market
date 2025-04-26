@@ -1,0 +1,4504 @@
+﻿@using VM.Projects
+@using VM.Teniaco;
+@using Newtonsoft.Json;
+
+
+<script>
+    @{
+        List<ConstructionProjectsVM> projectsVMList = new List<ConstructionProjectsVM>();
+
+        @Html.Raw("var projectsVMList  = [];")
+        ;
+
+        if (ViewData["projectsVMList"] != null)
+        {
+            projectsVMList = (List<ConstructionProjectsVM>)ViewData["projectsVMList"];
+            @Html.Raw("var projectsVMList =" + JsonConvert.DeserializeObject(JsonConvert.SerializeObject(projectsVMList)) + ";")
+            ;
+        }
+    }
+
+</script>
+<script type="text/javascript">
+    @{
+        string domainName = "";
+        @Html.Raw("var domainName;")
+        ;
+        if (ViewData["DomainName"] != null)
+        {
+            domainName = ViewData["DomainName"] as string;
+            @Html.Raw(" domainName = '" + domainName + "'; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        long userId = 0;
+        @Html.Raw("var userId;")
+        ;
+        if (ViewData["UserId"] != null)
+        {
+            userId = (long)ViewData["UserId"];
+            @Html.Raw(" userId = '" + userId + "'; ")
+            ;
+        }
+    }
+</script>
+<!-- <link href="~/lib/thumbnail-slider/thumbnail-slider.css" rel="stylesheet" />
+ <link href="~/lib/thumbnail-slider/thumbs2.css" rel="stylesheet" />-->
+<!--<link href="~/lib/video-player-lazy-load-rtop/dist/css/rtop.videoPlayer.1.0.0.min.css" rel="stylesheet" /> -->
+<link href="~/lib/video-player-lazy-load-rtop/dist/css/all.css" rel="stylesheet" />
+
+
+
+<style type="text/css">
+
+    @@media (min-width:300px) {
+        .flip-card-front, .flip-card-inner1, .flip-card-back {
+            height: 460px;
+        }
+    }
+
+
+    @@media (min-width:470px) {
+        .flip-card-front, .flip-card-inner1, .flip-card-back {
+            height: 520px;
+        }
+    }
+
+    @@media (min-width:570px) {
+        .flip-card-front, .flip-card-inner1, .flip-card-back {
+            height: 580px;
+        }
+    }
+
+    @@media (min-width:660px) {
+        .flip-card-front, .flip-card-inner1, .flip-card-back {
+            height: 600px;
+        }
+    }
+
+    @@media (min-width:700px) {
+        .flip-card-front, .flip-card-inner1, .flip-card-back {
+            height: 660px;
+        }
+    }
+    @@media(min-width:825px){
+        #dailyPicturesData, #elementData {
+            max-height: 480px;
+        }
+
+    }
+
+    @@media (min-width:1024px) {
+        .monthDay:before {
+            right: -25px;
+            margin: 0 auto;
+            width: 25px;
+            height: 3px;
+            background: #2b4874;
+        }
+
+        #payment-bar-chart, #private-pie-chart {
+            height: 550px;
+        }
+
+        #project-base-info, .Contracts {
+            height: 460px;
+        }
+
+        .flip-card-front, #all-pie-chart {
+            height: 490px;
+        }
+    }
+
+    @@media(min-width:1024px) and (max-width:1150px) {
+        #payment-bar-chart, #private-pie-chart {
+            height: 460px;
+        }
+    }
+
+
+    @@media(min-width:1150px) and (max-width:1250px) {
+        #payment-bar-chart, #private-pie-chart {
+            height: 500px;
+        }
+    }
+
+
+    @@media(min-width:1250px) and (max-width:1300px) {
+        #payment-bar-chart, #private-pie-chart {
+            height: 520px;
+        }
+    }
+
+    @@media(min-width:1024px) and (max-width:1300px) {
+        .flip-card-front, #all-pie-chart, .flip-card-back, .flip-card-inner1 {
+            height: 520px;
+        }
+    }
+
+    @@media(min-width:1300px) and (max-width:1440px) {
+        .flip-card-front, #all-pie-chart, .flip-card-back, .flip-card-inner1, .delayBox {
+            height: 600px;
+        }
+    }
+
+
+
+
+    @@media (min-width:1440px) {
+        #project-base-info, .contracts, #all-pie-chart, .delayBox {
+            height: 460px;
+        }
+
+        .flip-card-front, #payment-bar-chart, #private-pie-chart, .flip-card-inner1, .flip-card-back {
+            height: 490px;
+        }
+    }
+
+
+    @@media (min-width:1535px) {
+        .contracts, #project-base-info, .all-pie-chart, .flip-card-back, #all-pie-chart {
+            height: 430px;
+        }
+
+        #payment-bar-chart, #private-pie-chart, #public-pie-chart, .flip-card-back, .flip-card-front, .flip-card-inner1 {
+            height: 550px;
+        }
+    }
+
+
+
+
+
+    @@media (min-width:1535px) and (max-width:1700px) {
+
+
+        #all-pie-chart, .contracts, #project-base-info, .delayBox {
+            height: 490px !important;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+    @@media (min-width: 1700px) {
+
+        #dailyPicturesData, #elementData {
+            max-height: 300px;
+        }
+        #Contracts-ModalDiv, #dailyPicturesData {
+            max-height:650px!important;
+        }
+        .flip-card-inner1, .contracts, .flip-card-front, #project-base-info, .flip-card-front, .delayBox, .all-pie-chart, .flip-card-back, #all-pie-chart {
+            height: 460px;
+        }
+    }
+
+    @@media (min-width :1700px) and (max-width:1750px) {
+        #payment-bar-chart, #private-pie-chart, #public-pie-chart {
+            height: 420px
+        }
+    }
+
+    @@media (min-width :1750px) and (max-width:1920px) {
+        #payment-bar-chart, #private-pie-chart, #public-pie-chart {
+            height: 440px
+        }
+    }
+
+    @@media (min-width :1920) {
+        #payment-bar-chart, #private-pie-chart, #public-pie-chart {
+            height: 550px
+        }
+    }
+
+    .loading {
+        width: 160px;
+        height: 160px;
+        border-radius: 150px;
+        border: 15px solid #fff;
+        border-top-color: rgb(50 81 127);
+        box-sizing: border-box;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -80px;
+        margin-left: -80px;
+        animation: loading 1.2s linear infinite;
+        -webkit-animation: loading 1.0s linear infinite;
+    }
+
+    @@keyframes loading {
+        0% {
+            transform: rotate(0deg)
+        }
+
+        100% {
+            transform: rotate(360deg)
+        }
+    }
+
+    @@-webkit-keyframes loading {
+        0% {
+            -webkit-transform: rotate(0deg)
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg)
+        }
+    }
+
+
+    .unselectedColor {
+        background-color: whitesmoke;
+        opacity: 0.3;
+    }
+
+    .tippy-box[data-theme~="big"] {
+        font-size: 14px; /* Adjust as needed */
+        font-weight: 400;
+    }
+
+    .TitlePadding {
+        /*padding-top: 17px !important;
+                                                                                                                                                    height: 10px;*/
+    }
+
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+    }
+
+    .Viewcount {
+        background: rgb(var(--color-danger) / var(--tw-bg-opacity));
+        color: #f7f9fb;
+        text-align: center;
+        border-radius: 50%;
+        line-height: 0.5em;
+        font-size: 12px;
+        margin: auto;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        vertical-align: middle;
+        line-height: 22px;
+        bottom: 20px;
+        left: 20px;
+        padding-left: 1px;
+        cursor: pointer !important;
+    }
+
+    .page-item {
+        border-radius: 0.375rem;
+    }
+
+    .addContractClass {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-right: 20px;
+        padding-left: 20px;
+        align-items: center;
+    }
+
+    button#SubmitNewContract {
+    }
+
+
+    li.page-item.last.disabled,
+    li.page-item.first.disabled,
+    li.page-item.prev.disabled,
+    li.page-item.next.disabled {
+        /*background-color: #e3e3e3 !important;*/
+        background-color: transparent !important;
+        cursor: no-drop !important;
+        color: rgb(var(--color-slate-800) / var(--tw-text-opacity));
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    .backgroundToggle {
+        background: #ffffff;
+    }
+
+    .pagination {
+        justify-content: center;
+        align-items: center;
+    }
+
+        .pagination i {
+            cursor: pointer;
+            font-size: 25px;
+            font-weight: 200;
+        }
+
+        .pagination .page-item .page-link {
+            margin-right: unset !important;
+        }
+
+    .pagination {
+        margin-right: unset !important;
+        direction: ltr;
+    }
+
+
+
+
+
+
+
+
+
+
+    li.page-item:not(.perv) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.last) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.first) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.next) {
+        margin-right: 8px;
+    }
+
+
+    /* Enabled styles for elements without the 'disabled' class */
+    li.page-item.last:not(.disabled) a.page-link,
+    li.page-item.first:not(.disabled) a.page-link,
+    li.page-item.prev:not(.disabled) a.page-link,
+    li.page-item.next:not(.disabled) a.page-link {
+        padding: 8px 13px 8px 20px !important;
+        /*background-color: #e2e8f0;*/
+        background-color: transparent !important;
+    }
+
+
+    .page-item.next,
+    .page-item.prev,
+    .page-item.last,
+    .page-item.first {
+        margin-right: 10px !important;
+        /*box-shadow: 0px 3px 20px #0000000b;*/
+        position: relative;
+        border-radius: 0.375rem;
+        border-color: transparent;
+        --tw-bg-opacity: 1;
+        /*background-color: rgb(255 255 255 / var(--tw-bg-opacity));*/
+        background-color: transparent !important;
+        font-size: 13px;
+    }
+
+    .pagination-cubes {
+        height: 31px;
+        width: 86px;
+        border-radius: 8%;
+        background-color: #164e63;
+        color: #ffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        margin-right: 10px;
+        font-size: 10px !important;
+    }
+
+    .pagination-square {
+        width: 100px;
+        /* padding: 15px; */
+        height: 31px;
+        //border-radius: 8%;
+        //background-color: #164e63;
+        color: #164e63;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+
+    .divPagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 44px;
+        border-radius: 2%;
+    }
+
+    .pagination-circle {
+        line-height: normal;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        //background-color: #164e63;
+        color: #164e63;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .box-shadow-primary {
+        box-shadow: 4px -4px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+    }
+
+    .rowOfProjects > div
+
+    .alert-primary,
+    .alert-warning,
+    .alert-pending {
+        direction: ltr !important;
+    }
+
+    .alert {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    // #project-base-info {
+        // height: 429px;
+        //
+    }
+
+    .payment-bar-chart {
+        padding-bottom: 30.5px;
+    }
+
+
+    /*#payment-bar-chart,
+                                                                                                                        #private-pie-chart,
+                                                                                                                        #share-pie-chart ,
+                                                                                                                                                #all-pie-chart  {
+                                                                                                                            height: 570px;
+                                                                                                                        }*/
+
+    /*#all-pie-chart {
+                                                                                                                            opacity: 0.2 !important;
+
+                                                                                                                        }*/
+
+    /*.all-pie-chart {
+                                                                                                                            height: 429px;
+                                                                                                                            position: relative;
+                                                                                                                        }*/
+
+    .programStart {
+        position: absolute;
+        top: 30%;
+        right: 10%;
+    }
+
+    .programEnd {
+        position: absolute;
+        top: 30%;
+        left: 10%;
+    }
+
+    /*.paymentChart {
+                                                                                                                            height: 370px;
+                                                                                                                        }*/
+
+    .paymentHistory {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+        height: 100px;
+    }
+
+    /*.chartsPanel,*/
+    .chartsTimeLinePanel {
+        display: none;
+    }
+
+
+    .dailyProjectReport .grid,
+    #Contracts-Modal .grid,
+    #financialProjectReport .grid {
+        //height: auto !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        //height: 390px;
+    }
+
+    #Contracts-Modal {
+        height: 724px !important;
+    }
+
+    .dailyProjectReportClass {
+        height: auto !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .activePage {
+        background-color: #e2e8f0 !important;
+        //margin-bottom: 9px;
+    }
+
+    .contractAttachmentModalsButton {
+        box-shadow: unset !important;
+    }
+
+    .cl5 a:last-child {
+        box-shadow: unset !important;
+    }
+
+    .cl5 a {
+        box-shadow: 1px -1px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+    }
+
+    }
+
+    .text-base {
+        font-size: 1rem !important;
+        line-height: 1.5rem !important;
+    }
+
+    .attachments {
+        box-shadow: 1px -1px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+        line-height: 39px;
+    }
+
+    .contractsModalContent {
+        margin-left: 35px;
+    }
+
+
+
+    .contractsModalC {
+        margin-top: 0px;
+        margin-left: 0px;
+        padding-left: 0px;
+        z-index: 10000;
+    }
+
+    #contractDetailModal {
+        transition: opacity 0.5s ease-in-out; /* Add a transition effect for opacity */
+    }
+
+    /* CSS for the button */
+    #contractDetailModalButton {
+        cursor: pointer;
+    }
+
+
+    #chatsModal {
+        height: 50px !important;
+    }
+
+
+    /* CSS to change opacity when modal is shown */
+    #contractDetailModal.show {
+        display: block;
+        opacity: 1;
+    }
+
+    .chat-container {
+        margin-top: 60px;
+        background: #dee9ed;
+        //border-radius: 10%;
+    }
+
+    .chat-message {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .chatMessageBoxSender {
+        font-weight: bold;
+        font-size: 10px;
+        color: #007bff;
+        margin-bottom: 6px;
+        float: right;
+        display: block;
+    }
+
+
+    .chatMessageBoxDate {
+        font-weight: bold;
+        font-size: 10px;
+        color: #a2a2a2;
+        margin-top: 10px;
+        float: left;
+        display: block;
+    }
+
+    .receiver {
+        text-align: left;
+        background-color: #ffffff; /* Set a different color for the receiver */
+    }
+
+
+
+    [id^="tippy-"] {
+        z-index: 10000 !important;
+    }
+
+
+
+
+    .contractsIcons {
+        line-height: unset !important;
+    }
+
+    .contracts {
+        font-weight: 100 !important;
+    }
+
+
+
+    .contractsCircles {
+        height: 35px;
+        width: 35px;
+    }
+
+
+
+
+
+
+    ul, li {
+        list-style-type: none;
+    }
+
+    .wrapper {
+        margin-top: 10px;
+    }
+
+        .wrapper ul {
+            margin: 0 auto;
+            height: 400px;
+            overflow-x: hidden;
+            padding-top: 11px;
+            overflow-y: scroll;
+            padding-right: 30px;
+        }
+
+            .wrapper ul li {
+                font-family: 'IRANYekanX' !important;
+                margin-bottom: 20px;
+                padding: 10px 20px;
+                background-color: rgba(255,255,255,0.65);
+                position: relative;
+                border-radius: 10px;
+                font: 1em/1.6 "arial";
+                clear: both;
+                text-shadow: 1px 1px 0 rgba(255,255,255,0.35);
+            }
+
+                .wrapper ul li:nth-child(odd) {
+                    float: left;
+                    margin-left: 20px;
+                }
+
+                .wrapper ul li:nth-child(even) {
+                    font-family: 'IRANYekanX' !important;
+                    float: right;
+                    margin-right: 0px;
+                    background-color: rgba(255,255,255,0.3);
+                }
+
+                .wrapper ul li:before, .wrapper ul li:after {
+                    position: absolute;
+                    content: "";
+                }
+
+                .wrapper ul li:before {
+                    width: 45px;
+                    height: 45px;
+                    top: 0;
+                    border-radius: 50%;
+                    background-position: 50% 50%;
+                    background-repeat: no-repeat;
+                }
+
+    .has-error-text {
+        color: #b91c1c !important;
+    }
+
+    .has-success-bg {
+        background-color: #29b586 !important;
+    }
+
+    .has-erorr-bg {
+        background-color: #b91c1c !important;
+        color: #fff !important;
+    }
+
+    .has-error {
+        background: linear-gradient(90deg, #32517f, #32517f) center bottom / 0 0.15em no-repeat, linear-gradient(90deg, #b91c1c, #b91c1c) left bottom / 100% 0.15em no-repeat, linear-gradient(90deg, #fafafa, #fafafa) left bottom / 100% no-repeat !important;
+        border-color: rgb(185, 28, 28) !important;
+    }
+
+    .icon-error {
+        color: rgb(185, 28, 28) !important;
+    }
+
+    label.upload-button-text {
+        padding-top: 8px;
+        padding-left: 15px;
+        padding-bottom: 8px;
+        padding-right: 20px;
+        display: flex;
+        max-height: 35px;
+        color: white;
+        background-color: #858585;
+        border-radius: 7px;
+        outline: none;
+        cursor: pointer;
+        transition: background-color 200ms ease, box-shadow 300ms ease;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    input :focus {
+        outline: none; /* Remove the default focus outline */
+        border-color: #00f; /* Set your desired focus border color */
+        box-shadow: 0 0 5px rgba(0, 0, 255, 0.5); /* Optional: Add a box shadow for emphasis */
+    }
+
+    /*#titelAndRecords {
+                                                                                                            height: 750px;
+                                                                                                        }*/
+
+    .tablerecord {
+        // height: 100%;
+    }
+
+    .contractStyle {
+        background: #afc3cc38;
+        border-radius: 10px
+    }
+
+    .fontSize-s {
+        font-size: smaller;
+    }
+
+    .circleContainter {
+        font-size: smaller;
+        margin-top: 0px;
+        max-height: 60px;
+        /*margin-left: 25px;*/
+        /*margin-left: auto;
+                                                                                                            margin-right: auto;*/
+    }
+
+    .attachmentHeight {
+        line-height: 36px
+    }
+
+    .colorWhite {
+        color: #ffff !important
+    }
+
+    .addAttachmentCircle {
+        transform: rotate(225deg)
+    }
+
+
+    .paddingClass {
+        padding-left: 18px
+    }
+
+    .iconMargin {
+        margin: 0 5px;
+    }
+
+    .ltrDir {
+        direction: ltr;
+    }
+
+    .conversatioBlock {
+        scrollbar-width: thin; /* Firefox-specific: makes the scrollbar thinner */
+        scrollbar-color: #fff #32517F; /* Firefox: custom scrollbar colors */
+    }
+
+        .conversatioBlock::-webkit-scrollbar {
+            width: 8px; /* Set width of the scrollbar */
+        }
+
+        .conversatioBlock::-webkit-scrollbar-track {
+            background: #f1f1f1; /* Track background */
+            border-radius: 10px; /* Rounded track corners */
+            order-radius: 10px; /* Rounded track corners */
+        }
+
+        .conversatioBlock::-webkit-scrollbar-thumb {
+            background-color: #888; /* Scrollbar thumb color */
+            order-radius: 10px; /* Rounded track corners */
+            border-radius: 10px; /* Rounded thumb corners */
+        }
+
+    .pagination {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .page-btn {
+        margin: 0 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+        .page-btn.active {
+            background-color: #32517f;
+            color: white;
+            line-height: 19px;
+            border: none;
+            box-shadow: 1px -1px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+            border-radius: 8px;
+        }
+
+        .page-btn:hover {
+            background-color: #32517f;
+            color: white;
+            border-radius: 8px;
+        }
+
+
+    #Contracts-ModalDiv {
+        max-height: 671px;
+        /*max-height: 750px;*/
+
+        outline: none;
+        font-size: 14px !important;
+        border-radius: 1%;
+    }
+
+    .contractsModalTitle {
+        margin-bottom: 0px;
+        font-weight: 700;
+        box-shadow: 4px -4px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+    }
+
+    .AttachmentCreate {
+        z-index: 999 !important;
+    }
+
+    .AttachmentCreateReject {
+        z-index: 999;
+    }
+
+    .downloadFile:nth-child(2) {
+        z-index: 203;
+    }
+
+    .downloadFile:nth-child(3) {
+        z-index: 202;
+    }
+
+    .downloadFile:nth-child(4) {
+        z-index: 201;
+    }
+
+    span.tooltip-text {
+        z-index: 999;
+    }
+
+    .downloadFile:nth-child(5) {
+        z-index: 200;
+    }
+
+    .statusCircle {
+        /*height: 61px;*/
+    }
+
+ 
+
+    .Project_payment_scroll {
+        overflow: hidden;
+        height: 500px
+    }
+
+
+
+    .flipCard {
+    }
+
+    .arrowsClass svg {
+        display: inline !important;
+    }
+
+    .project-base-info {
+        overflow: hidden;
+        outline: none;
+    }
+
+    .project-timeline {
+        opacity: 0.2;
+    }
+
+    .fs40 {
+        font-size: 40px
+    }
+
+
+
+    .daysLeft {
+        font-size: 20px;
+        margin-left: 8px;
+        direction: ltr;
+    }
+
+    .totalDaysleft {
+        font-size: 20px;
+        /*margin-left: 8px;*/
+    }
+
+    #addContract {
+        display: none;
+    }
+
+    .divAddContract {
+        cursor: pointer !important;
+    }
+
+    .projectCostModal {
+        padding: 7px;
+        font-weight: 700;
+    }
+
+    .projectCostModalClass {
+        padding: 7px;
+        font-weight: 700;
+    }
+
+    .totalPriceModal {
+        padding: 7px;
+        font-weight: 700;
+        margin-bottom: 30px;
+    }
+
+    .PieChartClass {
+        padding-bottom: 30.5px;
+    }
+
+    .all-pie-chart {
+        padding-bottom: 25px;
+    }
+
+    .addContractClass {
+        background: #afc3cc38;
+        border-radius: 10px;
+    }
+
+    .addContractTitle {
+        width: 90%;
+        padding: 5px;
+        height: 35px;
+        float: left;
+        border-radius: 4px;
+    }
+
+
+    .addContractDescription {
+        padding: 5px;
+        height: 35px;
+        width: 89%;
+        /*width: 92%;
+                                                                                                            float: left;*/
+        border-radius: 4px;
+    }
+
+    .action_icons {
+        font-size: 22px !important;
+        font-weight: 200 !important;
+    }
+
+    .action_value {
+        width: 200px;
+        padding: unset;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+        .action_value a, .action_value label {
+            box-shadow: 1px -1px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+            padding: unset;
+            margin: 0 3px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .height65 {
+        height: 65px
+    }
+
+    .height68 {
+        height: 68px
+    }
+
+    .pagination.blur {
+        pointer-events: none; /* Disable clicks */
+        opacity: 0.5; /* Dim the appearance */
+        filter: blur(2px); /* Add a blur effect */
+    }
+
+    .blackColor {
+        color: #000
+    }
+
+
+
+    .attachmentH {
+        line-height: 36px;
+    }
+
+    .cursorIcon {
+        cursor: default !important;
+    }
+
+    .ConversationLogDescription {
+        text-align: justify;
+        direction: rtl
+    }
+
+    .contractMargin a.downloadFile {
+        display: inline-block;
+    }
+
+    .contractMargin {
+        /*margin-right: 72px;*/
+    }
+
+    .attahmentContractModal {
+        height: 10px
+    }
+
+    .contractAttachmentsModal {
+        background: #afc3cc38;
+    }
+
+    .custom-field {
+        position: relative;
+        font-size: 14px;
+        display: inline-block;
+        --field-padding: 12px;
+    }
+
+    #remove-button1 {
+        display: none;
+        color: #d11515;
+    }
+
+    input#contracTitle {
+        width: 230px;
+        margin-left: 10px;
+    }
+
+    input#contracDescrption {
+        width: 400px;
+        margin-left: 10px;
+    }
+
+    .custom-field input {
+        border: none;
+        -webkit-appearance: none;
+        -ms-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: #f2f2f2;
+        padding: var(--field-padding);
+        border-radius: 3px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .custom-field .placeholder {
+        position: absolute;
+        left: var(--field-padding);
+        width: calc(100% -(var(--field-padding)* 2));
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        top: 19px;
+        text-align: right;
+        right: 10px;
+        line-height: 100%;
+        transform: translateY(-50%);
+        color: #a3a3a3;
+        transition: top 0.3s ease, color 0.3s ease, font-size 0.3s ease;
+    }
+
+    .custom-field input.dirty + .placeholder,
+    .custom-field input:focus + .placeholder,
+    .custom-field input:not(:placeholder-shown) + .placeholder {
+        top: -10px;
+        font-size: 10px;
+        color: #32517f;
+        font-weight: 800;
+    }
+
+    .custom-field .error-message {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        font-size: 12px;
+        background: #d30909;
+        color: #fff;
+        height: 24px;
+    }
+
+        .custom-field .error-message:empty {
+            opacity: 0;
+        }
+
+
+    /* TWO */
+    .custom-field.two input {
+        border-radius: 0;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        background: linear-gradient(90deg, #32517f, #32517f) center bottom / 0 0.15em no-repeat, linear-gradient(90deg, #ccc, #ccc) left bottom / 100% 0.15em no-repeat, linear-gradient(90deg, #fafafa, #fafafa) left bottom / 100% no-repeat;
+        transition: background-size 0.3s ease;
+    }
+
+        .custom-field.two input.dirty,
+        .custom-field.two input:not(:placeholder-shown),
+        .custom-field.two input:focus {
+            background-size: 100% 0.15em, 100% 0.1em, 100%;
+        }
+    /* THREE */
+    .custom-field.three {
+        --draw-duration: 0.1s;
+        --draw-color: #222;
+        --draw-line-width: 2px;
+        --draw-easing: linear;
+    }
+
+        .custom-field.three .border {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform: none;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            border-radius: 3px;
+        }
+
+            .custom-field.three .border::after,
+            .custom-field.three .border::before {
+                content: "";
+                width: 0;
+                height: 0;
+                display: inline-block;
+                position: absolute;
+                border-radius: 3px;
+            }
+
+            .custom-field.three .border::before {
+                left: 0;
+                bottom: 0;
+                border-right: 0px solid var(--draw-color);
+                border-bottom: 0px solid var(--draw-color);
+                transition: border 0s linear calc(var(--draw-duration) * 4), height var(--draw-duration) var(--draw-easing) calc(var(--draw-duration) * 2), width var(--draw-duration) var(--draw-easing) calc(var(--draw-duration) * 3);
+            }
+
+            .custom-field.three .border::after {
+                right: 0;
+                top: 0;
+                border-left: 0px solid var(--draw-color);
+                border-top: 0px solid var(--draw-color);
+                transition: border 0s linear calc(var(--draw-duration) * 2), height var(--draw-duration) var(--draw-easing), width var(--draw-duration) var(--draw-easing) var(--draw-duration);
+            }
+
+        .custom-field.three input:focus ~ .border::before,
+        .custom-field.three input:not(:placeholder-shown) ~ .border::before,
+        .custom-field.three input.dirty ~ .border::before,
+        .custom-field.three input:focus ~ .border::after,
+        .custom-field.three input:not(:placeholder-shown) ~ .border::after,
+        .custom-field.three input.dirty ~ .border::after {
+            width: 100%;
+            height: 100%;
+            border-width: var(--draw-line-width);
+        }
+
+        .custom-field.three input:not(:placeholder-shown) ~ .border::before,
+        .custom-field.three input.dirty ~ .border::before,
+        .custom-field.three input:focus ~ .border::before {
+            transition-delay: 0s, var(--draw-duration), 0s;
+        }
+
+        .custom-field.three input:not(:placeholder-shown) ~ .border::after,
+        .custom-field.three input.dirty ~ .border::after,
+        .custom-field.three input:focus ~ .border::after {
+            transition-delay: calc(var(--draw-duration) * 2), calc(var(--draw-duration) * 3), calc(var(--draw-duration) * 2);
+        }
+
+    form.validate-form.flex.AddAttachmentForm {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+
+    .addAgreementTitle {
+        padding: 5px;
+        height: 35px;
+        border-radius: 4px;
+    }
+
+
+    .container_upload.upload {
+        display: flex;
+        margin-top: 10px;
+        max-height: 35px;
+        padding: 10px 10px;
+        align-items: center;
+        background: #fafafa;
+        justify-content: center;
+        border-bottom: 2px solid #cccccc;
+    }
+
+    .main-box_upload.addAttachmentLable {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+    }
+
+    p.title_upload {
+        margin-left: 10px;
+    }
+
+    label.upload-button-text svg {
+        margin-right: 4px;
+    }
+
+    #remove-button {
+        display: none;
+    }
+
+    #Danger-confirmation-modal {
+        padding: unset !important;
+    }
+
+    #remove-button {
+        color: #d11515;
+    }
+
+    button.btn.btn-primary.mt-1.SubmitNewAttachment.uplodaButtonMargin {
+        max-height: 35px;
+    }
+
+    i#togglecreate {
+        transition: transform 0.3s ease;
+        transition-duration: 0.4s;
+    }
+
+    .addAgreementDescription {
+        padding: 5px;
+        height: 35px;
+        width: 92%;
+        margin-left: 7px;
+        float: left;
+        border-radius: 4px;
+    }
+
+
+    form#addContract {
+        display: flex;
+        background: #afc3cc38;
+        border-radius: inherit;
+        margin-top: 20px;
+        padding: 15px 125px 15px 0px;
+        border-radius: 11px;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+
+    .addAttachmentTitle {
+        padding: 5px;
+        height: 35px;
+        width: 92%;
+        /*margin-left: 7px;
+                                                                                                            float: left;*/
+        border-radius: 4px;
+    }
+
+    .addAttachmentDescrption {
+        padding: 5px;
+        height: 35px;
+        width: 92%;
+        /*margin-left: 7px;
+                                                                                                            float: left;*/
+        border-radius: 4px;
+    }
+
+    .height50 {
+        height: 50px !important
+    }
+
+    .height46 {
+        height: 46px !important
+    }
+
+    .contractConversation {
+        margin-left: 0;
+        margin-right: 1.25rem;
+    }
+
+    .conversationDescription {
+        text-align: justify;
+        direction: rtl
+    }
+
+    #Danger-confirmation-modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-btns {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+
+
+    .sm:\text-right {
+        text-align: right !important;
+    }
+
+    .publiccost-child.col-span-12.xxl\:col-span-3.xl\:col-span-3.llg\:col-span-3.lg\:col-span-3.md\:col-span-3.sm\:col-span-6.sm\:text-right.xs\:col-span-6.xxl\:text-center.xl\:text-center.lg\:text-center.xs\:text-right.whitespace-nowrap.font-15 {
+        text-align: right !important;
+    }
+
+    .publiccost-child.text-center.publicCostDataItemTitle.col-span-12.sm\:col-span-6.text-center.whitespace-nowrap.sm\:text-right {
+        text-align: right !important;
+    }
+
+    publiccost-child text-center publicCostDataItemTitle col-span-12 sm:col-span-6 whitespace-nowrap sm:text-right {
+        text-align: right !important;
+    }
+
+    .AttachmentcontractConversationModal {
+        background: #fff;
+        padding-bottom: 5px;
+        height: auto;
+    }
+
+    .grid.grid-cols-12.gap-6.fixgap {
+        padding-right: 15px;
+    }
+
+    .contractAttachmentsClass.contractAttachmentsModal {
+        padding: 20px 20px;
+    }
+
+    .AttachmentcontractConversationModal textarea {
+        background-color: #f1f1f191;
+    }
+
+    .contractConversationModal {
+        background: #afc3cc38;
+        border-radius: 10px;
+        height: auto;
+    }
+
+    .divConversation {
+        padding-right: 8px;
+        width: 99%;
+        height: 370px;
+    }
+
+
+
+    .aTagPadding {
+        padding-top: 6px !important;
+    }
+
+
+
+    .costModalsClass {
+        /*overflow: hidden;
+                                                                                                            height: 500px;
+                                                                                                            position: relative;
+                                                                                                            z-index: -1000;*/
+        display: block;
+        height: 400px;
+    }
+
+    #Project_payment_scroll {
+        height: 400px;
+        overflow: auto;
+    }
+
+    .dateRows {
+        //display:block
+    }
+
+    .monthsClass {
+        direction: ltr !important;
+    }
+
+    .TitleClass {
+        direction: ltr !important;
+        /*margin-right: 1.25rem !important;*/
+    }
+
+    .titleTotal {
+        direction: ltr !important;
+    }
+
+    .tns-outer .tns-controls button[data-controls="prev"] {
+        left: 30px !important;
+    }
+
+    .tns-outer .tns-controls button[data-controls="next"] {
+        right: 30px !important;
+    }
+
+    .openModalIcons {
+        font-size: 11px !important;
+        opacity: 38%;
+    }
+
+    .pr-50 {
+        padding-right: 50px;
+    }
+
+    .pr-75 {
+        padding-right: 75px;
+    }
+
+    .font-15 {
+        font-size: 15px !important;
+    }
+
+    .zoom-in-block .tns-outer .tns-controls button[data-controls="prev"] {
+        left: 30px !important;
+        top: -50px;
+    }
+
+    .zoom-in-block .tns-outer .tns-controls button[data-controls="next"] {
+        right: 30px !important;
+        top: -50px;
+    }
+
+
+    #dailyPicturesContentDiv {
+        position: relative;
+    }
+
+
+
+    #elementData {
+        overflow: auto;
+    }
+
+
+
+
+    #parentDailyPicturesData {
+        direction: ltr;
+        padding-left: 0;
+        padding-right: 10px;
+    }
+
+    .monthParent::before {
+        left: 19px;
+        content: var(--tw-content);
+        --tw-bg-opacity: 1;
+        background-color: #32517f;
+        height: 100%;
+        width: 3px;
+    }
+
+    .roundedMonthDay {
+        background-color: #e5e7eb;
+    }
+
+    .monthDay {
+        border-radius: 7px;
+        /*border: 1px solid #e5e7eb;
+                                                                                                                                                            background-color: #e5e7eb;*/
+        border: 1px solid rgb(var(--color-success) / var(--tw-bg-opacity));
+        background-color: rgb(var(--color-success) / var(--tw-bg-opacity));
+        font-size: 12px;
+        width: 55px;
+        height: 55px;
+        /*padding: 8px;*/
+        color: #fff;
+        padding: 8px 0;
+        position: relative;
+        color: #fff;
+    }
+
+        .monthDay span {
+            display: block;
+            font-size: 15px;
+            /* z-index: 99999; */
+            position: relative;
+        }
+
+
+    .yearTitleParent {
+        position: relative;
+        text-align: center;
+    }
+
+    .yearTitle {
+        z-index: 2;
+        position: relative;
+        background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+        font-size: 14px;
+    }
+
+    .horLine {
+        border: 1px solid #e5e7eb;
+        height: 1px;
+        width: 100%;
+        position: absolute;
+        top: 6px;
+        z-index: 1;
+    }
+
+    .scrollbox-bar {
+        z-index: 999;
+    }
+
+    .zoom-img, .zoom-img-wrap {
+        z-index: 10002;
+    }
+
+    .relative[data-action="zoom"] {
+        // margin: 10px;
+        // border: 1px solid #e5e7eb;
+        // border-radius: 5px;
+        // width: 150px !important;
+        // height: 150px !important;
+    }
+
+    .zoom-overlay {
+        z-index: 10001;
+    }
+
+    .dailyImage {
+        cursor: pointer;
+        object-fit: cover;
+    }
+
+    $duration: 300ms;
+    $timing-fn: ease;
+    $turquoise: #1ABC9C;
+    $wet-asphalt: #34495E;
+    $midnight-blue: #2C3E50;
+    $clouds: #ECF0F1;
+    .imgDesc {
+        background-color: rgb(var(--color-success) / var(--tw-bg-opacity));
+        color: #000;
+        display: inline-flex;
+        width: 150px;
+        display: inline-flex;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
+        /*margin-left:11px;
+                                                                                                                                                    margin-right: 11px;*/
+        // cursor: pointer;
+    }
+
+
+
+    .image-fit > img {
+        // width: 150px !important;
+        // height: 150px !important;
+    }
+
+    // #tns2 > .tns-item {
+        // width: 150px !important;
+        // height: 150px !important;
+        //
+    }
+
+
+    #tns2 > .tns-item {
+        width: max-content !important;
+    }
+
+    #tns3 > .tns-item {
+        width: max-content !important;
+    }
+
+    .parent-tnsImage {
+        margin: 0 5px;
+        display: inline-flex;
+        width: 150px;
+        height: 150px;
+    }
+
+    .responsive-mode {
+        // width: 100% !important;
+    }
+
+    .zoom-in-block {
+        width: 90%;
+    }
+
+    .costAndPaymentList, .costAndPaymentHistory {
+        height: 100px;
+        padding-right: 5px;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .costAndPaymentTitles {
+        padding-right: 10px;
+    }
+
+    .costAndPaymentList div {
+        direction: ltr;
+    }
+
+    .privateCostsList, .privateCostsHistory {
+        height: 100px;
+        padding-right: 5px;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .privateCostsTitles {
+        padding-right: 10px;
+    }
+
+    .privateCostsList div {
+        direction: ltr;
+    }
+
+    /*.privateCostsChart {
+                                                                                                                            height: 374px;
+                                                                                                                        }*/
+
+    .publicCostsList, .publicCostsHistory {
+        height: 100px;
+        padding-right: 5px;
+    }
+
+    .publicCostsTitles {
+        padding-right: 10px;
+    }
+
+    .publicCostsList div {
+        direction: ltr;
+    }
+
+    /*.publicCostsChart {
+                                                                                                                            height: 374px;
+                                                                                                                        }*/
+
+
+
+    .parentMonthlyPicturesData {
+        display: block;
+    }
+
+    #parentMonthlyPictures .parentMonthlyPicturesData,
+    #parentMonthlyPictures #playerBlock {
+        padding: 10px;
+    }
+
+    .rtopVideoPlayerWrapper .rtopVideoPlayer
+    .rtopVideoHolder.hasFAIcons:after {
+        left: 0 !important;
+    }
+
+    .videoReport {
+        background: url('/images/EmptyVideo.png') no-repeat;
+        background-size: 8rem 6rem;
+        font-size: 12px;
+        display: grid !important;
+    }
+
+        .videoReport .progressPictureTitle {
+            padding: 20% 0;
+        }
+
+    g text[text-anchor="middle"] {
+        direction: rtl;
+    }
+
+
+
+    .parentMonthlyPicturesData .flex {
+        margin: 5px;
+        padding: 5px;
+        background-color: #afc3cc38;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .selected:after {
+        position: relative;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+        position: absolute;
+        content: "\f144";
+        opacity: 1;
+        -webkit-transition: 0.3s all ease-in;
+        -moz-transition: 0.3s all ease-in;
+        -ms-transition: 0.3s all ease-in;
+        transition: 0.3s all ease-in;
+        font-family: "Font Awesome 5 Free";
+        font-size: 80px;
+        color: rgb(50 81 127);
+        width: 100%;
+        text-align: center;
+        z-index: 4;
+        right: 0;
+        left: 0;
+    }
+
+    .rtopVideoPlayerWrapper .rtopVideoPlayer .rtopVideoHolder.hasFAIcons:after {
+        color: rgb(var(--color-success) / var(--tw-bg-opacity));
+    }
+
+    .sumTitle {
+        /*text-align: left;*/
+    }
+
+    .monthsTitle {
+        position: relative;
+    }
+
+    .arrowsClassLeft {
+        /*left: 0 !important;
+                                                                                                                                                    position: absolute;*/
+        left: -15px !important;
+        position: absolute;
+        top: -2px;
+    }
+
+        .arrowsClassLeft svg {
+            float: left;
+        }
+
+    .arrowsClassRight {
+       
+        right: -15px;
+        z-index: 1000;
+        position: absolute;
+        top: -2px;
+    }
+
+    .float-right {
+        width: 340px;
+        display: inline-block;
+    }
+
+    .publicCostDataItemTitle {
+        display: none;
+    }
+
+    .paidShareCostDataItemTitle {
+        display: none;
+    }
+
+    .agreementAttachments {
+        border-bottom-width: 1px;
+    }
+
+   
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+
+        .videoReport {
+            display: inline-block !important;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .parentMonthlyPicturesData {
+            height: 220px;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+    
+
+ 
+
+
+
+
+
+    /* Responsive adjustments */
+   
+    @@media (max-width: 480px) {
+        #random-table-1 {
+            grid-template-columns: 1fr; /* For very small screens, 1 column */
+        }
+    }
+
+
+
+    @@media (max-width: calc(825px)) {
+        #datedivId{
+            flex-direction: row-reverse;
+        }
+        .dailyDataItemDate > div:first-child {
+            display: none;
+        }
+        .tab-pane.active > div{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: unset;
+            align-items: center;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: space-around;
+        }
+        .date-c{
+            text-align:left;
+        }
+        .publiccost-child{
+            text-align: left;
+            margin-left: 20px;
+            width:unset!important;
+        }
+        #share_of_public_expenditure > div {
+            width: unset !important
+        }
+
+        div#totalFirstMonth {
+            margin-right: unset !important;
+        }
+
+        .fixg {
+            grid-template-columns: repeat(12, minmax(0, 1fr))!important;
+        }
+    
+        .fixgap {
+            gap: 0.5rem;
+        }
+
+        #Paid-Share-Of-The-Project .modal-body {
+            padding: unset;
+        }
+
+        .paidShareCostDataItemTitle, .date-c {
+            color: #d97706;
+        }
+
+        #fullScreenBtn {
+            display: none;
+        }
+
+        #Contracts-ModalDiv {
+            max-height: 500px;
+        }
+
+        #downloadVideo {
+            right: 10px !important;
+        }
+
+        .parent-tnsImage {
+            width: 137px;
+            margin: 0 5px;
+            height: 137px;
+        }
+
+        #elementData, #dailyPicturesData, #monthlyPicturesData, #dailyPicturesData, #elementData {
+            max-height: 700px;
+            overflow: auto;
+        }
+        .dailyDataDesc{
+            max-height:120px;
+        }
+
+        .rtopVideoHolder.hasFAIcons video {
+            min-height: 200px !important;
+        }
+
+        .publicCostsHistory .col-span-5.text-left.ml-4, .privateCostsHistory .col-span-5.text-left.ml-4 {
+            margin-left: unset !important;
+        }
+
+        .totalcost-inner #share-pie-chart {
+            height: 520px;
+        }
+
+        .totalcost-inner {
+            height: 520px;
+        }
+
+
+
+        #dropdown-button {
+            display: none !important;
+        }
+
+        .clickableAccordianmd {
+            margin-top: 30px;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            margin: 0 auto;
+            justify-content: center;
+            align-content: center;
+        }
+
+        #mainDiv > div:first-child .radial-progress-usp {
+            top: -20px !important;
+        }
+
+        .usp-profile p {
+            font-size: 1rem !important;
+        }
+
+        .usp-profile {
+            padding-right: unset !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .relative.flex.flex-col.w-full.h-full.text-gray-700.bg-white.shadow-md.rounded-xl.bg-clip-border {
+            margin-top: 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .radial-progress-usp {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #mainDiv {
+            margin-top: 30px;
+        }
+
+        #faq-accordion-content-1 {
+            justify-content: center;
+            margin: 0 auto;
+            align-items: center;
+            align-content: center;
+        }
+
+        .theader-usb {
+            display: none !important;
+        }
+
+        #search-dropdown {
+            width: 100% !important;
+        }
+
+        .thead-usb {
+            justify-content: center;
+        }
+
+        .cl1_value {
+            position: relative;
+        }
+
+        .custom-tooltip {
+            top: -10px;
+        }
+
+        .cl1.cl1_value.tooltip-container1.col-span-9.mt-3.mb-3.sm\:col-span-9.xs\:col-span-9.text-right {
+            z-index: 1;
+        }
+
+        form#addContract {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px !important;
+            align-content: center;
+            background: #afc3cc38;
+            border-radius: inherit;
+            align-items: unset !important;
+            /* align-items: center; */
+            flex-direction: column
+        }
+
+        .AddAttachmentForm #title-add, .AddAttachmentForm #description-add {
+            width: 100%;
+        }
+
+
+        .tr {
+            padding-top: unset;
+        }
+
+        .related-group .contractAttachmentsClass {
+            margin-right: 20px;
+        }
+
+        .cl1_value, .cl2_value, .cl3_value, .cl5_value {
+            display: unset;
+        }
+
+        .cl1, .cl2, .cl1_value, .cl2_value {
+            max-width: unset;
+            width: unset;
+            min-height: unset;
+        }
+
+        .contractAttachmentsModal {
+            padding: 30px 0px;
+        }
+
+        .pt-1.pb-1.sm\:py-1.flex.items-center.border-t.border-slate-200\/60.dark\:border-darkmode-400 {
+            margin-bottom: 1rem;
+        }
+
+        //.related-child {
+            // margin-right:20px;
+            //
+        }
+
+        .divConversation {
+            padding-right: unset;
+            ;
+        }
+
+        #titelAndRecords {
+            display: inherit;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            z-index: 999;
+        }
+
+
+        .related-group:before {
+            background: #32517f;
+            width: 30px;
+            position: absolute;
+            padding-right: 16px;
+            clip-path: ellipse(50% 500% at 10% 100%);
+            color: #fff;
+            padding-left: 6px;
+            height: 30px;
+            border-radius: 100%;
+            right: -15px;
+            left: 0;
+            top: 40%;
+            line-height: 33px;
+        }
+
+        #contractsModal {
+            overflow: auto !important;
+        }
+
+        .tooltip-container1 {
+            overflow: visible !important;
+        }
+
+
+
+
+        #title-add {
+            margin-left: unset;
+            margin-right: unset;
+        }
+
+        .contractAttachmentModalsButton {
+            position: absolute;
+            z-index: 10;
+            width: -webkit-fill-available;
+            right: 0;
+            height: 80px;
+            top: 1px;
+        }
+
+        .AddAttachmentForm .addAttachmentTitle, .AddAttachmentForm .addAttachmentDescrption {
+            width: 100%;
+        }
+
+        .AddAttachmentForm #title-add, .AddAttachmentForm #description-add {
+        }
+
+        form.validate-form.flex.AddAttachmentForm {
+            display: flex;
+            align-items: center;
+            //padding-top: 20px;
+            //margin-bottom: 10px;
+            flex-direction: column;
+        }
+
+        input#contracTitle, input#contracDescrption {
+            width: -webkit-fill-available;
+            margin: 0;
+        }
+
+
+        .action_value {
+            width: -webkit-fill-available;
+            padding: unset;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        #description-add {
+            margin-left: unset;
+            margin-right: unset;
+            margin-top: 20px;
+        }
+
+        #Danger-confirmation-modal .p-5.sm\:p-1.text-center {
+            padding: unset;
+            padding-bottom: 20px;
+        }
+
+        #Danger-confirmation-modal .px-5.pb-8.sm\:pb-1.text-center {
+            padding: unset;
+            padding-bottom: 20px;
+        }
+
+        .m_status_project {
+            display: flex;
+            height: fit-content;
+            justify-content: flex-end;
+            align-items: center;
+            max-height: 24px;
+            column-gap: 0.3rem;
+        }
+
+        .related-child .m_status_project {
+            column-gap: 0.5rem;
+        }
+
+        .agreementIco {
+            position: relative;
+            display: contents;
+        }
+
+        #Danger-confirmation-modal .modal-content {
+            padding: 0 40px !important;
+        }
+
+        #Danger-confirmation-modal .modal-dialog {
+            width: unset !important;
+            padding: 0 40px !important;
+        }
+
+        #Danger-confirmation-modal .modal-body.p-0 {
+            padding: unset;
+        }
+
+        tbody#Records .related-group, tbody#Records .unrelated-group, .related-child {
+            border-bottom: 1px solid #dddddd;
+            padding: 0.75rem;
+            max-height: 165px;
+        }
+
+        .contractAttachmentsModal {
+            padding: 20px;
+        }
+
+        a.contractAttachmentModalsButton {
+            min-height: 105px;
+        }
+
+        tbody#Records .related-group {
+        }
+
+        div#maction {
+            display: flex;
+            flex-direction: row-reverse;
+        }
+
+        .m_status_project {
+            display: flex;
+            height: fit-content;
+            justify-content: flex-end;
+        }
+
+        .related-group {
+            width: unset !important;
+        }
+
+        .mcl3_value {
+            max-width: 240px;
+        }
+
+        #description {
+            display: flex;
+            max-width: auto !important;
+            overflow: visible;
+            overscroll-behavior: contain;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+
+
+        svg.lucide.lucide-eye-off.block.mx-auto {
+            margin-left: 0.5rem;
+        }
+
+        #Contracts-ModalDiv {
+            display: contents !important;
+            width: 100%;
+        }
+
+        #titelAndRecords thead {
+            display: none !important;
+        }
+
+        input {
+            overflow-x: hidden !important;
+        }
+
+
+
+
+        .more-details-inf {
+            margin-top: 20px;
+        }
+
+        tbody#Records {
+            display: block !important;
+            max-height: 480px;
+            overflow-y: auto;
+            overflow-x: hidden !important;
+        }
+
+        .table {
+            display: list-item;
+        }
+
+        .arrowsClassLeft {
+            left: -9px !important;
+            z-index: 1000;
+        }
+
+        .alert.alert-success-soft.intro-y.overflow-auto.lg\:overflow-visible.mb-2.sm\:mt-2 {
+            padding: 15px 10px !important;
+        }
+
+
+
+        div#General_cost_scroll {
+            text-align: right !important;
+            padding: 0 10px;
+        }
+
+        div#MonthContent {
+            text-align: center !important;
+        }
+
+        .chat__box__text-box.float-left,
+        .chat__box__text-box.float-right {
+            width: 200px;
+        }
+
+        textarea.messageClass {
+            width: 85%;
+        }
+
+        .rowForHeight {
+        }
+
+        #publicCostElementTitle {
+            display: none;
+        }
+
+        .requestHeaderTitle {
+            display: none;
+        }
+
+        #paidShareElementTitle {
+            display: none;
+        }
+
+        .requestItemFileTitle {
+            display: block;
+        }
+
+        .attachmentItemTitle {
+            display: block;
+        }
+
+        .publicCostDataItemTitle {
+            display: block;
+        }
+
+        .paidShareCostDataItemTitle {
+            display: block;
+        }
+
+
+        #share_of_public_expenditure {
+            height: 400px;
+            padding: 15px;
+            overflow: auto;
+        }
+
+            #share_of_public_expenditure > div {
+                padding-top: 10px;
+            }
+
+        #Project_payment_scroll {
+            padding-left: 18px;
+            padding-right: 10px;
+        }
+
+        .paidShareOfProjectTitle,
+        .publicCostShareOfProjectTitle {
+            border-bottom: 1px solid #c3c3c3;
+        }
+
+        .emptyCell {
+            display: none;
+        }
+
+        #random-table-1 {
+            grid-template-columns: repeat(1, 1fr); /* For smaller screens, 2 columns */
+        }
+
+   
+
+        #Daily-Pictures .tns-items, #Daily-Pictures .tns-item {
+            width: max-content !important;
+        }
+
+
+
+        .dailyProjectReportClass {
+            padding-left: unset;
+            padding-right: unset;
+        }
+
+
+        .zoom-in-block .tns-outer .tns-controls button[data-controls="prev"] {
+            left: 0px !important;
+        }
+
+        .zoom-in-block .tns-outer .tns-controls button[data-controls="next"] {
+            right: 0px !important;
+        }
+
+        .responsivew {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #dailyPicturesData {
+            padding: 20px 0px
+        }
+
+        .zoom-in-block, .showzoom {
+            width: 100% !important;
+        }
+
+        .tns-outer .tns-controls button[data-controls="prev"] {
+            margin-left: 1rem;
+        }
+
+        .tns-outer .tns-controls button[data-controls="next"] {
+            margin-right: 1rem;
+        }
+
+        .box.ml-8.flex-1.zoom-in-block.z-50 {
+            margin-top: 2rem;
+            margin-left: unset !important;
+        }
+
+        #parentDailyPicturesData {
+            padding: unset !important;
+        }
+
+        .monthDay:before {
+            left: 0;
+            right: 0;
+            top: 70px;
+            transform: rotate(90deg);
+            margin: 0 auto;
+            height: 3px;
+            background: #2b4874;
+        }
+
+        // .tns-items, .tns-item {
+            // width: max-content !important;
+            //
+        }
+    }
+
+
+
+
+    @@media (min-width: calc(825px)) {
+      
+        col-span-3 lg:col-span-3 xl:col-span-3 sm:col-span-6 md:col-span-2 text-center whitespace-nowrap font-15 {
+            margin-right: 9%;
+        }
+
+        
+
+        div#totalSecondtMonth {
+            margin-right: 27%;
+        }
+
+     
+
+        .container_action {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        #share_of_public_expenditure {
+            gap: 0.75rem 1.5rem;
+        }
+
+            #share_of_public_expenditure > div {
+                width: unset!important
+            }
+
+        .publiccost-child {
+            width: 160px;
+        }
+
+        .fixgap {
+            gap: 1.5rem;
+        }
+
+        #Project_payment_scroll {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: unset;
+        }
+
+        .videoReport {
+            display: inline-block !important;
+        }
+
+        .circleContainter {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .all-pie-chart {
+            height: 771px;
+        }
+
+
+        .requestItemFileTitle {
+            display: none;
+        }
+
+        .attachmentItemTitle {
+            display: none;
+        }
+
+        .programStart,
+        .programEnd {
+            top: 15%;
+        }
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+
+        .videoReport {
+            display: inline-block !important;
+        }
+
+        .parentMonthlyPicturesData {
+            height: 400px;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+    }
+
+
+    @@media (max-width: calc(768px)) {
+        .costModalsClass, #share_of_public_expenditure, #Project_payment_scroll {
+            height:270px;
+        }
+        .tab-pane.active > div {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            margin: unset;
+            align-items: center;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: space-around;
+        }
+        .fixgap {
+            gap: 0.5rem;
+        }
+
+        #Paid-Share-Of-The-Project .modal-body {
+            padding: unset;
+        }
+
+        .paidShareCostDataItemTitle, .date-c {
+            color: #d97706;
+        }
+        #fullScreenBtn {
+            display: none;
+        }
+
+        #Contracts-ModalDiv {
+            max-height: 500px;
+        }
+
+        #downloadVideo {
+            right: 10px !important;
+        }
+
+        .parent-tnsImage {
+            width: 137px;
+            margin: 0 5px;
+            height: 137px;
+        }
+
+        #elementData, #dailyPicturesData, #monthlyPicturesData {
+            max-height: 400px;
+            overflow: auto;
+        }
+
+        .rtopVideoHolder.hasFAIcons video {
+            min-height: 200px !important;
+        }
+
+        .publicCostsHistory .col-span-5.text-left.ml-4, .privateCostsHistory .col-span-5.text-left.ml-4 {
+            margin-left: unset !important;
+        }
+
+        .totalcost-inner #share-pie-chart {
+            height: 520px;
+        }
+
+        .totalcost-inner {
+            height: 520px;
+        }
+
+
+
+        #dropdown-button {
+            display: none !important;
+        }
+
+        .clickableAccordianmd {
+            margin-top: 30px;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            margin: 0 auto;
+            justify-content: center;
+            align-content: center;
+        }
+
+        #mainDiv > div:first-child .radial-progress-usp {
+            top: -20px !important;
+        }
+
+        .usp-profile p {
+            font-size: 1rem !important;
+        }
+
+        .usp-profile {
+            padding-right: unset !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .relative.flex.flex-col.w-full.h-full.text-gray-700.bg-white.shadow-md.rounded-xl.bg-clip-border {
+            margin-top: 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .radial-progress-usp {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #mainDiv {
+            margin-top: 30px;
+        }
+
+        #faq-accordion-content-1 {
+            justify-content: center;
+            margin: 0 auto;
+            align-items: center;
+            align-content: center;
+        }
+
+        .theader-usb {
+            display: none !important;
+        }
+
+        #search-dropdown {
+            width: 100% !important;
+        }
+
+        .thead-usb {
+            justify-content: center;
+        }
+
+        .cl1_value {
+            position: relative;
+        }
+
+        .custom-tooltip {
+            top: -10px;
+        }
+
+        .cl1.cl1_value.tooltip-container1.col-span-9.mt-3.mb-3.sm\:col-span-9.xs\:col-span-9.text-right {
+            z-index: 1;
+        }
+
+        form#addContract {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px !important;
+            align-content: center;
+            background: #afc3cc38;
+            border-radius: inherit;
+            align-items: unset !important;
+            /* align-items: center; */
+            flex-direction: column
+        }
+
+        .AddAttachmentForm #title-add, .AddAttachmentForm #description-add {
+            width: 100%;
+        }
+
+
+        .tr {
+            padding-top: unset;
+        }
+
+        .related-group .contractAttachmentsClass {
+            margin-right: 20px;
+        }
+
+        .cl1_value, .cl2_value, .cl3_value, .cl5_value {
+            display: unset;
+        }
+
+        .cl1, .cl2, .cl1_value, .cl2_value {
+            max-width: unset;
+            width: unset;
+            min-height: unset;
+        }
+
+        .contractAttachmentsModal {
+            padding: 30px 0px;
+        }
+
+        .pt-1.pb-1.sm\:py-1.flex.items-center.border-t.border-slate-200\/60.dark\:border-darkmode-400 {
+            margin-bottom: 1rem;
+        }
+
+        //.related-child {
+            // margin-right:20px;
+            //
+        }
+
+        .divConversation {
+            padding-right: unset;
+            ;
+        }
+
+        #titelAndRecords {
+            display: inherit;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            z-index: 999;
+        }
+
+
+        .related-group:before {
+            background: #32517f;
+            width: 30px;
+            position: absolute;
+            padding-right: 16px;
+            clip-path: ellipse(50% 500% at 10% 100%);
+            color: #fff;
+            padding-left: 6px;
+            height: 30px;
+            border-radius: 100%;
+            right: -15px;
+            left: 0;
+            top: 40%;
+            line-height: 33px;
+        }
+
+        #contractsModal {
+            overflow: auto !important;
+        }
+
+        .tooltip-container1 {
+            overflow: visible !important;
+        }
+
+
+
+
+        #title-add {
+            margin-left: unset;
+            margin-right: unset;
+        }
+
+        .contractAttachmentModalsButton {
+            position: absolute;
+            z-index: 10;
+            width: -webkit-fill-available;
+            right: 0;
+            height: 80px;
+            top: 1px;
+        }
+
+        .AddAttachmentForm .addAttachmentTitle, .AddAttachmentForm .addAttachmentDescrption {
+            width: 100%;
+        }
+
+        .AddAttachmentForm #title-add, .AddAttachmentForm #description-add {
+        }
+
+        form.validate-form.flex.AddAttachmentForm {
+            display: flex;
+            align-items: center;
+            //padding-top: 20px;
+            //margin-bottom: 10px;
+            flex-direction: column;
+        }
+
+        input#contracTitle, input#contracDescrption {
+            width: -webkit-fill-available;
+            margin: 0;
+        }
+
+
+        .action_value {
+            width: -webkit-fill-available;
+            padding: unset;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        #description-add {
+            margin-left: unset;
+            margin-right: unset;
+            margin-top: 20px;
+        }
+
+        #Danger-confirmation-modal .p-5.sm\:p-1.text-center {
+            padding: unset;
+            padding-bottom: 20px;
+        }
+
+        #Danger-confirmation-modal .px-5.pb-8.sm\:pb-1.text-center {
+            padding: unset;
+            padding-bottom: 20px;
+        }
+
+        .m_status_project {
+            display: flex;
+            height: fit-content;
+            justify-content: flex-end;
+            align-items: center;
+            max-height: 24px;
+            column-gap: 0.3rem;
+        }
+
+        .related-child .m_status_project {
+            column-gap: 0.5rem;
+        }
+
+        .agreementIco {
+            position: relative;
+            display: contents;
+        }
+
+        #Danger-confirmation-modal .modal-content {
+            padding: 0 40px !important;
+        }
+
+        #Danger-confirmation-modal .modal-dialog {
+            width: unset !important;
+            padding: 0 40px !important;
+        }
+
+        #Danger-confirmation-modal .modal-body.p-0 {
+            padding: unset;
+        }
+
+        tbody#Records .related-group, tbody#Records .unrelated-group, .related-child {
+            border-bottom: 1px solid #dddddd;
+            padding: 0.75rem;
+            max-height: 165px;
+        }
+
+        .contractAttachmentsModal {
+            padding: 20px;
+        }
+
+        a.contractAttachmentModalsButton {
+            min-height: 105px;
+        }
+
+        tbody#Records .related-group {
+        }
+
+        div#maction {
+            display: flex;
+            flex-direction: row-reverse;
+        }
+
+        .m_status_project {
+            display: flex;
+            height: fit-content;
+            justify-content: flex-end;
+        }
+
+        .related-group {
+            width: unset !important;
+        }
+
+        .mcl3_value {
+            max-width: 240px;
+        }
+
+        #description {
+            display: flex;
+            max-width: auto !important;
+            overflow: visible;
+            overscroll-behavior: contain;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+
+
+        svg.lucide.lucide-eye-off.block.mx-auto {
+            margin-left: 0.5rem;
+        }
+
+        #Contracts-ModalDiv {
+            display: contents !important;
+            width: 100%;
+        }
+
+        #titelAndRecords thead {
+            display: none !important;
+        }
+
+        input {
+            overflow-x: hidden !important;
+        }
+
+
+
+
+        .more-details-inf {
+            margin-top: 20px;
+        }
+
+        tbody#Records {
+            display: block !important;
+            max-height: 480px;
+            overflow-y: auto;
+            overflow-x: hidden !important;
+        }
+
+        .table {
+            display: list-item;
+        }
+
+        .arrowsClassLeft {
+            left: -9px !important;
+            z-index: 1000;
+        }
+
+        .alert.alert-success-soft.intro-y.overflow-auto.lg\:overflow-visible.mb-2.sm\:mt-2 {
+            padding: 15px 10px !important;
+        }
+
+
+
+        div#General_cost_scroll {
+            text-align: right !important;
+            padding: 0 10px;
+        }
+
+        div#MonthContent {
+            text-align: center !important;
+        }
+
+        .chat__box__text-box.float-left,
+        .chat__box__text-box.float-right {
+            width: 200px;
+        }
+
+        textarea.messageClass {
+            width: 85%;
+        }
+
+        .rowForHeight {
+        }
+
+        #publicCostElementTitle {
+            display: none;
+        }
+
+        .requestHeaderTitle {
+            display: none;
+        }
+
+        #paidShareElementTitle {
+            display: none;
+        }
+
+        .requestItemFileTitle {
+            display: block;
+        }
+
+        .attachmentItemTitle {
+            display: block;
+        }
+
+        .publicCostDataItemTitle {
+            display: block;
+        }
+
+        .paidShareCostDataItemTitle {
+            display: block;
+        }
+
+
+        #share_of_public_expenditure {
+          
+            padding: 15px;
+            overflow: auto;
+        }
+
+            #share_of_public_expenditure > div {
+                padding-top: 10px;
+            }
+
+        #Project_payment_scroll {
+            padding-left: 18px;
+            padding-right: 10px;
+        }
+
+        .paidShareOfProjectTitle,
+        .publicCostShareOfProjectTitle {
+            border-bottom: 1px solid #c3c3c3;
+        }
+
+        .emptyCell {
+            display: none;
+        }
+        #random-table-1 {
+            grid-template-columns: repeat(1, 1fr); /* For smaller screens, 2 columns */
+        }
+        #elementData, #dailyPicturesData, #monthlyPicturesData {
+            max-height: 400px;
+            overflow: auto;
+        }
+
+        #Daily-Pictures .tns-items, #Daily-Pictures .tns-item {
+            width: max-content !important;
+        }
+
+
+
+        .dailyProjectReportClass {
+            padding-left: unset;
+            padding-right: unset;
+        }
+
+
+        .zoom-in-block .tns-outer .tns-controls button[data-controls="prev"] {
+            left: 0px !important;
+        }
+
+        .zoom-in-block .tns-outer .tns-controls button[data-controls="next"] {
+            right: 0px !important;
+        }
+
+        .responsivew {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #dailyPicturesData {
+            padding: 20px 0px
+        }
+
+        .zoom-in-block, .showzoom {
+            width: 100% !important;
+        }
+
+        .tns-outer .tns-controls button[data-controls="prev"] {
+            margin-left: 1rem;
+        }
+
+        .tns-outer .tns-controls button[data-controls="next"] {
+            margin-right: 1rem;
+        }
+
+        .box.ml-8.flex-1.zoom-in-block.z-50 {
+            margin-top: 2rem;
+            margin-left: unset !important;
+        }
+
+        #parentDailyPicturesData {
+            padding: unset !important;
+        }
+
+        .monthDay:before {
+            left: 0;
+            right: 0;
+            top: 70px;
+            transform: rotate(90deg);
+            margin: 0 auto;
+            height: 3px;
+            background: #2b4874;
+        }
+
+        // .tns-items, .tns-item {
+            // width: max-content !important;
+            //
+        }
+    }
+
+
+
+
+    @@media (min-width: calc(768px)) {
+        col-span-3 lg:col-span-3 xl:col-span-3 sm:col-span-6 md:col-span-2 text-center whitespace-nowrap font-15 {
+            margin-right: 9%;
+        }
+
+        div#totalFirstMonth {
+            margin-right: 35%;
+        }
+
+        div#totalSecondtMonth {
+            margin-right: 27%;
+        }
+
+        .fixg {
+            grid-template-columns: repeat(11, minmax(0, 1fr));
+        }
+
+
+        .container_action {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        #share_of_public_expenditure {
+            gap: 0.75rem 1.5rem;
+        }
+
+            #share_of_public_expenditure > div {
+                width: 160px;
+            }
+
+        .publiccost-child {
+            width: 160px;
+        }
+
+        .fixgap {
+            gap: 1.5rem;
+        }
+
+        #Project_payment_scroll {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: unset;
+        }
+        .videoReport {
+            display: inline-block !important;
+        }
+        .circleContainter {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .all-pie-chart {
+            height: 771px;
+        }
+
+       
+        .requestItemFileTitle {
+            display: none;
+        }
+
+        .attachmentItemTitle {
+            display: none;
+        }
+
+        .programStart,
+        .programEnd {
+            top: 15%;
+        }
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        #dailyReportContentDiv .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+
+        .videoReport {
+            display: inline-block !important;
+        }
+
+        .parentMonthlyPicturesData {
+            height:auto;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none !important;
+        }
+
+        .scrollbox-wrapper .scrollbox-horizontal-rail {
+            display: none !important;
+        }
+    }
+
+   
+
+   
+
+ 
+ 
+     
+ 
+
+
+    @@media (min-width: 1024px) {
+
+        col-span-3 lg:col-span-3 xl:col-span-3 sm:col-span-6 md:col-span-2 text-center whitespace-nowrap font-15 {
+            margin-right: unset;
+        }
+
+        #Project_payment_scroll {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        div#totalFirstMonth {
+            margin-right: unset;
+        }
+
+        div#totalSecondtMonth {
+            margin-right: unset;
+        }
+
+        .fixg {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        .fixgap {
+            gap: 1.5rem;
+        }
+
+        .publiccost-child {
+            width: 160px;
+        }
+
+        #share_of_public_expenditure > div {
+            width: 160px;
+        }
+
+        #share_of_public_expenditure {
+            gap: 0.75rem 1.5rem;
+        }
+
+        .col-span-1.lg\:col-span-1.xl\:col-span-1.sm\:col-span-2.text-right.overflow-hidden.rowForHeight {
+            //width: 210px !important;
+            text-align: right;
+        }
+
+
+        .container_action {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        .col-span-6.lg\:col-span-6.xl\:col-span-6.sm\:col-span-6.text-center.whitespace-nowrap {
+            text-align: center;
+        }
+
+        .col-span-1.lg\:col-span-1.xl\:col-span-1.sm\:col-span-2.text-center.md\:col-span-1.md\:w-auto.text-center.whitespace-nowrap.totalvaluerowindex {
+        }
+
+        div#publicTotalCost {
+        }
+
+        div#totalFirstMonth, div#totalSecondtMonth, div#totalThirdMonth {
+        }
+
+        .text-center.whitespace-nowrap.text-center.rowForHeight {
+        }
+
+        .activondescrib {
+        }
+
+        .col-span-3.lg\:col-span-3.xl\:col-span-3.sm\:col-span-6.text-center.md\:col-span-3.whitespace-nowrap.font-15 {
+        }
+
+        .col-span-1.lg\:col-span-1.xl\:col-span-1.sm\:col-span-2.md\:col-span-1.md\:w-auto.text-right.overflow-hidden.rowForHeight {
+        }
+
+        .col-span-4.sm\:col-span-2.text-center.whitespace-nowrap {
+        }
+
+        .col-span-6.lg\:col-span-6.xl\:col-span-6.sm\:col-span-2.text-center.whitespace-nowrap.sumTitle {
+            //width: 190px !important;
+            text-align: center;
+        }
+
+        .overflow-x-auto.sm\:overflow-x-visible.bg-slate-100 {
+            text-align: center;
+        }
+
+        .col-span-4.sm\:col-span-2.text-center.whitespace-nowrap {
+            //width: 150px !important;
+            text-align: center;
+        }
+
+        col-span-1 lg:col-span-1 xl:col-span-1 sm:col-span-2 text-center text-justify whitespace-nowrap totalvaluerowindex {
+            //width: 190px !important;
+            text-align: center;
+        }
+
+
+
+
+
+        .col-span-1.lg\:col-span-1.xl\:col-span-1.sm\:col-span-2.text-center.text-justify.whitespace-nowrap.totalvaluerowindex {
+            width: 190px;
+            text-align: center;
+        }
+
+        .col-span-1.lg\:col-span-1.xl\:col-span-1.sm\:col-span-2.text-center.text-justify.whitespace-nowrap.totalvaluerowindex {
+            text-align: center;
+            width: 190px;
+        }
+
+       
+
+     
+
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-rail,
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none;
+        }
+    }
+
+    @@media (min-width: 1280px) {
+
+
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-rail,
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none;
+        }
+    }
+
+   
+
+    @@media only screen and (min-device-width: 1200px) and (max-device-width: 1300px) {
+        /* For portrait layouts only */
+        .flip-card-front, .all-pie-chart,.delayBox {
+            max-height: 520px;
+        }
+
+
+        .flip-card-front, #payment-bar-chart, .flip-card-back {
+            max-height: 520px;
+        }
+    }
+
+
+    @@media only screen and (min-device-width: 1024px) and (max-device-width: 1100px) {
+        .more-details-inf {
+            margin-top: 40px;
+        }
+    }
+
+    @@media only screen and (min-device-width: 1300px) and (max-device-width: 1440px) {
+        /* For portrait layouts only */
+       
+
+        .more-details-inf {
+            margin-top: 60px;
+        }
+
+     
+    }
+
+    @@media (min-width: 1440px) {
+        /*.PieChartClass,*/
+        //.payment-bar-chart,
+        //.all-pie-chart,
+        //.flipCard,
+        //.flip-card-front,
+        //.flip-card-back,
+        //.flip-card-inner, .contracts, #project-base-info, private-pie-chart {
+            // /*height: 625px;*/
+            // height: 450px;
+            //
+        }
+
+        .programStart,
+        .programEnd {
+            top: 30%;
+        }
+
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-rail,
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none;
+        }
+        /*.PieChartClass,*/
+
+     
+    }
+
+
+    @@media screen and (min-width: 1536px) and (max-width: 1700px) {
+        .rowOfProjects > div {
+            grid-column: span 4 / span 4;
+        }
+    }
+
+    @@media (min-width: 1440px) and (max-width: 1700px) {
+        .chartsTimeLinePanel {
+            grid-column: span 12 / span 12 !important;
+            width: 100%;
+        }
+    }
+
+    @@media (min-width: 1024px) and (max-width: 1440px) {
+        // .moreFD .flip-card-inner {
+            // height: 610px !important;
+            //
+        }
+    }
+  
+
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-rail,
+        #parentMonthlyPictures .grid .scrollbox-wrapper .scrollbox-horizontal-bar {
+            display: none;
+        }
+ 
+
+    .highcharts-figre tspan.highcharts-text-outline,
+    .highcharts-Speedometer tspan.highcharts-text-outline {
+        display: none;
+    }
+
+    div#General_cost_scroll {
+        overflow-y: auto;
+    }
+
+    .scrollbox-bar, .scrollbox-rail {
+        overflow: unset !important;
+        display: none !important;
+    }
+
+    .tooltip-container1 {
+        overflow: hidden; /* Prevents overflowing content */
+    }
+
+    .tooltip-text1 {
+        display: block;
+        word-wrap: break-word;
+        white-space: break-spaces;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
+        -webkit-box-orient: vertical;
+        line-height: 1.2em;
+        max-height: calc(1.2em * 2); /* Maximum height for 2 lines */
+        text-overflow: ellipsis; /* Show ellipsis if text overflows */
+    }
+
+    .tooltip-container1[title]:hover::after {
+        content: attr(title); /* Display full text in tooltip */
+        position: absolute;
+        top: -30px;
+        left: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        z-index: 1000;
+        white-space: nowrap;
+        font-size: 12px;
+        max-width: 200px; /* Optional: to control tooltip width */
+        word-wrap: break-word;
+    }
+
+    .Fixltr {
+        direction: ltr !important;
+    }
+
+    .fixalertp {
+        padding-left: unset !important;
+        padding-right: unset !important;
+    }
+
+
+
+
+    .publicCostShareOfProjectTitleBorder {
+        width: unset !important;
+        z-index: 1001;
+        border-bottom: 1px solid lightgray;
+    }
+
+    .fixalertp1 {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    text.highcharts-credits {
+        display: none !important;
+    }
+
+    .ContractTitle {
+        color: #32517F;
+        font-weight: bold;
+    }
+
+    .related-group #mdescription {
+        margin-right: 10px;
+    }
+
+    .related-group {
+        position: relative;
+    }
+
+    #mdescription {
+        margin-bottom: 10px;
+        height: fit-content;
+        position: relative;
+    }
+
+    #project-base-info svg {
+        margin-left: 4px;
+    }
+
+    #Contracts-ModalDiv {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .custom-tooltip {
+        max-width: 370px;
+    }
+
+    .totalDaysleft1 {
+        margin-left: 8px;
+    }
+
+    .cr1 {
+        margin-left: 4px;
+    }
+
+    .dropdown-menu1 {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        font-size: 20px;
+        color: #333;
+    }
+
+    .dropdown-options {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dropdown-option {
+        padding: 10px 20px;
+        text-align: right;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+
+
+    .hidden1 {
+        display: none;
+    }
+
+    .replay-text {
+        background: #2c3e50;
+        border-right: 2.5px solid #fff;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .dropdown-option:hover {
+        background-color: #f5f5f5;
+    }
+
+    @@media(max-width: calc(450px)) {
+        .contractAttachmentsClass.contractAttachmentsModal {
+            padding: 20px 10px !important;
+        }
+    }
+
+    div#General_cost_scroll {
+        overflow-y: auto;
+    }
+
+    .scrollbox-bar, .scrollbox-rail {
+        overflow: unset !important;
+        display: none !important;
+    }
+
+    .tooltip-container1 {
+        overflow: hidden; /* Prevents overflowing content */
+    }
+
+    .tooltip-text1 {
+        display: block;
+        word-wrap: break-word;
+        white-space: break-spaces;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
+        -webkit-box-orient: vertical;
+        line-height: 1.2em;
+        max-height: calc(1.2em * 2); /* Maximum height for 2 lines */
+        text-overflow: ellipsis; /* Show ellipsis if text overflows */
+    }
+
+    .tooltip-container1[title]:hover::after {
+        content: attr(title); /* Display full text in tooltip */
+        position: absolute;
+        top: -30px;
+        left: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        z-index: 1000;
+        white-space: nowrap;
+        font-size: 12px;
+        max-width: 200px; /* Optional: to control tooltip width */
+        word-wrap: break-word;
+    }
+
+    .Fixltr {
+        direction: ltr !important;
+    }
+
+    .fixalertp {
+        padding-left: unset !important;
+        padding-right: unset !important;
+    }
+
+
+
+
+    .publicCostShareOfProjectTitleBorder {
+        width: unset !important;
+        z-index: 1001;
+        border-bottom: 1px solid lightgray;
+    }
+
+    .fixalertp1 {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    text.highcharts-credits {
+        display: none !important;
+    }
+
+    .ContractTitle {
+        color: #32517F;
+        font-weight: bold;
+    }
+
+    .related-group #mdescription {
+        margin-right: 10px;
+    }
+
+    .related-group {
+        position: relative;
+    }
+
+    #mdescription {
+        margin-bottom: 10px;
+        height: fit-content;
+        position: relative;
+    }
+
+
+
+
+
+    .custom-tooltip {
+        max-width: 370px;
+    }
+
+    @@media(max-width: calc(450px)) {
+        .contractAttachmentsClass.contractAttachmentsModal {
+            padding: 20px 10px !important;
+        }
+    }
+
+    .icon_avatar {
+        width: 100%;
+        height: 100%;
+        background-size: contain;
+        font-size: xxx-large !important;
+        text-align: center;
+        margin: 0 auto;
+        align-items: center;
+        display: flex !important;
+        justify-content: center;
+    }
+
+    .area-project {
+        align-items: stretch;
+        display: flex;
+        padding: 10px 10px;
+        width: auto;
+        flex-direction: row-reverse;
+        column-gap: 0.2rem;
+    }
+
+    .user-progressbar {
+        bottom: 0px;
+    }
+
+        .user-progressbar div {
+            background: #32517F;
+            color: #fff;
+            padding: 3px 0px;
+        }
+
+    #dropdown-button svg {
+        width: 10px;
+        height: 10px;
+    }
+
+    #dropdown-button {
+        min-width: 160px;
+        max-width: 160px;
+        width: 100%;
+        position: relative;
+        background: #32517f;
+        display: flex;
+        border-radius: 6px;
+        color: #fff;
+        justify-content: space-evenly;
+        box-shadow: 4px -4px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+    }
+
+    #search-dropdown {
+        width: 400px;
+        border-radius: 6px;
+    }
+
+    .relative.mx-4.mt-4.overflow-hidden.text-gray-700.bg-white.rounded-none.bg-clip-border {
+        z-index: 9999;
+        display: inline-table;
+    }
+
+    #iconbtn-search {
+        left: 10px;
+        color: #666;
+    }
+
+    .usp1 {
+        max-width: 220px;
+    }
+
+    .usp2 {
+        max-width: 90px;
+    }
+
+    .usp3 {
+        max-width: 150px;
+    }
+
+    .usp4 {
+        max-width: 250px;
+    }
+
+    .usp5 {
+        max-width: 250px;
+    }
+
+    svg.radial-progress {
+        height: 55px;
+        transform: rotate(-90deg);
+    }
+
+        svg.radial-progress circle {
+            fill: rgba(0,0,0,0);
+            stroke: #fff;
+            stroke-dashoffset: 219.91148575129; /* Circumference */
+            stroke-width: 10;
+        }
+
+            svg.radial-progress circle.incomplete {
+                opacity: 0.25;
+            }
+
+            svg.radial-progress circle.complete {
+                stroke-dasharray: 219.91148575129; /* Circumference */
+            }
+
+        svg.radial-progress text {
+            font-weight: 500;
+            font-size: 1.1rem;
+            text-anchor: middle;
+        }
+
+
+
+        svg.radial-progress .incomplete {
+            opacity: 0.25; /* Default opacity */
+            transition: stroke 0.3s ease-in-out;
+        }
+
+
+    .radial-progress {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .justify-items-center {
+        justify-items: center;
+    }
+
+    #mainDiv .block.w-full.border-b.border-gray-300:first-child .accordion-item {
+        padding-top: unset;
+    }
+
+    #mainDiv > div:first-child {
+        margin-top: unset;
+        border-top-left-radius: unset;
+        border-top-right-radius: unset;
+    }
+
+
+    #mainDiv > div {
+        background-color: #fff;
+        margin: 5px 0;
+        border-radius: 15px;
+    }
+
+        #mainDiv > div:first-child .clickableAccordian {
+            border-top-left-radius: unset;
+            border-top-right-radius: unset;
+        }
+
+    .clickableAccordian {
+        border-radius: 15px;
+    }
+
+    #mainDiv {
+        background-color: #f1f5f9;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 equal columns */
+
+        text-align: center; /* Ensure text alignment */
+    }
+
+    #mainDiv {
+        display: flex;
+        flex-wrap: wrap; /* Ensure it wraps correctly */
+    }
+
+        #mainDiv .usp1,
+        #mainDiv .usp2,
+        #mainDiv .usp3,
+        #mainDiv .usp4,
+        #mainDiv .usp5 {
+            flex: 1 1 20%; /* Distribute space evenly */
+        }
+
+    #random-table-1 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 4 columns with equal width */
+        width: 100%;
+    }
+
+    .random-row {
+        display: contents; /* Allows each row to behave like a set of individual cells */
+    }
+
+    .random-cell {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+
+    /* Styling for the header row */
+    #random-row-1 {
+        font-weight: bold;
+        background-color: #f0f0f0;
+    }
+
+
+
+    .w-1\/5 {
+        width: 20%;
+    }
+
+    .w-2\/5 {
+        width: 40%;
+    }
+
+    .w-3\/5 {
+        width: 60%;
+    }
+
+    .w-4 \/5 {
+        width: 80%;
+    }
+
+    .clickableAccordian {
+        display: flex;
+        flex-direction: row;
+    }
+
+    svg.radial-progress .complete {
+        stroke-dasharray: 219.91148575129; /* Circumference */
+        transition: stroke 0.3s ease-in-out;
+    }
+
+    /* Define percentage-based color ranges */
+
+    /* 1-20% */
+    svg.radial-progress .range-0-20 {
+        stroke: #a2ed56; /* Red */
+    }
+
+    /* 21-40% */
+    svg.radial-progress .range-21-40 {
+        stroke: #83e4e2; /* Orange */
+    }
+
+    /* 41-60% */
+    svg.radial-progress .range-41-60 {
+        stroke: #fddc32; /* Yellow */
+    }
+
+    /* 61-80% */
+    svg.radial-progress .range-61-80 {
+        stroke: #fca858;
+    }
+
+    /* 81-100% */
+    svg.radial-progress .range-81-100 {
+        stroke: #fd6470; /* Green */
+    }
+
+    .nProject {
+        margin-right: 10px;
+        justify-content: flex-start;
+    }
+
+    .account_circle {
+        font-size: 2rem !important;
+    }
+
+    .pr-10 {
+        padding-right: 4rem;
+    }
+
+    .bg-primary {
+        background-color: #32517F;
+        color: #fff;
+    }
+
+    .rowOfProjects {
+        padding: 0 20px;
+        padding-bottom: 40px;
+        background: #f0f4f8;
+    }
+
+
+
+    @@media (max-width:1024px) {
+        .usp-profile {
+            padding-right: 5px;
+        }
+
+            .usp-profile p {
+                font-size: 0.8rem;
+            }
+    }
+
+    #project-base-info svg {
+        margin-left: 4px;
+    }
+
+    .totalDaysleft1 {
+        margin-left: 8px !important;
+    }
+
+    .cr1 {
+        margin-left: 4px;
+    }
+
+    .overflow-x-hidden {
+        overflow-x: hidden !important;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .chat__box__text-box {
+        word-break: break-word;
+    }
+
+    .fname_profile {
+        background: #1e3251;
+        border-right: 2px solid #fff;
+        padding-right: 12px;
+        display: flex;
+        /* line-height: 42px; */
+        padding: 5px;
+        margin-bottom: 12px;
+    }
+
+    .sender-pro {
+        background: #f1f1f1;
+        border-right: 2px solid #fff;
+        padding-right: 12px;
+        display: flex;
+        flex-direction: row-reverse;
+        /* line-height: 42px; */
+        padding: 5px;
+        margin-bottom: 12px;
+    }
+
+
+
+
+
+
+
+    .modal-pic {
+        max-width: auto !important;
+        min-width: 1100px !important;
+    }
+
+   
+
+    .daily_report_gallery_top_header {
+        margin-bottom: 0px;
+        font-weight: 700;
+        box-shadow: 4px -4px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+        background: #32517F;
+        padding: 20px;
+        color: #fff;
+        border-radius: 11px;
+    }
+
+    .icon_menu_gallery {
+        position: absolute;
+        left: 39px;
+        top: 4px;
+    }
+
+    .monthDay {
+        position: relative;
+        left: 10px;
+        border: 4px solid #2b4874;
+        margin: 0 auto;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 60px;
+        height: 60px;
+        background: #2b4874;
+        box-shadow: inset 0px 2px 4px 3px rgba(0, 0, 0, 0.2), 0px 8px 16px rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: 'Arial', sans-serif;
+        z-index: 999;
+        text-align: center;
+        align-items: center;
+    }
+
+        .monthDay span {
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+
+  
+    .dailyreportpic {
+        background: #32517F;
+        padding: 20px;
+        color: #fff;
+        border-radius: 11px;
+        margin-bottom: 0px;
+        font-weight: 700;
+        box-shadow: 4px -4px 0px 2px #b3bfd1, 1px 1px 5px rgb(179 192 209);
+    }
+
+    .box.ml-8.flex-1.zoom-in.zoom-in-block.z-50 {
+        z-index: 999;
+    }
+
+    .monthParent:first-child::before {
+    }
+
+    .monthParent .monthDay {
+        width: 90px;
+    }
+
+        .monthParent .monthDay span {
+            top: 10px;
+        }
+
+
+    .yearTitle {
+        color: #dcdcdc;
+        font-weight: 300;
+        font-size: 14px;
+        z-index: 2;
+        background: unset;
+        position: relative;
+        /* background-color: rgb(255 255 255 / var(--tw-bg-opacity)); */
+
+
+        left: -8px;
+        top: 9px;
+    }
+
+    .yearTitleParent {
+        position: absolute;
+        /* left: 42px; */
+        /* top: 82px; */
+        z-index: 1000;
+        /* right: 39px; */
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        color: #fff;
+    }
+
+    .monthParent {
+        position: relative;
+    }
+
+    .info {
+        // hide-initial-state transform: rotate3d(1,0,0, 90deg);
+        transform: rotate3d(1, 0, 0, 90deg);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        padding: 10px 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #fff;
+        border-radius: 4px;
+        pointer-events: none;
+        background-color: #2b4874d9;
+        justify-content: center;
+        align-content: space-between;
+        align-items: center;
+    }
+
+    .parent-tnsImage {
+        perspective: 400px;
+    }
+
+
+    .in-top .info {
+        transform-origin: 50% 0%;
+        -webkit-animation: in-top 300ms ease-in-out 0ms 1 forwards;
+        animation: in-top 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .in-right .info {
+        transform-origin: 100% 0%;
+        -webkit-animation: in-right 300ms ease-in-out 0ms 1 forwards;
+        animation: in-right 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .in-bottom .info {
+        transform-origin: 50% 100%;
+        -webkit-animation: in-bottom 300ms ease-in-out 0ms 1 forwards;
+        animation: in-bottom 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .in-left .info {
+        transform-origin: 0% 0%;
+        -webkit-animation: in-left 300ms ease-in-out 0ms 1 forwards;
+        animation: in-left 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .out-top .info {
+        transform-origin: 50% 0%;
+        -webkit-animation: out-top 300ms ease-in-out 0ms 1 forwards;
+        animation: out-top 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .out-right .info {
+        transform-origin: 100% 50%;
+        -webkit-animation: out-right 300ms ease-in-out 0ms 1 forwards;
+        animation: out-right 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .out-bottom .info {
+        transform-origin: 50% 100%;
+        -webkit-animation: out-bottom 300ms ease-in-out 0ms 1 forwards;
+        animation: out-bottom 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    .out-left .info {
+        transform-origin: 0% 0%;
+        -webkit-animation: out-left 300ms ease-in-out 0ms 1 forwards;
+        animation: out-left 300ms ease-in-out 0ms 1 forwards;
+    }
+
+    /* Keyframes for "in" animations */
+    @@-webkit-keyframes in-top {
+        from {
+            transform: rotate3d(-1, 0, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@keyframes in-top {
+        from {
+            transform: rotate3d(-1, 0, 0, 90deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@-webkit-keyframes in-right {
+        from {
+            transform: rotate3d(0, -1, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@keyframes in-right {
+        from {
+            transform: rotate3d(0, -1, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@-webkit-keyframes in-bottom {
+        from {
+            transform: rotate3d(1, 0, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@keyframes in-bottom {
+        from {
+            transform: rotate3d(1, 0, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@-webkit-keyframes in-left {
+
+        from {
+            transform: rotate3d(0, 1, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    @@keyframes in-left {
+        from {
+            transform: rotate3d(0, 1, 0, 90deg);
+        }
+
+        to {
+            transform: rotate3d(0, 0, 0, 0deg);
+        }
+    }
+
+    /* Keyframes for "out" animations */
+    @@-webkit-keyframes out-top {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(-1, 0, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@keyframes out-top {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(-1, 0, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@-webkit-keyframes out-right {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(0, -1, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@keyframes out-right {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(0, -1, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@-webkit-keyframes out-bottom {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(1, 0, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@keyframes out-bottom {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(1, 0, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@-webkit-keyframes out-left {
+
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(0, 1, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    @@keyframes out-left {
+        from {
+            transform: rotate3d(0, 0, 0, 0deg);
+            visibility: visible;
+        }
+
+        to {
+            transform: rotate3d(0, 1, 0, 104deg);
+            visibility: hidden;
+        }
+    }
+
+    #dailyPicturesData {
+        padding: 20px;
+        overflow: auto;
+    }
+
+    .box.ml-8.flex-1.zoom-in-block.z-50 {
+        z-index: 999;
+    }
+
+    .responsive-mode {
+        padding-bottom: 50px;
+    }
+
+    .showzoom {
+        width: 80%;
+    }
+
+
+
+
+
+    #Contracts-ModalDiv {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height:480px;
+    }
+
+
+    .tooltip1 {
+        position: relative;
+        cursor: pointer;
+    }
+
+        .tooltip1::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            z-index: 10009;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            border-radius: 5px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .tooltip1:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+   
+
+    #downloadVideo {
+        position: absolute;
+        bottom: 7px;
+        z-index: 999;
+        right: 50px;
+    }
+    .overflow-fix {
+    overflow-y: hidden !important;
+}
+
+</style>

@@ -1,0 +1,81 @@
+﻿@using VM.Public;
+
+@{
+    string domainName = "";
+    if (ViewData["DomainName"] != null)
+        domainName = ViewData["DomainName"] as string;
+}
+
+
+<div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header bg-white shadow-sm osahan-header">
+
+
+    <h6 class="mb-0 ms-3 me-auto fw-bold">درباره ملکاوان</h6>
+    <a id="backButton" class="text-dark bg-white shadow rounded-circle icon">
+        <span class="mdi mdi-arrow-left mdi-18px"></span>
+    </a>
+</div>
+<div class="matn vh-100 my-auto overflow-auto body-fix-osahan-footer fs-14">
+    <div class="p-3 mt-3 ">
+        <h6 class="mb-3 fw-bold" id="title"> درباره ی ملکاوان</h6>
+
+
+
+        <p class="text-dark mb-2" id="description">
+            معرفی ملکاوان<br>
+            <span class="text-muted">
+                شرکت سهامی خاص توسعه امارت نیا به شماره ثبت ۴۹۰۸۲۸ جهت فعالیت در امور سرمایه گذاری ملکی وساختمانی تاسیس گردیده است.
+                تنیاکو به جهت بهره گیری از فناوری های نوین و سهولت و آسان سازی در امر معرفی فرصت های سرمایه گذاری و معاملات ملکی و حذف واسطه های
+                متعدد اقدام به طراحی سایت ملکاوان با دامنه http://melkavan.com/ کرده است.
+                (ملکاوان پلتفرمی کاربر محور (واسطه الکترونیک و مجازی
+                است که حسب بند "ب"
+                ماده 1 آیین نامه جمع آوری و استنادپذیری ادله ی الکترونیکی مصوب ۱۳۹۳ به
+                عنوان ارائه دهنده خدمات میزبانی شناخته می شود.
+            </span>
+        </p>
+
+    </div>
+</div>
+
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a id="melkavan-icon" class="col footer-bottom-nav active">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav ">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>

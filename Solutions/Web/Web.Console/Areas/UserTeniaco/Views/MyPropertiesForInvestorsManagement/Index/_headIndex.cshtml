@@ -1,0 +1,1299 @@
+﻿@using VM.Melkavan
+@using VM.Teniaco;
+@using Newtonsoft.Json;
+@using VM.Public;
+
+
+<link href="~/lib/ol-ext/dist/ol.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
+
+
+<script src="~/lib/openlayers-v6.9.0/build/ol.js"></script>
+<script src="~/lib/ol-ext/dist/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
+
+<link rel="stylesheet" href="~/lib/ol-ext/dist/ol-ext.css" />
+<script type="text/javascript" src="~/lib/ol-ext/dist/ol-ext.js"></script>
+
+
+
+<script type="text/javascript">
+    @{
+        List<StatesVM> statesList = new List<StatesVM>();
+        @Html.Raw("var statesList=[];")
+        ;
+
+        if (ViewData["StatesList"] != null)
+        {
+            statesList = (List<StatesVM>)ViewData["StatesList"];
+
+
+            @Html.Raw(" statesList =" + JsonConvert.DeserializeObject(JsonConvert.SerializeObject(statesList)) + " ;")
+            ;
+        }
+
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<CitiesVM> citiesList = new List<CitiesVM>();
+        @Html.Raw("var citiesList=[];")
+        ;
+
+        if (ViewData["CitiesList"] != null)
+        {
+            citiesList = (List<CitiesVM>)ViewData["CitiesList"];
+
+
+            @Html.Raw(" citiesList = " +
+    JsonConvert.DeserializeObject(JsonConvert.SerializeObject(citiesList)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<ZonesVM> zonesList = new List<ZonesVM>();
+
+        @Html.Raw("var zonesList = [];")
+        ;
+
+        if (ViewData["ZonesList"] != null)
+        {
+            zonesList = (List<ZonesVM>)ViewData["ZonesList"];
+
+            @Html.Raw(" zonesList = " +
+    JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zonesList)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<DistrictsVM> districtsList = new List<DistrictsVM>();
+
+        @Html.Raw("var districtsList = [];")
+        ;
+
+        if (ViewData["DistrictsList"] != null)
+        {
+            districtsList = (List<DistrictsVM>)ViewData["DistrictsList"];
+
+
+            @Html.Raw(" districtsList = " +
+    JsonConvert.DeserializeObject(JsonConvert.SerializeObject(districtsList)) + "; ")
+            ;
+        }
+    }
+</script>
+
+
+
+<script type="text/javascript">
+    @{
+        double sumOfDispersion = 0;
+        @Html.Raw("var sumOfDispersion  = 0;")
+        ;
+
+        if (ViewData["SumOfDispersion"] != null)
+        {
+            sumOfDispersion = (double)ViewData["SumOfDispersion"];
+
+            @Html.Raw(" sumOfDispersion =" + sumOfDispersion.ToString() + " ;")
+            ;
+        }
+    }
+
+</script>
+
+
+
+
+<script type="text/javascript">
+    @{
+        List<MyFundsVM> myFundsDispersionList = new List<MyFundsVM>();
+        @Html.Raw("var myFundsDispersionList  = [];")
+        ;
+
+        if (ViewData["MyFundsDispersionList"] != null)
+        {
+            myFundsDispersionList = (List<MyFundsVM>)ViewData["MyFundsDispersionList"];
+
+            @Html.Raw(" myFundsDispersionList =" + JsonConvert.DeserializeObject(JsonConvert.SerializeObject(myFundsDispersionList)) + " ;")
+            ;
+        }
+    }
+
+</script>
+
+
+
+
+<script type="text/javascript">
+    @{
+        List<PropertyTypesVM> propertyTypesList = new List<PropertyTypesVM>();
+
+        @Html.Raw("var propertyTypesList = [];")
+        ;
+
+        if (ViewData["PropertyTypesList"] != null)
+        {
+            propertyTypesList = (List<PropertyTypesVM>)ViewData["PropertyTypesList"];
+
+            var propertyTypesListData = propertyTypesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.PropertyTypeTilte}",
+                Value = c.PropertyTypeId
+            });
+
+            @Html.Raw(" propertyTypesList = " +
+                                              JsonConvert.DeserializeObject(JsonConvert.SerializeObject(propertyTypesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<TypeOfUsesVM> typeOfUsesList = new List<TypeOfUsesVM>();
+
+        @Html.Raw("var typeOfUsesList = [];")
+        ;
+
+        if (ViewData["TypeOfUsesList"] != null)
+        {
+            typeOfUsesList = (List<TypeOfUsesVM>)ViewData["TypeOfUsesList"];
+
+            var typeOfUsesListData = typeOfUsesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.TypeOfUseTitle}",
+                Value = c.TypeOfUseId
+            });
+
+            @Html.Raw(" typeOfUsesList = " +
+                                              JsonConvert.DeserializeObject(JsonConvert.SerializeObject(typeOfUsesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<DocumentTypesVM> documentTypesList = new List<DocumentTypesVM>();
+
+        @Html.Raw("var documentTypesList = [];")
+        ;
+
+        if (ViewData["DocumentTypesList"] != null)
+        {
+            documentTypesList = (List<DocumentTypesVM>)ViewData["DocumentTypesList"];
+
+            var documentTypesListData = documentTypesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.DocumentTypeTitle}",
+                Value = c.DocumentTypeId
+            });
+
+            @Html.Raw(" documentTypesList = " +
+                                              JsonConvert.DeserializeObject(JsonConvert.SerializeObject(documentTypesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<DocumentOwnershipTypesVM> documentOwnershipTypesList = new List<DocumentOwnershipTypesVM>();
+
+        @Html.Raw("var documentOwnershipTypesList = [];")
+        ;
+
+        if (ViewData["DocumentOwnershipTypesList"] != null)
+        {
+            documentOwnershipTypesList = (List<DocumentOwnershipTypesVM>)ViewData["DocumentOwnershipTypesList"];
+
+            var documentOwnershipTypesListData = documentOwnershipTypesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.DocumentOwnershipTypeTitle}",
+                Value = c.DocumentOwnershipTypeId
+            });
+
+            @Html.Raw(" documentOwnershipTypesList = " +
+                                                   JsonConvert.DeserializeObject(JsonConvert.SerializeObject(documentOwnershipTypesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<DocumentRootTypesVM> documentRootTypesList = new List<DocumentRootTypesVM>();
+
+        @Html.Raw("var documentRootTypesList = [];")
+        ;
+
+        if (ViewData["DocumentRootTypesList"] != null)
+        {
+            documentRootTypesList = (List<DocumentRootTypesVM>)ViewData["DocumentRootTypesList"];
+
+            var documentRootTypesListData = documentRootTypesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.DocumentRootTypeTitle}",
+                Value = c.DocumentRootTypeId
+            });
+
+            @Html.Raw(" documentRootTypesList = " +
+                                                   JsonConvert.DeserializeObject(JsonConvert.SerializeObject(documentRootTypesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+
+<script type="text/javascript">
+    @{
+        List<BuildingLifesVM> buildingLifesList = new List<BuildingLifesVM>();
+
+        @Html.Raw("var buildingLifesList = [];")
+        ;
+
+        if (ViewData["BuildingLifesList"] != null)
+        {
+            buildingLifesList = (List<BuildingLifesVM>)ViewData["BuildingLifesList"];
+
+            var buildingLifesListData = buildingLifesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.BuildingLifeTitle}",
+                Value = c.BuildingLifeId
+            });
+
+            @Html.Raw(" buildingLifesList = " +
+                                      JsonConvert.DeserializeObject(JsonConvert.SerializeObject(buildingLifesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+
+
+
+
+
+<style type="text/css">
+
+
+
+
+    .w-10 {
+        width: 3rem !important;
+    }
+
+    .image-fit > img {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        -o-object-fit: cover;
+        object-fit: cover;
+    }
+
+    img,
+    video {
+        /*  max-width: 100%;
+                                                                height: auto;*/
+    }
+
+    .nmodar {
+        height: 14rem;
+    }
+    /*    .relative {
+                                                                position: relative;
+                                                                top: -1rem;
+                                                                }*/
+    .lg\:ml-2 {
+        margin-left: 6rem;
+    }
+    /*    .content {
+                                                                padding: 0px 22px;
+                                                                position: relative;
+                                                                margin-top: 0.25rem;
+                                                                min-height: 100vh;
+                                                                min-width: 0px;
+                                                                flex: 1 1 0%;
+                                                                --tw-bg-opacity: 1;
+                                                                background-color: rgb(var(--color-slate-100) / var(--tw-bg-opacity));
+
+                                                                padding-bottom: 2.5rem;
+                                                                }*/
+    .active-users {
+        padding: 5px;
+        overflow: hidden;
+    }
+    /*.w-10 {
+                                                                width: 11rem;
+                                                                }*/
+    .map {
+        height: 260px !important;
+        width: 100% !important;
+    }
+
+    .ol-viewport {
+        border-radius: 4px;
+    }
+
+    .mt-6 {
+        margin-top: -1.6rem;
+    }
+
+    .iconmatn {
+        /* margin-top: 1rem; */
+        /*        font-size: 30px;*/
+        width: 100%;
+        /*border-bottom: 1px solid #ebebeb;*/
+    }
+
+    .mt {
+        margin-top: 2rem;
+    }
+
+    .Nameproject {
+        font-size: 20px;
+        top: 2rem;
+        height: 5rem;
+        margin-left: auto;
+    }
+
+    #Upload {
+        margin-top: 1rem;
+        margin-left: 4rem;
+    }
+
+    .font-medium-map {
+        font-size: 20px;
+    }
+    /*.img-map{
+                                                                width:20px;
+
+                                                                }*/
+    #UploadMapBtn {
+        position: fixed;
+        bottom: 5px;
+        z-index: 99;
+        cursor: pointer;
+    }
+
+    #UploadFilmBtn {
+        position: fixed;
+        bottom: 20px;
+        z-index: 99;
+        cursor: pointer;
+    }
+
+    #UploadfeaturesBtn {
+        position: fixed;
+        bottom: 5px;
+        z-index: 99;
+        cursor: pointer;
+    }
+
+    #UploadDocumentsBtn {
+        position: fixed;
+        bottom: 20px;
+        z-index: 99;
+        cursor: pointer;
+    }
+    /*    .intro-y{
+
+                                                                }*/
+    /*#ImgProject {
+                                                                width: 20px;
+                                                                }*/
+    .imgproject {
+        height: 9rem;
+        width: 10rem;
+        top: -1.7rem;
+        max-width: 300%;
+        margin-left: 40px;
+    }
+
+    .boxproject {
+        height: 180px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .iconmapsList {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .iconfeaturesList {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .iconlocation {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .icondocumentList {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .iconpictureList {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .iconpriceList {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    #report-donut-chart-1 {
+        height: 208px;
+    }
+
+    .highcharts-subtitle {
+        top: 95px !important;
+    }
+
+    .mr-title {
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    .mapsList,
+    .featuresList,
+    .locationList,
+    .documentList,
+    .pictureList,
+    .priceList {
+        height: 100%;
+        /*height: 208px;*/
+        /*overflow-y: scroll;*/
+    }
+
+    .feature .box {
+        float: right;
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+
+    /* Sina Styles */
+
+    .chosen-container{
+        width:100% !important;
+    }
+
+        .is-open + * {
+  padding-bottom:10rem !important;
+}
+
+.chosen-choices, .search-choice{
+    border-radius:7px;
+}
+
+.chosen-choices{
+    height: 38px !important;
+}
+
+.search-choice{
+    height: 29px;
+    display: flex;
+    align-items: center;
+}
+
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close{
+    top:7px;
+}
+
+    .propertyAddress{
+         margin-top: -12px;
+         margin-bottom: 25px;
+         font-weight: 200;
+    }
+
+    .container {
+        width: 100%;
+        margin: 50px auto;
+    }
+
+    button.accordion {
+        width: 100%;
+        background-color: whitesmoke;
+        border: none;
+        outline: none;
+        text-align: right;
+        padding: 15px 20px;
+        font-size: 18px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s linear;
+    }
+
+        button.accordion:after {
+            font-family: FontAwesome;
+            content: "\f150";
+            font-family: "fontawesome";
+            font-size: 18px;
+            float: left;
+        }
+
+        button.accordion.is-open:after {
+            content: "\f151";
+        }
+
+        button.accordion:hover,
+        button.accordion.is-open {
+            background-color: #ddd;
+        }
+
+    .accordion-content {
+        background-color: white;
+        border-left: 1px solid whitesmoke;
+        border-right: 1px solid whitesmoke;
+        padding: 0 20px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-in-out;
+    }
+
+
+
+    .removePhotoIcon, .removeTemporarySidePhotoIcon, .removeTemporaryMainPhotoIcon {
+        z-index: 90;
+        position: absolute;
+        right: -10px;
+        top: -10px;
+        padding: 5px;
+        border-radius: 50%;
+        background-color: rgb(255 0 0 / 59%);
+    }
+
+    .sidePhotoAddContainer {
+        position: relative;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .mainImage {
+        font-size: 16px;
+        font-weight: bold;
+        color: gray;
+        border-color: gray;
+        border-style: dashed;
+        border-width: 3px;
+    }
+
+    .sidePhotoText {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+        font-size: 16px;
+        width: 100%;
+        opacity: 0.8;
+    }
+
+    .sidePhoto {
+        border-width: 3px;
+        font-size: 16px;
+        font-weight: bold;
+        opacity: 50%;
+        border-color: gray;
+        background-image: url(/images/PlaceHolder.jpg);
+    }
+
+
+    .backToPhotosIcon {
+        z-index: 90;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        left: 15px;
+        top: 8px;
+    }
+
+    .backToMapsListIcon, .backToDocumentListIcon {
+        z-index: 90;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        left: 15px;
+        top: 4px;
+    }
+
+    .backToMapIcon{
+        z-index: 10;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        left: 20px;
+        top: 10px;
+    }
+
+
+    .addressLabel {
+        width: 40px;
+        display: inline-block;
+    }
+
+    @@keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-1px);
+        }
+
+        50% {
+            transform: translateX(1px);
+        }
+
+        75% {
+            transform: translateX(-1px);
+        }
+    }
+
+    .removeDocumentIcon, .removeMapIcon, .removePhotoIcon {
+        animation: shake 0.5s ease-in-out infinite;
+    }
+
+
+    .editAddressIcon {
+        z-index: 10;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        margin: 5px;
+        top: 40px;
+    }
+
+    .editDetailsIcon {
+        z-index: 10;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        right: -10px;
+        top: -10px;
+    }
+
+
+    .removeDocumentIcon {
+        z-index: 10;
+        position: absolute;
+        right: -10px;
+        top: -10px;
+        padding: 5px;
+        border-radius: 50%;
+        background-color: rgb(255 0 0 / 59%);
+    }
+
+    .addDocumentIcon, .addMapIcon, .addPhotoIcon {
+        top: 40px;
+        z-index: 100;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        left: 15px;
+    }
+
+
+    .deleteDocumentIcon, .deleteMapIcon, .deletePhotoIcon, .editFeaturesIcon {
+        z-index: 100;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        left: 15px;
+        top: 5px;
+    }
+
+    .editMapIcon, .submitMapIcon {
+        z-index: 10;
+        position: absolute;
+        border-radius: 50%;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 30%);
+        margin: 5px;
+    }
+
+    #melk {
+        cursor: pointer;
+    }
+
+    .iconBar a {
+        margin: unset;
+        width: 50px;
+    }
+
+    .iconBar svg {
+        width: 36px;
+    }
+
+
+    .flickity-prev-next-button {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .activePage {
+        background-color: #e2e8f0 !important;
+    }
+
+    /* Enabled styles for elements without the 'disabled' class */
+    li.page-item.last:not(.disabled) a.page-link,
+    li.page-item.first:not(.disabled) a.page-link,
+    li.page-item.prev:not(.disabled) a.page-link,
+    li.page-item.next:not(.disabled) a.page-link {
+        padding: 8px 13px 8px 20px !important;
+        background-color: transparent !important;
+    }
+
+    .page-item.next,
+    .page-item.prev,
+    .page-item.last,
+    .page-item.first {
+        margin-right: 10px !important;
+        position: relative;
+        border-radius: 0.375rem;
+        border-color: transparent;
+        --tw-bg-opacity: 1;
+        background-color: transparent !important;
+        font-size: 13px;
+    }
+
+    li.page-item.last.disabled,
+    li.page-item.first.disabled,
+    li.page-item.prev.disabled,
+    li.page-item.next.disabled {
+        background-color: transparent !important;
+        cursor: no-drop !important;
+        color: rgb(var(--color-slate-800) / var(--tw-text-opacity));
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .pagination .page-item .page-link {
+        margin-right: unset !important;
+    }
+
+    .pagination {
+        margin-right: unset !important;
+        direction: ltr;
+    }
+
+    li.page-item:not(.perv) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.last) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.first) {
+        margin-right: 8px;
+    }
+
+    li.page-item:not(.next) {
+        margin-right: 8px;
+    }
+
+    .page-item {
+        border-radius: 0.375rem;
+    }
+
+
+    .ol-attribution {
+        visibility: hidden;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #32517f #e7e7e7;
+    }
+
+
+    .EmptyFiles {
+        width: 150%;
+        background-color: #ffa50012;
+        padding: 5px;
+        border-color: #ffbc00;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+
+    .box {
+        height: 100%;
+    }
+
+    .iconBar {
+        margin-top: 3.5rem;
+        width: 300px;
+    }
+
+    .priceIcon {
+        width: 33px !important;
+        margin-left: 4px;
+    }
+
+    h3 {
+        font-size: 20px;
+        padding-top: 20px;
+    }
+
+    .detailSpan {
+        margin-left: 100px
+    }
+
+    .detailLabel {
+        margin-right: 50px;
+    }
+
+    .col-span-10 {
+        grid-column: span 10 / span 10;
+    }
+
+    .DetailsButton {
+        font-size: 16px;
+    }
+
+
+    .NameprojectChild {
+        /*  width:150%; */
+        width: max-content;
+    }
+
+    .nmodar {
+        display: flex;
+        justify-content: center;
+        /*  align-items: center;  */
+    }
+
+    .report-donut {
+        width: 230px;
+    }
+
+    .highcharts-container {
+        /* width:100%; */
+    }
+
+    .highcharts-credits {
+        display: none !important;
+    }
+
+    .ParentOfMap {
+        max-height: inherit;
+        overflow: auto;
+    }
+
+    .property {
+        max-height: 270px;
+    }
+
+    #active-users {
+        height: 100%;
+        overflow: auto;
+        max-height: 270px;
+    }
+
+    .pictureList {
+        margin: 0.5rem;
+    }
+
+    .tab-pane.active.p-5.active-users {
+        display: flex;
+        align-content: center;
+    }
+
+
+    @@media only screen and (min-width:768px) and (max-width:992px) {
+        /*         .report-donut{
+                                        width : 12rem;
+                                    } */
+
+        .grid {
+            gap: 0.5rem;
+        }
+
+        .PropertySideDetails {
+            margin-top: 25rem !important;
+        }
+
+
+        .nmodar {
+            height: 100% !important;
+        }
+    }
+
+    @@media only screen and (max-width: 992px) {
+
+        .documentGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .mapsGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .MainPropertyDetails {
+            height: 22rem;
+        }
+
+        .PropertySideDetails {
+            margin-bottom: 7rem;
+            margin-top: 40.75rem;
+        }
+
+        .iconBar {
+            margin-top: 10rem !important;
+        }
+
+        .Nameproject {
+            margin: 0 auto;
+            margin-top: 1rem;
+        }
+
+        .boxproject {
+            height: 7rem;
+        }
+
+        .imgproject {
+            margin-top: -4rem;
+            border-radius: 50%;
+            outline-width: 15px;
+            outline-color: white;
+            outline-style: solid;
+            margin-left: 0px;
+        }
+
+        .property {
+            margin-top: 4rem;
+        }
+
+        .progressDiv {
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .photosLayout {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .detailsParent {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .DetailsSection {
+            grid-column: span 12 / span 12;
+        }
+
+        .detailSpan {
+            margin-left: 0px;
+        }
+
+        .DocumentOwnershipType {
+            width: 150%;
+        }
+
+        #largeImageContainer {
+            width: 90% !important;
+        }
+
+        .nmodar {
+            width: 100%;
+            height: 105%;
+        }
+
+        .chartTitle {
+            margin-top: 5px;
+        }
+
+        .PropertySideDetails {
+            width: 100%;
+        }
+    }
+
+    @@media only screen and (min-width:768px) and (max-width:1080px) {
+        .report-donut {
+            width: 185px;
+        }
+    }
+
+    @@media only screen and (min-width:992px) and (max-width: 1023px) {
+        .PropertySideDetails {
+            margin-top: 27rem !important;
+        }
+    }
+
+    @@media only screen and (max-width: 1023px) {
+        .MainPropertyDetails {
+            height: 24rem;
+        }
+
+        .PropertySideDetails {
+            margin-bottom: 7rem;
+            margin-top: 43rem;
+        }
+
+        .iconBar {
+            margin-top: 11rem;
+        }
+
+        .Nameproject {
+            margin: 0 auto;
+            margin-top: 1rem;
+        }
+
+        .boxproject {
+            height: 9rem;
+        }
+
+        .imgproject {
+            margin-top: -4rem;
+            border-radius: 50%;
+            outline-width: 15px;
+            outline-color: white;
+            outline-style: solid;
+        }
+
+        .property {
+            margin-top: 4rem;
+        }
+
+        .progressDiv {
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .photosLayout {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .detailsParent {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .detailSpan {
+            margin-left: 0px;
+        }
+
+        .DocumentOwnershipType {
+            width: 150%;
+        }
+
+        #largeImageContainer {
+            width: 90% !important;
+        }
+
+
+        .nmodar {
+            display: flex;
+        }
+    }
+
+    @@media only screen and (min-width: 1023px) and (max-width: 1280px) {
+        .PropertySideDetails {
+            margin-top: 20rem;
+        }
+
+        .detailsParent {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .detailSpan {
+            margin-left: 0px;
+        }
+
+        .MainPropertyDetails {
+            padding: 10px;
+        }
+
+        .nmodar {
+            display: flex;
+        }
+        /*         .report-donut {
+                                        width: 210px;
+                                    } */
+
+        .DocumentOwnershipType {
+            width: 150%;
+        }
+
+        .descriptionDiv {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .NameprojectChild {
+            position: absolute;
+        }
+    }
+
+    @@media only screen and (min-width: 1280px) and (max-width: 1536px) {
+
+        .documentGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .mapsGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        #DialogCreateProperty {
+            width: auto;
+        }
+
+        #DialogEditProperty {
+            width: auto;
+        }
+
+        .MainPropertyDetails {
+            padding: 10px;
+        }
+
+        .PropertySideDetails {
+            margin-top: 1.25rem;
+        }
+
+        .boxproject {
+            padding: 0.25rem;
+            height: 135px;
+        }
+
+        .imgproject {
+            height: 7rem;
+            width: 7rem;
+        }
+
+        #active-users {
+            overflow: hidden;
+            height: 98%;
+        }
+
+
+        .nmodar {
+            display: flex;
+        }
+
+
+        .iconBar {
+            width: 65%;
+            margin-right: 120px;
+            position: absolute;
+        }
+
+        .btn {
+            font-size: 100%;
+            line-height: inherit;
+        }
+
+        .ParentOfMain {
+            grid-column: span 5 / span 5;
+        }
+
+        .ParentOfMap {
+            grid-column: span 4 / span 4;
+        }
+
+        .ParentOfNmodar {
+            grid-column: span 3 / span 3;
+        }
+
+        .property {
+            gap: 0.75rem;
+            max-height: 225px;
+        }
+
+        .Nameproject {
+            font-size: 18px;
+            position: absolute;
+            margin-right: 30%;
+        }
+
+        .DetailsSection {
+            grid-column: span 8 / span 8;
+        }
+
+        .ImageSection {
+            grid-column: span 4 / span 4;
+        }
+
+        .report-donut {
+            height: 93%;
+        }
+    }
+
+    @@media only screen and (min-width: 1537px) and (max-width: 1880px) {
+
+        .documentGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .mapsGrid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .report-donut {
+            width: 180px;
+        }
+    }
+
+    @@media only screen and (min-width: 1537px) and (max-width: 1920px) {
+
+        #DialogCreateProperty {
+            width: auto;
+        }
+
+        #DialogEditProperty {
+            width: auto;
+        }
+
+
+        .iconBar {
+            margin-right: 2vh;
+        }
+
+        .MainPropertyDetails {
+            padding: 10px;
+        }
+
+        .NameprojectChild {
+            /* width : 300%; */
+            position: absolute;
+        }
+
+        .nmodar {
+            display: flex;
+        }
+        /*         .report-donut {
+                                        width: 190px;
+                                    } */
+
+        .Nameproject {
+            height: 7.5rem;
+        }
+    }
+
+</style>

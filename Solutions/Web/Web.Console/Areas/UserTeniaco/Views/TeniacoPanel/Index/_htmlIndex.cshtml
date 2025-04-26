@@ -1,0 +1,587 @@
+﻿<div class="content">
+    <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 2xl:col-span-9">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- BEGIN: General Report -->
+
+
+
+
+                <div class="col-span-12 mt-8">
+
+                    <div class="grid grid-cols-12 gap-6 mt-5">
+                        <div class="col-span-12 sm:col-span-12 md:col-span-6 xl:col-span-3 intro-y">
+                            <div class="report-box zoom-in">
+                                <div class="box p-5">
+                                    <div class="flex">
+                                        <i data-lucide="dollar-sign" class="report-box__icon text-primary"></i>
+                                        <div class="ml-auto">
+
+                                            <div class="report-box__indicator sumPercent cursor-pointer"></div>
+                                        </div>
+                                    </div>
+                                    <div id="TotalInvestment" class="text-3xl font-medium leading-8 mt-6 cursor-pointer"></div>
+                                    <div class="text-base text-slate-500 mb-2">سرمایه گذاری کل</div>
+                                    <div class="text-base text-slate-500 mt-1 historyup">
+
+                                        <span id="LastDaysOfLastUpdate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-12 sm:col-span-12 md:col-span-6 xl:col-span-3 intro-y">
+                            <div class="report-box zoom-in">
+                                <div class="box p-5">
+                                    <div class="flex">
+                                        <i class="material-symbols-outlined report-box__icon text-pending">account_balance_wallet</i>
+                                        <div class="ml-auto">
+                                            <div class="report-box__indicator totalpay "></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-3xl font-medium leading-8 mt-6 cursor-pointer" id="SumOfPayments"></div>
+                                    <div class="text-base text-slate-500 mb-2">کل پرداختی ها</div>
+                                    <div class="text-base text-slate-500 mt-1 historyup">
+
+                                        <span id="">3 روز پیش</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-12 sm:col-span-12 md:col-span-6 xl:col-span-3 intro-y">
+                            <div class="report-box zoom-in">
+                                <div class="box p-5">
+                                    <div class="flex">
+                                        <i data-lucide="trending-up" class="report-box__icon text-warning"></i>
+                                        <div class="ml-auto">
+                                            <div class="report-box__indicator bg-success cursor-pointer flex-row-reverse flex" id="PropertiesGrowth"> <i class="material-symbols-outlined v2">keyboard_arrow_up</i> </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-3xl font-medium leading-8 mt-6 cursor-pointer" id="SumOfLastPropertiesPrices"></div>
+                                    <div class="text-base text-slate-500 mt-1 FpriceRealstate cursor-pointer">ارزش جاری املاک</div>
+                                    <div class="text-base text-slate-500 mt-1 historyup">
+
+                                        <span id="NewestFaDateOfPropertyInvestment"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-12 sm:col-span-12 md:col-span-6 xl:col-span-3 intro-y">
+                            <div class="report-box zoom-in">
+                                <div class="box p-5">
+                                    <div class="flex">
+
+                                        <i class="material-symbols-outlined report-box__icon text-success ">
+                                            monitoring
+                                        </i>
+
+                                        <div class="ml-auto">
+                                            <div class="report-box__indicator bg-success cursor-pointer flex-row-reverse flex" id="ConstructionProjectsGrowth"><i class="material-symbols-outlined v2">keyboard_arrow_up</i> </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-3xl font-medium leading-8 mt-6 cursor-pointer" id="SumOfLastConstructionProjectsPrices"></div>
+                                    <div class="text-base text-slate-500 mb-2 FpriceConstruction cursor-pointer">ارزش جاری پروژه ها</div>
+                                    <div class="text-base text-slate-500 mt-1 historyup">
+
+                                        <span id="NewestFaDateOfConstructionProjectInvestment"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: General Report -->
+                <!-- BEGIN: Sales Report -->
+                <div class="col-span-12 lg:col-span-12 mt-8 2xl:col-span-6">
+
+
+                    <div class="intro-y box p-5 sm:mt-0  xl:mt-5 containerpriv">
+                        <div class="flex flex-col md:flex-row md:items-center">
+                            <div class="flex">
+                                <div>
+                                    <div class="text-primary dark:text-slate-300 text-lg xl:text-xl font-medium">$15,000</div>
+                                    <div class="mt-0.5 text-slate-500">This Month</div>
+                                </div>
+                                <div class="w-px h-12 border border-r border-dashed border-slate-200 dark:border-darkmode-300 mx-4 xl:mx-5"></div>
+                                <div>
+                                    <div class="text-slate-500 text-lg xl:text-xl font-medium">$10,000</div>
+                                    <div class="mt-0.5 text-slate-500">Last Month</div>
+                                </div>
+                            </div>
+                            @*   <div class="dropdown md:ml-auto mt-5 md:mt-0">
+                            <button class="dropdown-toggle btn btn-outline-secondary font-normal" aria-expanded="false" data-tw-toggle="dropdown"> Filter by Category <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i> </button>
+                            <div class="dropdown-menu w-40">
+                            <ul class="dropdown-content overflow-y-auto h-32">
+                            <li><a href="" class="dropdown-item">PC & Laptop</a></li>
+                            <li><a href="" class="dropdown-item">Smartphone</a></li>
+                            <li><a href="" class="dropdown-item">Electronic</a></li>
+                            <li><a href="" class="dropdown-item">Photography</a></li>
+                            <li><a href="" class="dropdown-item">Sport</a></li>
+                            </ul>
+                            </div>
+                            </div> *@
+                        </div>
+                        <div class="report-chart">
+                            <div class="h-[275px]">
+                                <canvas id="report-line-chart" class="mt-6 -mb-6"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <!-- BEGIN: Property Report دارایی -->
+                <div class="col-span-12 sm:col-span-12 md:col-span-6 lg:col-span-6 mt-8 2xl:col-span-3 ">
+
+                    <div class="intro-y box mt-5 containerpriv">
+                        <div class="py-4">
+                            <button class="alert w-full alert-primary text-center text-xs chartsTimeLinePanelButton" data-constructionprojectid="10" role="alert">
+                                دارایی
+                            </button>
+                            <div class="flipButton">
+                                <div class="report-donut-chart1 h-[250px]">
+                                </div>
+                            </div>
+                            <div class="">
+
+                                <div class="report-donut-chart1Items">
+                                    <div class="grid grid-cols-12 myFundsDispersionList">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <!-- END: Property Report دارایی -->
+                <!-- BEGIN: Property Report صورتحساب -->
+                <div class="col-span-12 sm:col-span-12 md:col-span-6 lg:col-span-6 mt-8 2xl:col-span-3 ">
+                    <div class="intro-y box mt-5 containerpriv">
+                        <div class="pt-4">
+                            <button class="alert w-full alert-primary text-center text-xs chartsTimeLinePanelButton" data-constructionprojectid="10" role="alert">
+                                صورتحساب پروژه ها
+                            </button>
+                            <div class="report-donut-chart2 ">
+                            </div>
+                        </div>
+                        <div class=" ">
+                            @*                                 <div class="grid grid-cols-12">
+                            <div class="col-span-4 divide-b-2 mb-3">
+                            <span class="truncate">&nbsp;</span>
+                            </div>
+                            <div class="col-span-4 divide-b-2 mb-3">
+                            <span class="truncate">بدهی</span>
+                            </div>
+                            <div class="col-span-4 divide-b-2 mb-3">
+                            <span class="font-medium">درصد از کل</span>
+                            </div>
+                            </div> *@
+                            <div class="report-donut-chart2Items">
+                                <div class="grid grid-cols-12 constructionProjectsList">
+
+                                    @*                                     <div class="col-span-4">
+                                    <span class="truncate">پروژه 1</span>
+                                    </div>
+                                    <div class="col-span-4">
+                                    <span class="truncate">13 میلیارد</span>
+                                    </div>
+                                    <div class="col-span-3 text-center font-medium">
+                                    62%
+                                    </div>
+
+                                    <div class="col-span-4">
+                                    <span class="truncate">پروژه 2</span>
+                                    </div>
+                                    <div class="col-span-4">
+                                    <span class="truncate">8 میلیارد</span>
+                                    </div>
+                                    <div class="col-span-3 text-center font-medium">
+                                    59%
+                                    </div>
+
+                                    <div class="col-span-4">
+                                    <span class="truncate">پروژه 3</span>
+                                    </div>
+                                    <div class="col-span-4">
+                                    <span class="truncate">11.5 میلیارد</span>
+                                    </div>
+                                    <div class="col-span-3 text-center font-medium">
+                                    37%
+                                    </div>
+
+                                    <div class="col-span-4">
+                                    <span class="truncate">پروژه 4</span>
+                                    </div>
+                                    <div class="col-span-4">
+                                    <span class="truncate">16.3 میلیارد</span>
+                                    </div>
+                                    <div class="col-span-3 text-center font-medium">
+                                    28%
+                                    </div> *@
+                                </div>
+                            </div>
+                            @*                                <div class="flex items-center">
+                            <div class="w-2 h-2 rounded-full mr-3"></div>
+                            <span class="truncate">&nbsp;</span>
+                            <span class="truncate mr-auto ml-auto">بدهی</span>
+                            <span class="font-medium ml-auto">درصد از کل</span>
+                            </div>
+                            <div class="flex items-center">
+                            <div class="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 1</span>
+                            <span class="truncate mr-auto ml-auto">3.5 میلیارد</span>
+                            <span class="font-medium ml-auto">62%</span>
+                            </div>
+                            <div class="flex items-center mt-4">
+                            <div class="w-2 h-2 bg-pending rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 2</span>
+                            <span class="truncate mr-auto ml-auto">7 میلیارد</span>
+                            <span class="font-medium ml-auto">33%</span>
+                            </div>
+                            <div class="flex items-center mt-4">
+                            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 3</span>
+                            <span class="truncate mr-auto ml-auto">8 میلیارد</span>
+                            <span class="font-medium ml-auto">10%</span>
+                            </div>
+                            <div class="flex items-center mt-4">
+                            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 4</span>
+                            <span class="truncate mr-auto ml-auto">4 میلیارد</span>
+                            <span class="font-medium ml-auto">10%</span>
+                            </div>
+                            <div class="flex items-center mt-4">
+                            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 5</span>
+                            <span class="truncate mr-auto ml-auto">5.5 میلیارد</span>
+                            <span class="font-medium ml-auto">10%</span>
+                            </div>
+                            <div class="flex items-center mt-4">
+                            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+                            <span class="truncate">پروژه 6</span>
+                            <span class="truncate mr-auto ml-auto">0.5 میلیارد</span>
+                            <span class="font-medium ml-auto">10%</span>
+                            </div>*@
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Property Report صورتحساب -->
+                <!-- BEGIN: 4Cards Show -->
+                <div class="col-span-12 grid grid-cols-12 gap-6 mt-8">
+                    <div class="col-span-12 sm:col-span-12 md:col-span-6 2xl:col-span-3 intro-y">
+                        <div class="box p-5 zoom-in">
+                            <div class="flex items-center">
+                                <div class="w-[60%] flex-none">
+                                    <div class="text-lg font-medium truncate">تعداد اسناد</div>
+                                    <div class="text-slate-500 mt-1">مدارکی که تأیید نکردم</div>
+                                </div>
+                                <div class="flex-none ml-auto relative">
+                                    <div class="w-[90px] h-[90px]">
+                                        <canvas id="report-donut-chart"></canvas>
+                                    </div>
+                                    <div id="unverifiedFilesCountValue" class="text-lg font-medium absolute w-full h-full flex items-center justify-center top-0 left-0"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-12 sm:col-span-12 md:col-span-6 2xl:col-span-3 intro-y">
+                        <div class="box p-5 zoom-in">
+                            <div class="flex">
+                                <div dir="ltr" id="MaxDeviationValue" class="text-lg font-large truncate mr-3 text-danger persDev"></div>
+                                <div class="py-1 px-2 flex items-center rounded-full text-xs bg-slate-100 dark:bg-darkmode-400 text-slate-500 cursor-pointer ml-auto truncate deviation-text">بیشترین انحراف پیشرفت پروژه</div>
+                            </div>
+                            <div class="mt-1">
+                                <div class="h-[58px] deviation reverse">
+                                    <canvas class="simple-line-chart-1 redLine -ml-1"></canvas>
+                                </div>
+                            </div>
+                            <div id="maxDeviationProjectName" class="text-lg font-medium truncate mr-3 primary text-danger absolute nameofPorject l1"></div>
+                        </div>
+                    </div>
+                    <div class="col-span-12 sm:col-span-12 md:col-span-6 2xl:col-span-3 intro-y">
+                        <div class="box p-5 zoom-in">
+                            <div class="flex items-center">
+                                <div class="w-2/4 flex-none">
+                                    <div class="text-lg font-medium truncate">تعداد آگهی ها</div>
+                                    <div class="text-slate-500 mt-1">املاک مقایسه شده در منطقه من</div>
+                                </div>
+                                <div class="flex-none ml-auto relative">
+                                    <div class="w-[90px] h-[90px]">
+                                    </div>
+                                    <div id="nearAdvertisementsCountValue" class="font-medium absolute text-lg w-full h-full flex items-center justify-center top-0 left-0"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-12 sm:col-span-12 md:col-span-6 2xl:col-span-3 intro-y">
+                        <span class="absolute">پیشرفت</span>
+                        <div class="box p-5 zoom-in">
+                            <div class="flex">
+                                <div dir="ltr" id="MinDeviationValue" class="text-lg font-medium truncate mr-3 text-success persDev"></div>
+                                <div class="py-1 px-2 flex items-center rounded-full text-xs bg-slate-100 dark:bg-darkmode-400 text-slate-500 cursor-pointer ml-auto truncate deviation-text">کمترین انحراف پیشرفت پروژه</div>
+                            </div>
+                            <div class="mt-1">
+                                <div class="h-[58px] deviation success">
+                                    <canvas class="simple-line-chart-1 -ml-1"></canvas>
+                                </div>
+                            </div>
+                            <div id="minDeviationProjectName" class="text-lg font-medium truncate mr-3 text-success absolute nameofPorject"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ENG: 4Cards Show -->
+                <!--BEGIN: 2 Ads Card Show-->
+
+                <div class="col-span-12 2xl:col-span-6 mt-6 adCard">
+                    <div class="box p-8 relative overflow-hidden intro-y ads_container">
+                        <div class="leading-[2.15rem] text-primary dark:text-white text-xl -mt-3 offert adCardTitle">پیشنهاد ویژه تنیاکو برای پروژه شما!<span class="font-medium"></span> </div>
+                        <div class=" sm:w-60 leading-relaxed text-slate-500 mt-2 offert1">به زودی ..</div>
+                        <div class="relative mt-6 cursor-pointer adCardButtonContainer">
+                            <button class="btn  bg-white dark:bg-darkmode-800 dark:text-white mt-6 font-light sm:mt-10 adCardButton">پیشنهاد های تنیاکو</button>
+                        </div>
+
+                        <img class="hidden sm:block absolute top-0 right-0 w-1/2 mt-1 -mr-12 ads2-img1" alt="" src="/images/72.webp">
+                    </div>
+                </div>
+
+
+                <div class="col-span-12 2xl:col-span-6 mt-6 adCard">
+                    <div class="box p-8 relative bg-primary intro-y ads_container">
+                        <div class="leading-[2.15rem] w-full sm:w-72 text-white font-thin text-xl -mt-3 offert">همین حالا ملک خود را ثبت کنید و اولین قدم را برای معامله‌ای مطمئن بردارید!</div>
+                        <div class="w-full sm:w-72 leading-relaxed text-white/70  font-thin dark:text-slate-500 mt-3 offert1">ثبت رایگان و آسان تنها با چند کلیک.</div>
+                        <button class="btn w-32 bg-white dark:bg-darkmode-800 dark:text-white mt-6 font-light sm:mt-10">ثبت کنید</button>
+                        <img class="hidden sm:block absolute left-0 top-0  mb-3 mr-2 Ads1-img" src="/images/house.webp">
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+                <!--ENG: 2 Ads Card Show-->
+                <!--BEGIN: Progress Project -->
+
+
+                <div class="col-span-12 mt-6 myProjectsStatus">
+
+
+                    <div class="report-box-2 intro-y mt-5">
+                        <div class="box grid grid-cols-12">
+                            <div class="col-span-12">
+                            </div>
+                            <div class="col-span-12">
+
+                                <div class="ganttChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--ENG: Progress Project -->
+                <!--BEGIN: MAP -->
+
+
+                <div class="col-span-12 mapParent mt-4">
+
+
+
+                    <div class="intro-y flex items-center h-20" style="margin-top:1rem !important">
+
+                        <div style="margin-left: 55rem;">
+                            <label class="form-label" for="slcMapLayerCategories">لایه های نقشه</label>
+                            <br />
+                            <select id="slcMapLayerCategories" name="slcMapLayerCategories" style="width:17rem;" multiple>
+                                <option value="">---</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="report-box-2 intro-y mt-5">
+                        <div class="box grid grid-cols-12">
+                            <div class="col-span-12">
+                                <div class="map-container">
+                                    <div id="compare" class="compare">
+                                        <div id="mapM">
+                                            <div class="map-labelM">قیمت ها به تومان میباشد.</div>
+                                        </div>
+                                        <div id="map"></div>
+                                        <div class="map-label">قیمت کل هر آگهی به میلیون تومان</div>
+
+
+                                        <div id="map2"></div>
+                                        <div class="map-label2">قیمت منطقه به متری میلیون تومان</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--ENG: MAP -->
+
+
+
+        </div>
+
+
+
+        <div class="col-span-12 2xl:col-span-3">
+            <div class="2xl:border-r -mb-10 pb-10">
+                <div class="2xl:pr-6 grid grid-cols-12 gap-x-6 2xl:gap-x-0 gap-y-6">
+
+                    <!-- BEGIN: Recent Activities -->
+                    <div class="col-span-12 md:col-span-6 xl:col-span-4 2xl:col-span-12 mt-3 ConversationSection">
+                        <div class="intro-x flex items-center h-10">
+                            <h2 class="text-lg font-medium truncate mr-5">
+                                مکاتبه های خوانده نشده
+                            </h2>
+
+                        </div>
+                        <div id="unreadConversationList" class="mt-5 relative before:block before:absolute before:w-px before:h-[85%] before:bg-slate-200 before:dark:bg-darkmode-400 before:mr-5 before:mt-5">
+                        </div>
+                    </div>
+                    <!-- END: Recent Activities -->
+                    <!-- BEGIN: Important Notes -->
+                    <div class="col-span-12 md:col-span-6 xl:col-span-12 xl:col-start-1 xl:row-start-1 2xl:col-start-auto 2xl:row-start-auto mt-3 FilesSection">
+                        <div class="intro-x flex items-center h-10">
+                            <h2 class="text-lg font-medium truncate mr-auto">
+                                مدارک تأیید نشده
+                            </h2>
+                            <button data-carousel="important-notes" data-target="next" class="go-next-slide btn px-2 border-slate-300 text-slate-600 dark:text-slate-300 mr-2"> <i data-lucide="chevron-right" class="w-4 h-4"></i> </button>
+                            <button data-carousel="important-notes" data-target="prev" class="go-prev-slide btn px-2 border-slate-300 text-slate-600 dark:text-slate-300 mr-2"> <i data-lucide="chevron-left" class="w-4 h-4"></i> </button>
+
+                        </div>
+                        <div class="mt-5 intro-x">
+                            <div class="box zoom-in">
+                                <div class="tiny-slider" id="important-notes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: Important Notes -->
+                    <!-- BEGIN: Schedules -->
+                    <div class="col-span-12 md:col-span-6 xl:col-span-4 2xl:col-span-12 xl:col-start-1 xl:row-start-2 2xl:col-start-auto 2xl:row-start-auto mt-3">
+                        <div class="intro-x flex items-center h-10">
+                            <h2 class="text-lg font-medium truncate mr-5">
+                                تقویم
+                            </h2>
+                            @*  <a href="" class="ml-auto text-primary truncate flex items-center">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> اضافه کردن برنامه های جدید
+                            </a> *@
+                        </div>
+                        <div class="mt-5">
+                            <div class="intro-x box">
+                                <div class="p-5">
+                                    <div class="flex">
+                                        <div id="next-month">
+                                            <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500"></i>
+                                        </div>
+
+                                        <div class="font-medium text-base mx-auto">فروردین</div>
+                                        <div id="prev-month">
+                                            <i data-lucide="chevron-left" class="w-5 h-5 text-slate-500"></i>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-7 gap-4 mt-5 text-center">
+                                        <div class="font-medium">ی</div>
+                                        <div class="font-medium">د</div>
+                                        <div class="font-medium">س</div>
+                                        <div class="font-medium">چ</div>
+                                        <div class="font-medium">پ</div>
+                                        <div class="font-medium">ج</div>
+                                        <div class="font-medium">ش</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۲۶</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۲۷</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۲۸</div>
+                                        <div class="py-0.5 rounded relative">۱</div>
+                                        <div class="py-0.5 rounded relative">۲</div>
+                                        <div class="py-0.5 rounded relative">۳</div>
+                                        <div class="py-0.5 rounded relative">۴</div>
+                                        <div class="py-0.5 rounded relative">۵</div>
+                                        <div class="py-0.5 bg-success/20 dark:bg-success/30 rounded relative">۶</div>
+                                        <div class="py-0.5 rounded relative">۷</div>
+                                        <div class="py-0.5 bg-primary text-white rounded relative">۸</div>
+                                        <div class="py-0.5 rounded relative">۹</div>
+                                        <div class="py-0.5 rounded relative">۱۰</div>
+                                        <div class="py-0.5 rounded relative">۱۱</div>
+                                        <div class="py-0.5 rounded relative">۱۲</div>
+                                        <div class="py-0.5 rounded relative">۱۳</div>
+                                        <div class="py-0.5 rounded relative">۱۴</div>
+                                        <div class="py-0.5 rounded relative">۱۵</div>
+                                        <div class="py-0.5 rounded relative">۱۶</div>
+                                        <div class="py-0.5 rounded relative">۱۷</div>
+                                        <div class="py-0.5 rounded relative">۱۸</div>
+                                        <div class="py-0.5 rounded relative">۱۹</div>
+                                        <div class="py-0.5 rounded relative">۲۰</div>
+                                        <div class="py-0.5 rounded relative">۲۱</div>
+                                        <div class="py-0.5 rounded relative">۲۲</div>
+                                        <div class="py-0.5 bg-pending/20 dark:bg-pending/30 rounded relative">۲۳</div>
+                                        <div class="py-0.5 rounded relative">۲۴</div>
+                                        <div class="py-0.5 rounded relative">۲۵</div>
+                                        <div class="py-0.5 rounded relative">۲۶</div>
+                                        <div class="py-0.5 bg-primary/10 dark:bg-primary/50 rounded relative">۲۷</div>
+                                        <div class="py-0.5 rounded relative">۲۸</div>
+                                        <div class="py-0.5 rounded relative">۲۹</div>
+                                        <div class="py-0.5 rounded relative">۳۰</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۱</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۲</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۳</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۴</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۵</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۶</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۷</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۸</div>
+                                        <div class="py-0.5 rounded relative text-slate-500">۹</div>
+                                    </div>
+
+                                </div>
+                                @*   <div class="border-t border-slate-200/60 p-5">
+                                <div class="flex items-center">
+                                <div class="w-2 h-2 bg-pending rounded-full ml-3"></div>
+                                <span class="truncate">پایان پروژه GB66</span> <span class="font-medium xl:mr-auto">تیر</span>
+                                </div>
+                                <div class="flex items-center mt-4">
+                                <div class="w-2 h-2 bg-primary rounded-full ml-3"></div>
+                                <span class="truncate">تاریخ قیمت گذاری</span> <span class="font-medium xl:mr-auto">دی</span>
+                                </div>
+                                <div class="flex items-center mt-4">
+                                <div class="w-2 h-2 bg-warning rounded-full ml-3"></div>
+                                <span class="truncate">پایان پروژه OL</span> <span class="font-medium xl:mr-auto">آبان</span>
+                                </div>
+                                </div> *@
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: Schedules -->
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+

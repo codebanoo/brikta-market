@@ -1,0 +1,237 @@
+﻿@{
+    Layout = null;
+}
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        debugger;
+
+
+
+        $('#slcStateId').append($('<option value="0">---</option>'));
+        for (var i = 0; i < statesList.length; i++) {
+            var item = statesList[i];
+            $('#slcStateId')
+                .append($("<option > </option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+        //1 مالک
+        //2 مشاور
+        for (var i = 0; i < personTypesList.length; i++) {
+            var item = personTypesList[i];
+            $('#slcPersonTypeId')
+                .append($("<option > </option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+
+
+        //#region old code
+
+        // for (var i = 0; i < personTypesList.length; i++) {
+        //     var item = personTypesList[i];
+        //     $('#slcPersonTypeId')
+        //         .append($("<option > </option>")
+        //             .attr("value", item.Value)
+        //             .text(item.DisplayText));
+        // }
+
+
+
+        //$('#slcStateId').trigger("chosen:updated");
+        //$('#slcPersonTypeId').val(personsVM.PersonTypeId);
+        //$('#slcPersonTypeId').trigger("chosen:updated");
+
+        // if (personsVM.StateId != "" && personsVM.CityId != "") {
+        //     for (var i = 0; i < citiesList.length; i++) {
+        //         var item = citiesList[i];
+        //         if (item.Data_StateId == personsVM.StateId)
+        //             $('#slcCityId')
+        //                 .append($("<option > </option>")
+        //                     .attr("value", item.Value)
+        //                     .text(item.DisplayText));
+        //     }
+        //     $('#slcCityId').val(personsVM.CityId);
+        // }
+
+
+        //$('#slcStateId').trigger("change");
+        //$('#slcCityId').trigger("chosen:updated");
+
+
+        //#endregion
+
+        
+
+        if (stateId != "" && stateId != "") {
+            for (var i = 0; i < citiesList.length; i++) {
+                var item = citiesList[i];
+                if (item.Data_StateId == stateId)
+                    $('#slcCityId')
+                        .append($("<option > </option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+            $('#slcCityId').val(cityId);
+        }
+
+        debugger;
+
+        if(stateId != null){
+            if(stateId != ""){
+                if(stateId != undefined){
+                    if(stateId > 0){
+                        if(stateId != "0"){
+                            $('#slcStateId').val(stateId);
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+
+       if(mobile != null){
+            if(mobile != ""){
+                if(mobile != undefined){
+                    $('#mobileNumber').html(mobile);
+                }
+            }
+        }
+
+
+
+
+        if(name != null){
+            if(name != ""){
+                if(name != undefined){
+                  $('#name').val(name);
+                }
+            }
+        }
+
+
+
+        if(family != null){
+            if(family != ""){
+                if(family != undefined){
+                   $('#family').val(family);
+                }
+            }
+        }
+
+
+        debugger;
+        if(email != null){
+            if(email != ""){
+                if(email != undefined){
+                    if(typeof(email) !== 'object'){
+                        $('#email').val(email);
+                    }else{
+                        $('#email').val('');
+                    }
+                    
+                }
+            }
+        }
+
+
+      
+
+        debugger;
+
+
+
+        $('body').on('change', '#slcStateId', function(e) {
+            e.preventDefault();
+
+            var _this = $(this);
+            var stateId = _this.val();
+            $('#slcCityId').find('option')
+                .remove()
+                .end();
+            if (stateId == "0" || stateId == 0) {
+
+                return;
+            }
+
+            $('#slcCityId').append($('<option value="0">---</option>'));
+            for (var i = 0; i < citiesList.length; i++) {
+
+                var item = citiesList[i];
+                if (item.Data_StateId == stateId)
+                    $('#slcCityId')
+                        .append($("<option></option>")
+                            .attr("value", item.Value)
+                            .text(item.DisplayText));
+            }
+            if (stateId == personsVM.StateId) {
+                $('#slcCityId').val(personsVM.CityId);
+
+            }
+            //$('#slcCityId').trigger("chosen:updated");
+
+
+        });
+
+        $('#edit-profile-button').click(function(event) {
+            event.preventDefault();
+            $('#loadingModal').modal('show');
+            var newEmail = $('#email').val();
+            var stateId = $('#slcStateId').val();
+            var cityId = $('#slcCityId').val();
+            var name = $('#name').val();
+            var family = $('#family').val();
+            var personTypeId = $('#slcPersonTypeId').val();
+            if (
+                //(newEmail == undefined) ||
+                //(newEmail == null) ||
+                //(newEmail.length < 1) ||
+                (name == undefined) ||
+                (name == null) ||
+                (name.length < 1) ||
+                (family == undefined) ||
+                (family == null) ||
+                (family.length < 1)
+            )
+             {
+                $('#alertModal').modal("show");
+                $('#alertText').html("لطفا تمامی فیلد های الزامی را پر کنید");
+                window.setTimeout(function() { $('#loadingModal').modal('hide'); }, 1000);
+                return;
+            }
+
+
+            debugger;
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserMelkavan/MelkavanPanel/EditMelkavanProfile",
+                data: {
+                  
+                    'UserId': userId,
+                    'email': newEmail,
+                    'StateId': stateId,
+                    'CityId': cityId,
+                    'Name': name,
+                    'Family': family,
+
+                     // 'PersonId': personsVM.PersonId,
+                    'PersonTypeId': personTypeId
+                },
+                success: function(response) {
+                    debugger;
+                    window.location.replace("/UserMelkavan/MelkavanPanel/MelkavanProfile");
+                },
+                error: function() {
+                    $('#alertModal').modal("show");
+                    $('#alertText').html("خطا!");
+                }
+            });
+        })
+
+    });
+
+</script>

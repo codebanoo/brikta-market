@@ -1,0 +1,1457 @@
+﻿<script src="~/lib/highcharts-persiandate/jdate-master/jalali-moment.browser.js"></script>
+<script src="~/lib/highcharts-gantt-11.1.0/code/modules/pattern-fill.js"></script>
+@* <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script> *@
+<script src="~/lib/highcharts-gantt-11.1.0/jalaali.min.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        // کاما گذاشتن اعداد
+        function formatPersianNumber(persianNum) {
+    if (!persianNum) return "";
+
+    // Convert Persian digits to English digits
+    let englishNum = persianNum.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]);
+
+    // Add comma separators
+    let formattedNum = englishNum.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Convert back to Persian digits
+    return formattedNum.replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+}
+
+        // محاسبه زمان برای پیام دیده نشده
+        function formatRelativeTime(timestamp) {
+            debugger;
+    const now = new Date();
+    const date = new Date(timestamp);
+    
+    // Extracting hours and minutes
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const timePart = `${hours}:${minutes}`;
+
+    // Calculating difference in days
+    const oneDay = 1000 * 60 * 60 * 24;
+    const diffTime = now.setHours(0, 0, 0, 0) - date.setHours(0, 0, 0, 0);
+    const diffDays = diffTime / oneDay;
+
+    if (diffDays < 1) return `${timePart} امروز`;
+    if (diffDays < 2) return `${timePart} دیروز`;
+    if (diffDays < 3) return `${timePart} پریروز`;
+    if (diffDays < 7) return `${timePart} ${Math.floor(diffDays)} روز پیش`;
+    
+    return `${timePart} یک هفته پیش`;
+}
+
+                //Loading outer dashboard data
+        $('#unverifiedFilesCountValue').text(detailsForOuterDashboardVM.UnverifiedFilesCount.toString().toPersinaDigit());
+        $('#nearAdvertisementsCountValue').text(detailsForOuterDashboardVM.NearAdvertisementsCount.toString().toPersinaDigit());
+        $('#MaxDeviationValue').text(detailsForOuterDashboardVM.MaxDeviation.toString().toPersinaDigit());
+        $('#MinDeviationValue').text(detailsForOuterDashboardVM.MinDeviation.toString().toPersinaDigit());
+        $('#maxDeviationProjectName').text(detailsForOuterDashboardVM.MaxDeviationProjectName);
+        $('#minDeviationProjectName').text(detailsForOuterDashboardVM.MinDeviationProjectName);
+
+        let htmlResult = ``;
+
+        if(detailsForOuterDashboardVM.Conversations.length==0){
+            $('.ConversationSection').addClass('hidden');
+             $('.FilesSection').removeClass('mt-3').addClass('mt-8');
+        }
+
+        for(let i =0;i<detailsForOuterDashboardVM.Conversations.length;i++){
+
+            let picture = detailsForOuterDashboardVM.Conversations[i].picture==null? '/images/conversationDefault.jpg': '/Files/UserFiles/my.teniaco.com/'+detailsForOuterDashboardVM.Conversations[i].UserIdCreator+'/UserImages/'+detailsForOuterDashboardVM.Conversations[i].picture
+
+             htmlResult += `
+                                          <div class="intro-x relative flex items-center mb-3">
+                                <div class="before:block before:absolute before:w-20 before:h-px before:bg-slate-200 before:dark:bg-darkmode-400 before:mt-5 before:ml-5">
+                                    <div class="w-10 h-10 flex-none image-fit rounded-full overflow-hidden">
+                                        <img alt="Midone - HTML Admin Template" src="`+picture+`">
+                                    </div>
+                                </div>
+                                <div class="box px-5 py-3 mr-4 flex-1 zoom-in">
+                                    <div class="flex items-center">
+                                        <div class="font-medium">${detailsForOuterDashboardVM.Conversations[i].SenderName}</div>
+                                            <div class="text-xs text-slate-500 ml-auto">${formatRelativeTime(detailsForOuterDashboardVM.Conversations[i].OperationEnDate)}</div>
+                                    </div>
+                                    <div class="text-slate-500 mt-1">${detailsForOuterDashboardVM.Conversations[i].ConversationLogDescription}</div>
+                                </div>
+                            </div>
+            `;
+        }
+
+        $('#unreadConversationList').html(htmlResult);
+
+        if(detailsForOuterDashboardVM.Files.length==0){
+            $('.FilesSection').addClass('hidden');
+                        $('.ConversationSection').removeClass('mt-3').addClass('mt-8');
+        }
+
+        htmlResult = ``;
+        for(let i =0;i<detailsForOuterDashboardVM.Files.length;i++){
+             htmlResult += `
+                                                 <div class="p-5">
+                                        <div class="text-base font-medium truncate">${detailsForOuterDashboardVM.Files[i].FileTitle}</div>
+                                        <div class="text-slate-400 mt-1"> ${detailsForOuterDashboardVM.Files[i].FaTableTitle}</div>
+                                             <div class="mt-1 projectNameDiv"> <i class="material-symbols-outlined apartment fs40  text-warning ml-1 mb-1">apartment</i>${detailsForOuterDashboardVM.Files[i].ProjectTitle}</div>
+                                    </div>
+            `;
+        }
+
+       $('#important-notes').html(htmlResult);
+
+
+        const sliderSettings = {
+                container: '.tiny-slider',
+                slideBy: "page",
+                mouseDrag: true,
+                autoplay: true,
+                autoplayTimeout: 6000,
+                controls: true,
+                nav: false,
+                speed: 500
+        };
+        
+        let slider = tns(sliderSettings);
+        
+        slider.destroy();
+        
+        slider = tns(sliderSettings);
+        
+        $('.go-next-slide').on('click',function(){
+            $('.tns-controls button[data-controls=next]').trigger('click');
+        })
+
+                $('.go-prev-slide').on('click',function(){
+            $('.tns-controls button[data-controls=prev]').trigger('click');
+        })
+
+
+
+        // MAP CREATED BY SINA
+        // Helper function for Persian formatting
+        function formatToPersianMillions(num) {
+            const millions = Math.round(num / 1_000_000);
+            const persianNumber = millions.toLocaleString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+            return `${persianNumber}`;
+        }
+
+        function convertToPersian(num) {
+            const millions = Math.round(num / 1_000_000);
+            const persianNumber = millions.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+            return `${persianNumber}`;
+        }
+
+        // Features setup (common to both maps)
+        const features = propertiesPricesList.map(price => {
+            const feature = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.transform([price.LocationLon, price.LocationLat], 'EPSG:4326', 'EPSG:3857')),
+            });
+            feature.setProperties({
+                OfferPrice: price.OfferPrice,
+                CalculatedOfferPrice: price.CalculatedOfferPrice,
+                OfferPriceType: price.OfferPriceType,
+                LastPrice: price.LastPrice,
+            });
+            return feature;
+        });
+
+        const source = new ol.source.Vector({ features });
+
+        // Circle Style function
+        function getCircleStyle(priceText) {
+            return new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 20,
+                    stroke: new ol.style.Stroke({ color: '#fff' }),
+                    fill: new ol.style.Fill({ color: '#32517f' }),
+                }),
+                text: new ol.style.Text({
+                    text: priceText,
+                    font: '13px IRANYekanX',
+                    fill: new ol.style.Fill({ color: '#fff' }),
+                }),
+            });
+        }
+
+        // Right Map: Clusters with circle style and price average (excluding zero values)
+        const clustersRight = new ol.layer.Vector({
+            source: new ol.source.Cluster({
+                distance: 40,
+                source,
+            }),
+            style: feature => {
+                const features = feature.get('features');
+                if (features.length > 1) {
+                    // Exclude zero values
+                    const validPrices = features
+                        .map(f => f.get('CalculatedOfferPrice'))
+                        .filter(price => price > 0);
+
+                    if (validPrices.length > 0) {
+                        const totalPrice = validPrices.reduce((sum, price) => sum + price, 0);
+                        const averagePrice = Math.round(totalPrice / validPrices.length);
+                        const persianAveragePrice = formatToPersianMillions(averagePrice);
+
+                        return getCircleStyle(convertToPersian(averagePrice));
+                    }
+                }
+                if (features.length === 1 && features[0].get('CalculatedOfferPrice') != '0') {
+                    const singlePrice = convertToPersian(features[0].get('CalculatedOfferPrice'));
+                    return getCircleStyle(singlePrice);
+                }
+            },
+        });
+
+        // Left Map: Individual points
+            const individualLayerLeft = new ol.layer.Vector({
+        source,
+        style: feature => {
+            const singlePrice = formatToPersianMillions(feature.get('LastPrice'));
+            if (feature.get('LastPrice') != '0') {
+                return new ol.style.Style({
+                       text: new ol.style.Text({
+                        text: singlePrice,
+                        font: 'bold 13px IRANYekanX',
+                        fill: new ol.style.Fill({ color: '#fff' }), // Text color
+                        backgroundFill: new ol.style.Fill({ color: '#803271' }), // Purple background
+                        backgroundStroke: new ol.style.Stroke({ color: 'white', width: 1 }), // White border
+                        padding: [8, 12, 12, 12], // Top, Right, Bottom, Left (space for arrow)
+                        offsetY: -15, // Move text box up
+                        textAlign: 'center',
+                        textBaseline: 'middle'
+                    }),
+                        image: new ol.style.RegularShape({
+                        points: 3, // Triangle
+                        radius: 8, // Size of arrow
+                        rotation: Math.PI, // Rotate to point down
+                        fill: new ol.style.Fill({ color: '#803271' }), // Match box color
+                        stroke: new ol.style.Stroke({ color: 'white', width: 1 }) // Match border
+                    }),
+            
+                    text: new ol.style.Text({
+                        text: singlePrice,
+                        font: '13px IRANYekanX',
+                        fill: new ol.style.Fill({ color: '#fff' }),
+                            backgroundFill: new ol.style.Fill({ color: '#803271' }), // Background color for text
+                        backgroundStroke: new ol.style.Stroke({ color: 'white', width:1 }), // Border for text
+                        padding: [4, 4, 4, 4], // Top, Right, Bottom, Left (space for arrow)
+                        offsetY: -15, // Move text above the arrow
+                    }),
+                });
+            } else {
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 9,
+                        fill: new ol.style.Fill({
+                            color: '#803271', // Red dot for example
+                        }),
+                    }),
+                });
+            }
+        },
+    });
+
+
+        // Map Initialization
+        const mapRight = new ol.Map({
+            target: 'map2',
+            layers: [new ol.layer.Tile({ source: new ol.source.OSM() }), clustersRight],
+            view: new ol.View({
+                center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+                zoom: 12,
+                minZoom: 6, // Minimum zoom level
+                maxZoom: 18, // Maximum zoom level
+            }),
+        });
+
+        const mapLeft = new ol.Map({
+            target: 'map',
+            layers: [new ol.layer.Tile({ source: new ol.source.OSM() }), individualLayerLeft],
+            view: mapRight.getView(), // Synchronize the view
+        });
+
+
+
+
+        var swipe = new ol.control.SwipeMap({ right: true });
+
+        // Change mode
+        var currentMode;
+        function setMode(mode) {
+            if (mode) {
+                currentMode = mode;
+                // Remove tools
+                mapRight.removeControl(swipe);
+                //map2.removeInteraction(clip);
+                // Set interactions
+                switch (mode) {
+                    case 'swipev':
+                    case 'swipeh': {
+                        mapRight.addControl(swipe);
+                        swipe.set('orientation', (mode === 'swipev' ? 'vertical' : 'horizontal'));
+                        break;
+                    }
+
+                }
+                // Update position
+                document.getElementById("compare").className = mode;
+            }
+            mapLeft.updateSize();
+            mapRight.updateSize();
+        }
+
+        setMode('swipev');
+
+
+
+
+        $('.ol-attribution').remove();
+
+        // Kia :: Active Menu By Class Every Area Spefic has been repeated
+        $(".side-nav ul li:nth-child(3)").addClass("activemenu");
+        $(".side-nav ul li:nth-child(3) a").addClass("activemenu-link");
+        $(".side-nav ul li:nth-child(3) a").removeClass("side-menu");
+        $(".side-nav ul li:nth-child(3) a .side-menu__title").addClass("activemenu-text");
+
+        //;
+        if (outterDashboardPricesBlockVM != null) {
+
+            var propertiesProfit = 0;
+            var constructionProjectsProfit = 0;
+            var sumOfFirstPropertiesPrices = 0;
+            var sumOfFirstConstructionProjectsPrices = 0;
+
+                if (outterDashboardPricesBlockVM.TotalInvestment != null) {
+
+                let totalInvestmentBillion = (outterDashboardPricesBlockVM.TotalInvestment / 10_000_000_000).toFixed(2);
+                let [integerPart, decimalPart] = totalInvestmentBillion.split('.'); // جدا کردن بخش صحیح و اعشار
+
+                         $('#TotalInvestment').html(   Spliter(integerPart.toPersinaDigit()) +
+            '.' + decimalPart.toPersinaDigit() +  '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>');
+                       $('#TotalInvestment').attr('myTitle',Spliter(outterDashboardPricesBlockVM.TotalInvestment.toFixed(0).toPersinaDigit()))
+
+                        var tippyAddress = '#TotalInvestment'
+                tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                });
+
+                } else {
+                    $('#TotalInvestment').html('');
+                }
+
+            if (outterDashboardPricesBlockVM.LastDaysOfLastUpdate != null)
+                $('#LastDaysOfLastUpdate').html((outterDashboardPricesBlockVM.LastDaysOfLastUpdate + '').toPersinaDigit() + ' روز قبل');
+            else
+                $('#LastDaysOfLastUpdate').html('');
+
+            if (outterDashboardPricesBlockVM.SumOfFirstPropertiesPrices != null) {
+                $('#SumOfFirstPropertiesPrices').html(Spliter(outterDashboardPricesBlockVM.SumOfFirstPropertiesPrices.toFixed(0).toPersinaDigit()));
+                $('#Responsive-SumOfFirstPropertiesPrices').html(Spliter(outterDashboardPricesBlockVM.SumOfFirstPropertiesPrices.toFixed(0).toPersinaDigit()));
+                sumOfFirstPropertiesPrices = parseFloat(outterDashboardPricesBlockVM.SumOfFirstPropertiesPrices.toFixed(0));
+                         let price = sumOfFirstPropertiesPrices.toFixed(0);
+                        let formattedPrice = Number(price).toLocaleString('fa-IR'); // نمایش با جداکننده فارسی
+                            $('.FpriceRealstate').attr('myTitle', formattedPrice + ' ارزش اولیه املاک');
+
+                 var tippyAddress = '.FpriceRealstate'
+                tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                });
+
+
+                      
+            }
+            else
+                $('#SumOfFirstPropertiesPrices').html('');
+
+            if (outterDashboardPricesBlockVM.OldestFaDateOfPropertyInvestment != null) {
+                $('#OldestFaDateOfPropertyInvestment').html(outterDashboardPricesBlockVM.OldestFaDateOfPropertyInvestment.toPersinaDigit());
+                $('#Responsive-OldestFaDateOfPropertyInvestment').html(outterDashboardPricesBlockVM.OldestFaDateOfPropertyInvestment.toPersinaDigit());
+            }
+            else {
+                $('#OldestFaDateOfPropertyInvestment').html('');
+                $('#Responsive-OldestFaDateOfPropertyInvestment').html('');
+            }
+
+               if (outterDashboardPricesBlockVM.SumOfLastPropertiesPrices != null) {
+                let sumOfLastPropertiesPrices = outterDashboardPricesBlockVM.SumOfLastPropertiesPrices; // مقدار اصلی
+                let sumOfLastPropertiesPricesBillion = (sumOfLastPropertiesPrices / 10_000_000_000).toFixed(2); // مقدار خلاصه‌شده در میلیارد تومان
+                let [integerPart, decimalPart] = sumOfLastPropertiesPricesBillion.split('.'); // جدا کردن بخش صحیح و اعشار
+
+                $('#SumOfLastPropertiesPrices').html(
+                    Spliter(integerPart.toPersinaDigit()) +
+                    '.' + decimalPart.toPersinaDigit() + 
+                    '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>'
+                );
+                $('#SumOfLastPropertiesPrices').attr('myTitle', Spliter(sumOfLastPropertiesPrices.toFixed(0).toPersinaDigit()));
+
+                var tippyAddress = '#SumOfLastPropertiesPrices'
+                tippy(tippyAddress, {
+                        content: formatPersianNumber($(tippyAddress).attr('myTitle').replace(/\B(?=(\d{3})+(?!\d))/g, "،"))
+                });
+
+                $('#Responsive-SumOfLastPropertiesPrices').html(
+                    Spliter(integerPart.toPersinaDigit()) +
+                    '.' + decimalPart.toPersinaDigit() + 
+                    '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>'
+                );
+                $('#Responsive-SumOfLastPropertiesPrices').attr('title', Spliter(sumOfLastPropertiesPrices.toFixed(0).toPersinaDigit()));
+
+            } else {
+                $('#SumOfLastPropertiesPrices').html('').removeAttr('title');
+                $('#Responsive-SumOfLastPropertiesPrices').html('').removeAttr('title');
+            }
+
+
+            if (outterDashboardPricesBlockVM.NewestFaDateOfPropertyInvestment != null) {
+                $('#NewestFaDateOfPropertyInvestment').html(outterDashboardPricesBlockVM.NewestFaDateOfPropertyInvestment.toPersinaDigit());
+                $('#Responsive-NewestFaDateOfPropertyInvestment').html(outterDashboardPricesBlockVM.NewestFaDateOfPropertyInvestment.toPersinaDigit());
+            }
+            else {
+                $('#NewestFaDateOfPropertyInvestment').html('');
+                $('#Responsive-NewestFaDateOfPropertyInvestment').html('');
+            }
+
+            if (outterDashboardPricesBlockVM.PropertiesGrowth != null) {
+                $('#PropertiesGrowth').append(Spliter(outterDashboardPricesBlockVM.PropertiesGrowth.toFixed(0).toPersinaDigit()) + '%');
+                $('#Responsive-PropertiesGrowth').html(Spliter(outterDashboardPricesBlockVM.PropertiesGrowth.toFixed(0).toPersinaDigit()) + '%');
+
+                                // اگر منفی بود استایل فلش پایین و قرمز بده
+                    if(String(outterDashboardPricesBlockVM.PropertiesGrowth).includes('-')){
+                                    $('#PropertiesGrowth').removeClass('bg-success').addClass('bg-danger');
+                $('#PropertiesGrowth').children().eq(0).css('transform','rotate(180deg)');
+                }
+
+            }
+            else {
+                $('#PropertiesGrowth').html('');
+                $('#Responsive-PropertiesGrowth').html('');
+            }
+            
+            if (outterDashboardPricesBlockVM.PropertiesProfit != null) {
+                $('#PropertiesProfit').html(Spliter(outterDashboardPricesBlockVM.PropertiesProfit.toFixed(0).toPersinaDigit()));
+                $('#Responsive-PropertiesProfit').html(Spliter(outterDashboardPricesBlockVM.PropertiesProfit.toFixed(0).toPersinaDigit()));
+                    propertiesProfit = parseFloat(outterDashboardPricesBlockVM.PropertiesProfit.toFixed(0));
+
+                $('#PropertiesGrowth').attr('myTitle',propertiesProfit.toFixed(0).toPersinaDigit() );
+
+                var tippyAddress = '#PropertiesGrowth'
+                tippy(tippyAddress, {
+                        content: formatPersianNumber($(tippyAddress).attr('myTitle').replace(/\B(?=(\d{3})+(?!\d))/g, "،"))
+                });
+
+            }
+            else {
+                $('#PropertiesProfit').html('');
+                $('#Responsive-PropertiesProfit').html('');
+            }
+            
+            if (outterDashboardPricesBlockVM.SumOfFirstConstructionProjectsPrices != null) {
+                $('#SumOfFirstConstructionProjectsPrices').html(Spliter(outterDashboardPricesBlockVM.SumOfFirstConstructionProjectsPrices.toFixed(0).toPersinaDigit()));
+                $('#Responsive-SumOfFirstConstructionProjectsPrices').html(Spliter(outterDashboardPricesBlockVM.SumOfFirstConstructionProjectsPrices.toFixed(0).toPersinaDigit()));
+                sumOfFirstConstructionProjectsPrices = parseFloat(outterDashboardPricesBlockVM.SumOfFirstConstructionProjectsPrices.toFixed(0));
+                    let price = sumOfFirstConstructionProjectsPrices.toFixed(0);
+                    let formattedPrice = Number(price).toLocaleString('fa-IR'); // نمایش با جداکننده فارسی
+                    $('.FpriceConstruction').attr('myTitle', formattedPrice + ' ارزش اولیه پروژه ها');
+
+                    var tippyAddress = '.FpriceConstruction'
+                tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                });
+               
+            }
+            else {
+                $('#SumOfFirstConstructionProjectsPrices').html('');
+                $('#Responsive-SumOfFirstConstructionProjectsPrices').html('');
+            }
+
+            if (outterDashboardPricesBlockVM.OldestFaDateOfConstructionProjectInvestment != null) {
+                $('#OldestFaDateOfConstructionProjectInvestment').html(outterDashboardPricesBlockVM.OldestFaDateOfConstructionProjectInvestment.toPersinaDigit());
+                $('#Responsive-OldestFaDateOfConstructionProjectInvestment').html(outterDashboardPricesBlockVM.OldestFaDateOfConstructionProjectInvestment.toPersinaDigit());
+            }
+            else {
+                $('#OldestFaDateOfConstructionProjectInvestment').html('');
+                $('#Responsive-OldestFaDateOfConstructionProjectInvestment').html('');
+            }
+
+               if (outterDashboardPricesBlockVM.SumOfLastConstructionProjectsPrices != null) {
+        let sumOfLastConstructionProjectsPrices = outterDashboardPricesBlockVM.SumOfLastConstructionProjectsPrices; // مقدار اصلی
+        let sumOfLastConstructionProjectsPricesBillion = (sumOfLastConstructionProjectsPrices / 10_000_000_000).toFixed(2); // مقدار خلاصه‌شده در میلیارد تومان
+        let [integerPart, decimalPart] = sumOfLastConstructionProjectsPricesBillion.split('.'); // جدا کردن بخش صحیح و اعشار
+
+        $('#SumOfLastConstructionProjectsPrices').html(
+            Spliter(integerPart.toPersinaDigit()) +
+            '.' + decimalPart.toPersinaDigit() + 
+            '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>'
+        );
+        $('#SumOfLastConstructionProjectsPrices').attr('myTitle', Spliter(sumOfLastConstructionProjectsPrices.toFixed(0).toPersinaDigit()));
+
+                         var tippyAddress = '#SumOfLastConstructionProjectsPrices'
+                tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                });
+
+        $('#Responsive-SumOfLastConstructionProjectsPrices').html(
+            Spliter(integerPart.toPersinaDigit()) +
+            '.' + decimalPart.toPersinaDigit() + 
+            '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>'
+        );
+        $('#Responsive-SumOfLastConstructionProjectsPrices').attr('title', Spliter(sumOfLastConstructionProjectsPrices.toFixed(0).toPersinaDigit()));
+
+    } else {
+        $('#SumOfLastConstructionProjectsPrices').html('').removeAttr('title');
+        $('#Responsive-SumOfLastConstructionProjectsPrices').html('').removeAttr('title');
+    }
+
+
+            if (outterDashboardPricesBlockVM.NewestFaDateOfConstructionProjectInvestment != null) {
+                $('#NewestFaDateOfConstructionProjectInvestment').html(outterDashboardPricesBlockVM.NewestFaDateOfConstructionProjectInvestment.toPersinaDigit());
+                $('#Responsive-NewestFaDateOfConstructionProjectInvestment').html(outterDashboardPricesBlockVM.NewestFaDateOfConstructionProjectInvestment.toPersinaDigit());
+            }
+            else {
+                $('#NewestFaDateOfConstructionProjectInvestment').html('');
+                $('#Responsive-NewestFaDateOfConstructionProjectInvestment').html('');
+            }
+
+            if (outterDashboardPricesBlockVM.ConstructionProjectsGrowth != null) {
+                $('#ConstructionProjectsGrowth').append(Spliter(outterDashboardPricesBlockVM.ConstructionProjectsGrowth.toFixed(0).toPersinaDigit()) + '%');
+                $('#Responsive-ConstructionProjectsGrowth').html(Spliter(outterDashboardPricesBlockVM.ConstructionProjectsGrowth.toFixed(0).toPersinaDigit()) + '%');
+
+                // اگر منفی بود استایل فلش پایین و قرمز بده
+                if(String(outterDashboardPricesBlockVM.ConstructionProjectsGrowth).includes('-')){
+                                    $('#ConstructionProjectsGrowth').removeClass('bg-success').addClass('bg-danger');
+                $('#ConstructionProjectsGrowth').children().eq(0).css('transform','rotate(180deg)');
+                }
+
+            }
+            else {
+                $('#ConstructionProjectsGrowth').html('');
+                $('#Responsive-ConstructionProjectsGrowth').html('');
+            }
+
+
+
+
+
+
+            if (outterDashboardPricesBlockVM.ConstructionProjectsProfit != null) {
+                $('#ConstructionProjectsProfit').html(Spliter(outterDashboardPricesBlockVM.ConstructionProjectsProfit.toFixed(0).toPersinaDigit()));
+                $('#Responsive-ConstructionProjectsProfit').html(Spliter(outterDashboardPricesBlockVM.ConstructionProjectsProfit.toFixed(0).toPersinaDigit()));
+                constructionProjectsProfit = parseFloat(outterDashboardPricesBlockVM.ConstructionProjectsProfit.toFixed(0));
+
+                                $('#ConstructionProjectsGrowth').attr('myTitle',propertiesProfit.toFixed(0).toPersinaDigit() );
+
+                var tippyAddress = '#ConstructionProjectsGrowth'
+                tippy(tippyAddress, {
+                        content: formatPersianNumber($(tippyAddress).attr('myTitle').replace(/\B(?=(\d{3})+(?!\d))/g, "،"))
+                });
+            }
+            else {
+                $('#ConstructionProjectsProfit').html('');
+                $('#Responsive-ConstructionProjectsProfit').html('');
+            }
+
+                if (outterDashboardPricesBlockVM.SumOfPayments != null) {
+                let sumOfPayments = outterDashboardPricesBlockVM.SumOfPayments; // مقدار اصلی
+                let sumOfPaymentsBillion = (sumOfPayments / 10_000_000_000).toFixed(2); // مقدار خلاصه‌شده در میلیارد تومان
+                let [integerPart, decimalPart] = sumOfPaymentsBillion.split('.'); // جدا کردن بخش صحیح و اعشار
+
+                $('#SumOfPayments').html(Spliter(integerPart.toPersinaDigit()) +
+                '.' + decimalPart.toPersinaDigit() +  '<div class="currency"><span class="Bilion">میلیارد</span><span class="Toman">تومان</span></div>');
+                 $('#SumOfPayments').attr('myTitle',Spliter(sumOfPayments.toFixed(0).toPersinaDigit()));
+
+                  var tippyAddress = '#SumOfPayments'
+                tippy(tippyAddress, {
+                        content: $(tippyAddress).attr('myTitle')
+                });
+
+                } else {
+                    $('#SumOfPayments').html('').removeAttr('title');
+                    $('#Responsive-SumOfPayments').html('').removeAttr('title');
+                }
+
+
+            var sumPercent = 0;
+            try {
+                if ((sumOfFirstPropertiesPrices == 0) && (sumOfFirstConstructionProjectsPrices == 0)) { }
+                else {
+                    sumPercent = parseFloat(((propertiesProfit + constructionProjectsProfit) / (sumOfFirstPropertiesPrices + sumOfFirstConstructionProjectsPrices)) * 100);
+                }
+            }
+            catch (e) {
+            }
+              let sumP= (sumPercent.toFixed(2) + '%').toPersinaDigit();
+
+
+               
+                $('.sumPercent').each(function(){
+
+                        if(sumPercent > 0){
+
+                                           $(this).append(`<i class="material-symbols-outlined v2">keyboard_arrow_up</i> ${sumP}`);
+                                          
+                                        $(this).addClass('bg-success');
+                        
+                    }
+                    else{
+                                           $(this).append('<i class="material-symbols-outlined v2">keyboard_arrow_down</i>')
+                               $(this).addClass('bg-danger');
+                    }
+                       
+                });
+                
+
+        }
+
+
+        $('#slcPropertiesDetails').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            max_shown_results: 10,
+            //rtl: true
+        });
+
+
+        $('#slcStateId').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            //max_shown_results: 10,
+            //rtl: true
+        });
+
+        $('#slcCityId').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            max_shown_results: 10,
+            //rtl: true
+        });
+
+        $('#slcZoneId').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            max_shown_results: 10,
+            //rtl: true
+        });
+
+        $('#slcDistrictId').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            max_shown_results: 10,
+            //rtl: true
+        });
+
+        for (var i = 0; i < statesList.length; i++) {
+            var item = statesList[i];
+            $('#slcStateId')
+                .append($("<option></option>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+
+        }
+
+        $('#slcStateId').trigger("chosen:updated");
+        $('#slcStateId').trigger("change");
+
+        $('#slcMyProjects').chosen({
+            placeholder_text_single: ' ',
+            placeholder_text_multiple: ' ',
+            search_contains: true,
+            max_shown_results: 10,
+            //rtl: true
+        });
+
+
+
+
+
+        $('body').on('click', '#showPropertyValues', function (e) {
+            e.preventDefault();
+            $('#PropertiesDrp').toggleClass("show");
+        });
+
+
+
+
+    const colors = [
+        '#1E3A8A', // Dark Navy Blue (Primary Theme Color)
+        '#3B82F6', // Bright Blue (Buttons & Highlights)
+        '#93C5FD', // Light Blue (Soft UI Elements)
+        '#F3F4F6', // Light Gray (Backgrounds & Cards)
+        '#1F2937', // Dark Gray (Text & Icons)
+        '#F59E0B', // Amber (Warning & Info Accents)
+        '#EF4444', // Red (Errors & Alerts)
+        '#10B981', // Emerald Green (Success & Positive Indicators)
+        '#E5E7EB', // Very Light Gray (Borders & Subtle Separators)
+        '#FACC15'  // Yellow (Important Highlights)
+    ];
+
+
+
+
+        //#region
+        var htmlMyFundsDispersion = '';
+
+        var dispersionData = [];
+        ////;
+        for (var i = 0; i < myFundsDispersionList.length; i++) {
+            var myFund = myFundsDispersionList[i];
+            ;
+            if (sumOfDispersion > 0)
+                myFund.Growth = (myFund.MyFundPrice / sumOfDispersion) * 100
+
+            if (!isNaN(myFund.Growth))
+                //if(parseInt(myFund.Growth) > 0){
+                htmlMyFundsDispersion += `<div class="col-span-3">
+                                                        <span class="truncate">` + myFund.MyFundTitle + `</span>
+                                                    </div>
+                                                    <div class="col-span-7 text-center">
+                                                        <span class="truncate">` + Spliter(myFund.MyFundPrice).toPersinaDigit() + `</span>
+                                                    </div>
+                                                    <div style="margin-left:5px;text-align:left;" class="col-span-2 text-center font-medium percentOfTotalDispersion" data-Growth="` + myFund.Growth + `">
+                                                    ` + ((!isNaN(myFund.Growth)) ? Spliter(myFund.Growth.toFixed(0)).toPersinaDigit() : '0'.toPersinaDigit()) + `%
+                                                    </div>`;
+
+            dispersionData.push({
+                name: myFund.MyFundTitle,
+                y: myFund.Growth
+            })
+            //}
+        }
+
+        $('.myFundsDispersionList').html(htmlMyFundsDispersion);
+
+        Highcharts.chart($('.report-donut-chart1')[0], {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie',
+        },
+        title: {
+            text: '',
+            align: 'left'
+        },
+        tooltip: {
+                pointFormat: '{point.name}: <b>{point.percentage:.2f}%</b>'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+              pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                    colors,
+                borderRadius: 5,
+                dataLabels: {
+                    enabled: true,
+                    distance: -40,
+                    formatter: function () {
+          
+                    },
+                    filter: {
+                        property: 'percentage',
+                        operator: '>',
+                        value: 4
+                    }
+                                                            }
+            }
+        },
+        series: [{
+            name: 'Share',
+            data: dispersionData
+        }]
+    });
+
+        // $('.report-donut-chart1Items').scrollbox({
+        //     //buffer: 150 // position from bottom when reach.scrollbox will be triggered
+        // });
+
+        //#endregion
+
+           var htmlMyFundsGrowth = '';
+    var growthData = [];
+    var hasGrowth = false; // Flag to check if any fund has growth
+    htmlMyFundsGrowth = ''; // Reset the HTML string
+
+    for (var i = 0; i < myFundsGrowthList.length; i++) {
+        var myFund = myFundsGrowthList[i];
+
+        if (sumOfGrowth > 0)
+            myFund.Growth = (myFund.MyFundPrice / sumOfGrowth) * 100;
+
+        if (!isNaN(myFund.Growth) && myFund.Growth > 0) {
+            hasGrowth = true; // Found at least one growth greater than 0
+        }
+
+        htmlMyFundsGrowth += `<div class="col-span-2">
+                                <span class="truncate"> ${myFund.MyFundTitle} </span>
+                              </div>
+                              <div class="col-span8">
+                                <span class="truncate"> ${Spliter(myFund.MyFundPrice).toPersinaDigit()} </span>
+                              </div>
+                              <div class="col-span-2 text-center font-medium percentOfTotalGrowth" data-Growth="${myFund.Growth}">
+                                ${(!isNaN(myFund.Growth)) ? Spliter(myFund.Growth.toFixed(0)).toPersinaDigit() : '0'.toPersinaDigit()} %
+                              </div>`;
+
+        growthData.push({
+            name: myFund.MyFundTitle,
+            y: myFund.Growth
+        });
+    }
+
+    // If no growth found, change the HTML content
+    if (!hasGrowth) {
+        htmlMyFundsGrowth = "شما هیچ رشد سرمایه ای ندارید.";
+
+        // Find the closest .report-donut-chartback and hide it
+                    $('.report-donut-chartback').hide();
+                    $('.myFundsGrowthList').removeClass('grid-cols-12');
+                    $('.myFundsGrowthList').addClass('grid-cols-1');
+                    $('.report-donut-chartbackItems').addClass('noDataShareContainer');
+                    $('.myFundsGrowthList').addClass('noDataShare');
+
+    }
+
+    $('.myFundsGrowthList').html(htmlMyFundsGrowth);
+
+        Highcharts.chart($('.report-donut-chart2')[0], {
+
+
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie',
+        },
+        title: {
+            text: '',
+            align: 'left'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                colors,
+                borderRadius: 5,
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                    distance: -50,
+                    filter: {
+                        property: 'percentage',
+                        operator: '>',
+                        value: 4
+                    }
+                }
+            }
+        },
+        series: [{
+            name: 'Share',
+            data: growthData
+        }]
+    });
+
+
+        // $('.report-donut-chartbackItems').scrollbox({
+        //     //buffer: 150 // position from bottom when reach.scrollbox will be triggered
+        // });
+
+        //#endregion
+
+        // $('body').on('click', '.flipButton', function (e) {
+        //     var _this = $(this);
+        //     _this.parent().parent().parent().parent().addClass('flipped');
+        // });
+
+        // $('body').on('click', '.flipButtonBack', function (e) {
+        //     var _this = $(this);
+        //     _this.parent().parent().parent().parent().removeClass('flipped');
+        // });
+             
+        var htmlConstructionProjects = '';
+
+        var debts = 0;
+
+        for (var i = 0; i < constructionProjectsList.length; i++) {
+            var constructionProject = constructionProjectsList[i];
+
+            var debt = (((constructionProject.ProjectRemainingCost != null) ? parseFloat(constructionProject.ProjectRemainingCost) : 0) +
+                ((constructionProject.FundsCeiling != null) ? parseFloat(constructionProject.FundsCeiling) : 0));
+
+            if (isNaN(debt)) {
+                debt = 0;
+            }
+
+            htmlConstructionProjects += `<div class="col-span-4">
+                                                <span class="truncate">` + constructionProject.ConstructionProjectTitle + `</span>
+                                            </div>
+                                            <div class="col-span-4" style="direction: ltr; text-align: center;">
+                                                <span class="truncate" style="direction: ltr; text-align: center;">` + Spliter(debt).toPersinaDigit() + `</span>
+                                            </div>
+                                            <div class="col-span-4 text-center font-medium percentOfTotal" data-debt="` + ((debt < 0) ? '+' : debt) + `">
+
+                                            </div>`;
+            ;
+            if (debt >= 0)
+                debts += debt;
+        }
+
+        $('.constructionProjectsList').html(htmlConstructionProjects);
+
+        // $('.report-donut-chart2Items').scrollbox({
+        //     //buffer: 150 // position from bottom when reach.scrollbox will be triggered
+        // });
+
+        var htmlDebtBalance = '';
+
+        debts = -debts;
+
+        var percentOfTotals = $('.percentOfTotal');
+
+        for (var i = 0; i < percentOfTotals.length; i++) {
+            var percentOfTotal = percentOfTotals[i];
+
+            var debt = 0;
+            $(percentOfTotal).html('(+)');
+            try {
+                debt = parseFloat($(percentOfTotal).attr('data-debt'));
+
+                ;
+                if (!isNaN(debt)) {
+                    if (debt != '+') {
+                        debt = -debt;
+
+                        var percent = ((debt * 100) / debts).toFixed(0);
+                        if (!isNaN(percent))
+                            $(percentOfTotal).html(percent.toPersinaDigit() + '%');
+                        else
+                            $(percentOfTotal).html('0'.toPersinaDigit() + '%');
+
+                    }
+                }
+            }
+            catch (exc) {
+            }
+        }
+
+        if ((debts < -500000000)) {
+            htmlDebtBalance = '<div style="font-size:18px; direction: ltr; text-align: center; color: #B91C1C;"> ' + Spliter(-debts).toPersinaDigit() + ' </div>' +
+                '<div style="font-size:18px; direction: ltr; text-align: center; color: #B91C1C;">مانده</div>';
+                    $('.totalpay').append('بدهکار').addClass('bg-danger');
+
+
+        }
+        else
+            if ((-500000000 <= debts) && (debts < 0)) {
+                htmlDebtBalance = '<div style="font-size:18px; direction: ltr; text-align: center; color: #D97706;"> ' + Spliter(-debts).toPersinaDigit() + ' </div>' +
+                    '<div style="font-size:18px; direction: ltr; text-align: center; color: #D97706;">مانده</div>';
+                                $('.totalpay').append('بدهکار').addClass('bg-danger');
+            }
+                else
+                    if ((0 <= debts) && (debts < 500000000)) {
+                    htmlDebtBalance = '<div style="font-size:18px; direction: ltr; text-align: center; color: #F59E0B;"> ' + Spliter(debts).toPersinaDigit() + ' </div>';
+                                $('.totalpay').append('بستانکار').addClass('bg-success');
+                }
+                else
+                    if ((500000000 <= debts)) {
+                        htmlDebtBalance = '<div style="font-size:18px; direction: ltr; text-align: center; color: #0D9488;"> ' + Spliter(debts).toPersinaDigit() + ' </div>';
+                                $('.totalpay').append('بستانکار').addClass('bg-success');
+                    }
+
+        if (debts <= -10000000000)
+            debts = -10000000000;
+        else
+            if (debts >= 10000000000)
+                debts = 10000000000;
+
+        Highcharts.chart($('.report-donut-chart2')[0], {
+
+            chart: {
+                type: 'gauge',
+                plotBackgroundColor: null,
+                plotBackgroundImage: null,
+                plotBorderWidth: 0,
+                plotShadow: false,
+                height: '65%'
+            },
+
+            tooltip: {
+                enabled: false
+            },
+
+            title: {
+                text: ''
+            },
+
+            pane: {
+                startAngle: -90,
+                endAngle: 89.9,
+                background: null,
+                center: ['50%', '75%'],
+                size: '90%'
+            },
+
+            // the value axis
+            yAxis: {
+                min: -10000000000,
+                max: 10000000000,
+                tickPixelInterval: 100,
+                tickPosition: 'inside',
+                tickColor: Highcharts.defaultOptions.chart.backgroundColor || '#FFFFFF',
+                tickLength: 20,
+                tickWidth: 2,
+                minorTickInterval: null,
+                labels: {
+                    distance: 30,
+                    style: {
+                        fontSize: '14px'
+                    },
+                    formatter: function () {
+                        //;
+                        switch (this.value) {
+                            case -10000000000:
+                                return '';
+                                //return '-10 میلیارد';
+                                break;
+                            case -5000000000:
+                                return '<div style="text-align: right; direction: rtl; float:right"><span style="float: right;">۵-</span> <span style="float: right;">میلیارد</span></div>';
+                                break;
+                            case 0:
+                                return '0';
+                                break;
+                            case 5000000000:
+                                return '<div style="text-align: right; direction: rtl; float:right"><span style="float: right;">۵</span> <span style="float: right;">میلیارد</span></div>';
+                                break;
+                            case 10000000000:
+                                return '';
+                                //return '10 میلیارد';
+                                break;
+                        }
+
+                        //return this.value;
+                    }
+                },
+                lineWidth: 0,
+                plotBands: [{
+                    from: -10000000000,
+                    to: -5000000000,
+                    color: '#B91C1C', // red  B91C1C
+                    thickness: 20
+                },
+                {
+                    from: -5000000000,
+                    to: 0,
+                    color: '#D97706', // orange  D97706
+                    thickness: 20
+                },
+                {
+                    from: 0,
+                    to: 5000000000,
+                    color: '#F59E0B', // yellow F59E0B
+                    thickness: 20
+                }, {
+                    from: 5000000000,
+                    to: 10000000000,
+                    color: '#0D9488', // green 0D9488
+                    thickness: 20
+                }]
+            },
+
+            series: [{
+                name: ' ',
+                //name: '<div style="color: red; direction: ltr;">مانده بدهی</div',
+                //data: [-325000000],
+                data: [debts],
+                // tooltip: {
+                //     //valueSuffix: ' '
+                // },
+                dataLabels: {
+                    format: '{y}',
+                    borderWidth: 0,
+                    color: (
+                        Highcharts.defaultOptions.title &&
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || '#333333',
+                    style: {
+                        fontSize: '20px'
+                    },
+                    format:
+                        htmlDebtBalance
+                    //'<div style="text-align:center; direction: rtl; text-align: center;">' +
+                    //'<div style="font-size:14px; direction: ltr; text-align: center; color: red;"> {y} </div>' +
+                    //'<div style="font-size:14px; direction: ltr; text-align: center;"> مانده بدهی </div>'
+                    //'<span style="font-size:25px; direction: ltr; text-align: center;">مانده بدهی</span>' +
+                    //'<span style="font-size:12px;opacity:0.4"></span>' +
+                    //'</div>'
+                },
+                dial: {
+                    radius: '80%',
+                    backgroundColor: 'gray',
+                    baseWidth: 12,
+                    baseLength: '0%',
+                    rearLength: '0%'
+                },
+                pivot: {
+                    backgroundColor: 'gray'
+                 
+                }
+
+            }]
+
+        });
+
+
+         var today = new Date(),
+        day = 1000 * 60 * 60 * 24;
+
+    // Set to 00:00:00:000 today
+    today.setUTCHours(0);
+    today.setUTCMinutes(0);
+    today.setUTCSeconds(0);
+    today.setUTCMilliseconds(0);
+    today = today.getTime();
+
+    moment.locale('fa');
+
+    Highcharts.dateFormats = {
+        'a': function (ts) {
+            return moment(ts).format('dddd');
+        },
+        'A': function (ts) {
+            return moment(ts).format('dddd');
+        },
+        'd': function (ts) {
+            return moment(ts).format('DD');
+        },
+        'e': function (ts) {
+            return moment(ts).format('D');
+        },
+        'b': function (ts) {
+            return moment(ts).format('MMMM');
+        },
+        'B': function (ts) {
+            return moment(ts).format('MMMM');
+        },
+        'm': function (ts) {
+            return moment(ts).format('MM');
+        },
+        'y': function (ts) {
+            return moment(ts).format('YY');
+        },
+        'Y': function (ts) {
+            return moment(ts).format('YYYY');
+        },
+        'W': function (ts) {
+            return moment(ts).format('ww');
+        }
+    };
+
+    function persianDateToUTC(persianDate) {
+        // Split the Persian date into year, month, and day
+        const [year, month, day] = persianDate.split('/').map(Number);
+
+        // Convert to Gregorian date using jalaali-js
+        const { gy, gm, gd } = jalaali.toGregorian(year, month, day);
+
+        // Create a UTC date object
+        return Date.UTC(gy, gm - 1, gd + 11); // Note: JavaScript months are 0-based
+    }
+
+    var highchartsData = progressDataList.map((item, index) => ({
+        start: persianDateToUTC(item.ProgramStart),
+        end: persianDateToUTC(item.ProgramEnd),
+        faStart: item.ProgramStart,
+        faEnd: item.ProgramEnd,
+        deviation: item.Deviation,
+        title: item.ConstructionProjectTitle,
+        completed: {
+            amount: parseFloat(item.Operation) / 100 // Convert percentage string to decimal
+        },
+        y: index + 0.1, // Increment y by 1 for each project
+        name: item.ConstructionProjectTitle // Project title
+    }));
+
+
+    Highcharts.ganttChart($('.ganttChart')[0], {
+        chart: {
+            backgroundColor: '#f5f5f5', // Optional: Change the chart background color
+            borderColor: 'gray', // Set the border color for the chart
+        },
+        title: {
+
+                useHTML: true,
+                text: 'جزئیات پیشرفت پروژه های من',
+            style: {
+               
+                padding: '10px', // Add spacing inside the border
+                 
+                borderRadius: '5px', // Optional: Rounded corners
+                backgroundColor: '#f9f9f9' // Optional: Background color
+            }
+      
+       
+        },
+        plotOptions: {
+            series: {
+                borderRadius: 0, // Remove border radius
+                color: '#f4f8ff66', // Set default bar color
+                connectors: {
+                    dashStyle: 'ShortDot',
+                    lineWidth: 2,
+                    startMarker: {
+                        enabled: false
+                    }
+                },
+                dataLabels: [
+                    {
+                        useHTML: true,
+                        borderRadius: 0, // Ensure data label border radius is removed
+                        enabled: true,
+                        align: 'left',
+                        formatter: function () {
+                            const progress = (this.point.completed.amount * 100).toFixed(2); // Calculate percentage
+                            return `<div style="
+                                margin-left:10px;
+                                color: white;
+                                font-size: 1.3em;
+                                text-align: center;
+                            ">${progress}%</div>`;
+                        },
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            opacity: 1,
+                        }
+                    },
+                ]
+            }
+        },
+tooltip: {
+    useHTML: true, // حذف outside: true
+    followPointer: true, // دنبال کردن اشاره‌گر موس
+    formatter: function () {
+        console.log(this.point); // بررسی مقدار `point` در کنسول
+
+        if (!this.point.faStart || !this.point.faEnd) {
+            return 'اطلاعات موجود نیست!';
+        }
+
+        var startFa = moment(this.point.faStart).locale('fa').format('YYYY/MM/DD');
+        var endFa = moment(this.point.faEnd).locale('fa').format('YYYY/MM/DD');
+        var progress = (this.point.completed.amount * 100).toFixed(2);
+
+        var html = `
+            <div style="text-align: right; direction: rtl;">
+                                            <div style="font-size: 14px; font-weight:bold;">${this.point.title} - ${progress.toPersinaDigit()}%</div>
+                <div style="font-size: 14px;">شروع: ${this.point.faStart.toPersinaDigit()}</div>
+                <div style="font-size: 14px;">پایان: ${this.point.faEnd.toPersinaDigit()}</div>
+
+            </div>
+        `;
+
+        return html;
+    }
+}
+,
+
+        xAxis: [{
+            currentDateIndicator: {
+                color: '#000',
+                dashStyle: 'ShortDot',
+                width: 2,
+                label: {
+                    format: ''
+                }
+            },
+            type: 'datetime',
+    tickInterval: 30 * 24 * 3600 * 1000, // نمایش بر اساس ماه
+    dateTimeLabelFormats: {
+        month: '%B %Y', // نمایش ماه و سال شمسی
+        week: '%d %B',  // نمایش هفته و ماه شمسی
+        day: '%d %B'    // نمایش روز و ماه شمسی
+    },
+            grid: {
+                enabled: true,
+                borderColor: 'gray', // Set the border color for the grid
+                lineWidth: 1, // Add grid lines
+            },
+            gridLineWidth: 1, // Horizontal gridlines
+            custom: {
+                today,
+                weekendPlotBands: true
+            },
+            labels: {
+formatter: function () {
+            // Check if the label is being truncated (approximate small space detection)
+            if (this.axis.chart.chartWidth < 1000) {
+                return moment(this.value).locale('fa').format('MM').replace(/^0/, '').toPersinaDigit(); // Show month number
+            } else {
+                return moment(this.value).locale('fa').format('MMMM'); // Show full month name
+            }
+        },
+        style: {
+            fontSize: '12px',
+            fontWeight: 'bold'
+        }
+    }
+        }],
+        yAxis: {
+            grid: {
+                borderWidth: 0.1
+            },
+            gridLineWidth: 0.1,
+            labels: {
+                style: {
+                    plotBackgroundColor: 'blue',
+                },
+                symbol: {
+                    width: 8,
+                    height: 6,
+                    x: -4,
+                    y: -2
+                }
+            },
+            staticScale: 40,
+            plotBackgroundColor: 'blue',
+        },
+        series: [
+            {
+                name: 'تنیاکو',
+                data: highchartsData, // Dynamically generated data
+                colorByPoint: true, // Optional: If you want each bar to have a different color
+                borderColor: 'gray', // Add borders to individual data points
+            }
+        ],
+    });
+
+
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const monthNames = [
+        "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+        "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+    ];
+
+    // گرفتن تاریخ شمسی امروز
+    let today = new Date();
+    let persianDate = new Intl.DateTimeFormat("fa-IR-u-nu-latn", { year: "numeric", month: "numeric", day: "numeric" }).formatToParts(today);
+    
+    let currentYear = parseInt(persianDate.find(part => part.type === "year").value);
+    let currentMonth = parseInt(persianDate.find(part => part.type === "month").value) - 1;
+    let currentDay = parseInt(persianDate.find(part => part.type === "day").value);
+
+    const monthElement = document.querySelector(".font-medium.text-base.mx-auto");
+    const daysContainer = document.querySelector(".grid.grid-cols-7.gap-4.mt-5.text-center");
+    const prevMonthBtn = document.getElementById("prev-month");
+    const nextMonthBtn = document.getElementById("next-month");
+
+    function renderCalendar(month, year) {
+        monthElement.textContent = monthNames[month];
+
+        // پاک کردن روزهای قبلی
+        daysContainer.innerHTML = `
+            <div class="font-medium">ی</div>
+            <div class="font-medium">د</div>
+            <div class="font-medium">س</div>
+            <div class="font-medium">چ</div>
+            <div class="font-medium">پ</div>
+            <div class="font-medium">ج</div>
+            <div class="font-medium">ش</div>
+        `;
+
+        // گرفتن اولین روز ماه در تقویم شمسی
+        let firstDay = new Date(year, month, 1).getDay();
+        firstDay = (firstDay + 1) % 7; // تبدیل روزهای میلادی به شمسی
+
+        // تعداد روزهای ماه در تقویم شمسی
+        let daysInMonth = getDaysInShamsiMonth(month, year);
+
+        // افزودن فاصله برای اولین روز ماه
+        for (let i = 0; i < firstDay; i++) {
+            daysContainer.innerHTML += `<div></div>`;
+        }
+
+        // نمایش روزهای ماه با اعداد فارسی
+        for (let day = 1; day <= daysInMonth; day++) {
+            let persianDay = day.toLocaleString("fa-IR"); // تبدیل به فارسی
+            let dayClass = "py-0.5 rounded relative";
+            if (day === currentDay && month === currentMonth && year === currentYear) {
+                dayClass += " bg-primary text-white"; // هایلایت روز جاری
+            }
+            daysContainer.innerHTML += `<div class="${dayClass}">${persianDay}</div>`;
+        }
+    }
+
+    function getDaysInShamsiMonth(month, year) {
+        if (month < 6) return 31; // فروردین تا شهریور ۳۱ روز دارند
+        if (month < 11) return 30; // مهر تا بهمن ۳۰ روز دارند
+        // اسفند در سال کبیسه ۳۰ روز و در سال غیرکبیسه ۲۹ روز دارد
+        return isLeapYear(year) ? 30 : 29;
+    }
+
+    function isLeapYear(year) {
+        return ((year + 38) * 682 % 2816) < 682;
+    }
+
+    prevMonthBtn.addEventListener("click", function () {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    nextMonthBtn.addEventListener("click", function () {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    // نمایش تقویم اولیه
+    renderCalendar(currentMonth, currentYear);
+});
+
+
+
+    // $.ajax({
+    //     cache: false,
+    //     type: "POST",
+    //     url: "/UserTeniaco/TeniacoPanel/GetAllProgressDataList",
+    //     data: { 'ConstructionProjectIds': constructionProjectIds },
+    //     success: function (result) {
+    //         console.log('Success:', result);
+    //     },
+    //     error: function (xhr, ajaxOptions, thrownError) {
+    //         console.error('Error:', xhr.status, thrownError);
+    //     }
+    // });
+      
+
+</script>

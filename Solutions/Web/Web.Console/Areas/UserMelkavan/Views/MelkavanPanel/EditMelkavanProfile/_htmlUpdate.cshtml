@@ -1,0 +1,122 @@
+﻿@using VM.Public;
+
+@{
+    string domainName = "";
+    if (ViewData["DomainName"] != null)
+        domainName = ViewData["DomainName"] as string;
+}
+
+
+
+<div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header bg-white shadow-sm osahan-header" style="position: fixed; z-index: 1; width: 100%;">
+
+
+
+    <h6 class="mb-0 ms-3 me-auto fw-bold">ویرایش پروفایل</h6>
+    <a  id="backButton" class="text-dark bg-white shadow rounded-circle icon">
+        <span class="mdi mdi-arrow-left mdi-18px"></span>
+    </a>
+</div>
+<!-- body -->
+<div style=" padding-bottom: 4rem!important;padding-top: 4.5rem!important;" class="fs-14">
+    <div class="p-3">
+        <form data-ajax-begin="OnBegin" data-ajax-complete="OnComplete"
+              data-ajax-failure="OnFailed" data-ajax-success="OnSuccess"
+              data-ajax="true" data-ajax-method="POST">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary()
+            <div class="bg-white rounded-4 p-3 mb-3 shadow-sm" id="title">
+
+
+                <span class="fw-bolder text-center mb-3 d-block" id="mobileNumber"></span>
+
+                <br />
+                <!--<input class="form-control py-6 px-3" type="text" name="mobile" id="mobile" placeholder="****-****-*091" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}">-->
+                <label for="name" class="fw-bolder mb-3 text-muted">نام</label>
+                <input class="form-control py-6 px-3" type="text" name="name" id="name" placeholder=" نام ">
+                <label for="family" class="fw-bolder mt-3 mb-3 text-muted"> نام خانوادگی</label>
+                <input class="form-control py-6 px-3" type="text" name="family" id="family" placeholder=" نام خانوادگی">
+                
+                <label for="PersonTypeId" class="mosh01 fw-bolder mt-3 mb-3  text-muted">سِمت</label>
+                <select class="form-control py-6 px-3" name="PersonTypeId" id="slcPersonTypeId"></select>
+
+                <label for="email" class="fw-bolder  mt-3 mb-3 text-muted">ایمیل</label>
+                <input class="form-control py-6 px-3 " type="email" name="email" id="email" placeholder="ایمیل">
+                <label for="StateId" class="fw-bolder mt-3 mb-3 text-muted">استان</label>
+                <select class="form-control py-6 px-3" name="StateId" id="slcStateId"></select>
+
+                <label for="CityId" class="fw-bolder mt-3 mb-3 text-muted">شهر</label>
+                <select class="form-control py-6 px-3" name="CityId" id="slcCityId"></select>
+
+                <button class="btn btn-primary w-100 py-3 mt-3 mb-3 shadow-lg" id="edit-profile-button">ویرایش</button>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a  id="melkavan-icon"  class="col footer-bottom-nav ">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav active">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>
+
+
+<div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title float-end" id="exampleModalLabel"> اخطار</h5>
+            </div>
+            <div class="modal-body">
+
+                    <div id="warningModal_text" class="mb-3">
+                    لطفا تمامی فیلد های الزامی را پر کنید
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>

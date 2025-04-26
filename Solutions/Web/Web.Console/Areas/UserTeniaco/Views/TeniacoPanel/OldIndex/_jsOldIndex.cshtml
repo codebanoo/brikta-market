@@ -1,0 +1,330 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+
+        var rasterRight = new ol.layer.Tile({
+            source: new ol.source.OSM,
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+        });
+
+        var rasterLeft = new ol.layer.Tile({
+            source: new ol.source.OSM,
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+        });
+
+        var view = new ol.View({
+            center: ol.proj.transform([51.24494, 36.66517], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 12,
+            maxZoom: 17,
+            minZoom: 1,
+            constrainOnlyCenter: true,
+        });
+
+        var vectorSourceRight = new ol.source.Vector({
+            wrapX: false
+        });
+
+        var vectorSourceLeft = new ol.source.Vector({
+            wrapX: false
+        });
+
+
+
+        // The map
+        var map = new ol.Map({
+            target: 'map',
+            layers: [rasterLeft],
+            view: view
+        });
+
+        var map2 = new ol.Map({
+            target: 'map2',
+            layers: [rasterRight],
+            view: view
+        });
+
+        var layerRight = new ol.layer.Vector({
+            source: vectorSourceRight,
+            style: [
+                new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: 'green',
+                        width: 3
+                    }),
+                    fill: new ol.style.Fill({
+                        color: 'rgb(15 72 8 / 10%)'
+                    })
+                }),
+                new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 5,
+                        fill: new ol.style.Fill({
+                            color: 'green'
+                        })
+                    }),
+                })
+            ]
+        });
+
+        var layerLeft = new ol.layer.Vector({
+            source: vectorSourceLeft,
+            style: [
+                new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: 'IndianRed',
+                        width: 3
+                    }),
+                    fill: new ol.style.Fill({
+                        color: 'rgb(147 10 79 / 10%)'
+                    })
+                }),
+                new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 5,
+                        fill: new ol.style.Fill({
+                            color: 'IndianRed'
+                        })
+                    }),
+                })
+            ]
+        });
+
+
+
+
+
+        // Synchronize the maps
+        map.addInteraction(new ol.interaction.Synchronize({ maps: [map2] }));
+        map2.addInteraction(new ol.interaction.Synchronize({ maps: [map] }));
+
+
+
+        var swipe = new ol.control.SwipeMap({ right: true });
+
+        // Change mode
+        var currentMode;
+        function setMode(mode) {
+            if (mode) {
+                currentMode = mode;
+                // Remove tools
+                map2.removeControl(swipe);
+                //map2.removeInteraction(clip);
+                // Set interactions
+                switch (mode) {
+                    case 'swipev':
+                    case 'swipeh': {
+                        map2.addControl(swipe);
+                        swipe.set('orientation', (mode === 'swipev' ? 'vertical' : 'horizontal'));
+                        break;
+                    }
+
+                }
+                // Update position
+                document.getElementById("compare").className = mode;
+            }
+            map.updateSize();
+            map2.updateSize();
+        }
+
+        setMode('swipev');
+
+        // Check click and dispatch to map
+        map2.on('click', function (e) {
+            if (/swipe/.test(currentMode)) {
+                if (!ol.extent.containsCoordinate(swipe.getRectangle(), e.pixel)) {
+                    // Simulate map1 selection
+                    e.map = map;
+                    e.stopPropagation();
+                    select2.getFeatures().clear();
+                    select1.handleEvent(e);
+                } else {
+                    select1.getFeatures().clear();
+                }
+            }
+        });
+
+
+        map.updateSize();
+        map2.updateSize();
+
+
+
+        $('body').on('click', '#showMapLayerCategories', function (e) {
+            e.preventDefault();
+            $('#MapLayerCategoriesDrp').toggleClass("show");
+
+        });
+
+        $('body').on('click', '#showPropertyValues', function (e) {
+            e.preventDefault();
+            $('#PropertiesDrp').toggleClass("show");
+        });
+
+
+        for (var i = 1; i < mapLayerCategoriesList.length; i++) {
+            var item = mapLayerCategoriesList[i];
+
+            $('#MapLayerCategoriesDrp')
+                .append($("<a class='options'></a>")
+                    .attr("value", item.Value)
+                    .text(item.DisplayText));
+        }
+        var item = mapLayerCategoriesList[0];
+
+        $('#PropertiesDrp')
+            .append($("<a class='satellite'></a>")
+                .attr("value", item.Value)
+                .text(item.DisplayText));
+
+
+        $('.options').click(function () {
+            var _this = $(this);
+            var name = _this.context.innerHTML;
+
+            $('#mapLayerCategories').replaceWith("<h2 id='mapLayerCategories' style='margin:0;font-size: 13px;'>" + name + "</h2>");
+
+            var mapLayerCategoryId = parseInt(_this[0].attributes.value.value);
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/TeniacoPanel/GetAllMapLayersList",
+                data: {
+                    'MapLayerCategoryId': mapLayerCategoryId
+                },
+
+                success: function (result) {
+                    if (result.Result == "OK") {
+
+
+                        var mapLayersVM = result.Records;
+
+                        var coordinates;
+                        var strPolygon = '';
+
+                        var coords = [];
+
+                        for (i = 0; i < mapLayersVM.length; i++) {
+                            coords.push(JSON.parse(mapLayersVM[i].StrPolygon));
+                        }
+
+                        var polygonList = [];
+                        for (var i = 0; i < coords.length; i += 1) {
+                            var pointList = [];
+                            for (var j = 0; j < coords[i].length; j += 1) {
+                                var point = ol.proj.transform([Number(coords[i][j][0]), Number(coords[i][j][1])], 'EPSG:4326', 'EPSG:3857');
+                                pointList.push(point);
+                            }
+                            var polygon = new ol.geom.Polygon([pointList]);
+
+                            polygonList.push(polygon);
+                        }
+
+
+                        var multuPolygonGeometry = new ol.geom.MultiPolygon(polygonList);
+                        var multiPolygonFeature = new ol.Feature(multuPolygonGeometry);
+
+                        debugger;
+
+                        vectorSourceRight.clear();
+                        vectorSourceRight.addFeature(multiPolygonFeature);
+
+                        map2.removeLayer(layerRight);
+                        map2.addLayer(layerRight);
+                        debugger;
+                    }
+                    else
+                        if (result.Result == "ERROR") {
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('خطا');
+                            $('#my-warning-modal').modal("show");
+                        }
+                },
+            });
+
+
+        });
+
+
+
+
+
+        $('.satellite').click(function () {
+
+
+            var _this = $(this);
+            debugger;
+            var mapLayerCategoryId = parseInt(_this[0].attributes.value.value);
+
+
+            $.ajax({
+                cache: false,
+                type: "Post",
+                url: "/UserTeniaco/TeniacoPanel/GetAllMapLayersList",
+                data: {
+                    'MapLayerCategoryId': mapLayerCategoryId
+                },
+
+                success: function (result) {
+                    if (result.Result == "OK") {
+                        debugger;
+                        var mapLayersVM = result.Records;
+
+                        var coordinates;
+                        var strPolygon = '';
+
+                        var coords = [];
+
+                        for (i = 0; i < mapLayersVM.length; i++) {
+                            debugger;
+                            coords.push(JSON.parse(mapLayersVM[i].StrPolygon));
+                            debugger;
+                        }
+
+                        var polygonList = [];
+                        for (var i = 0; i < coords.length; i += 1) {
+                            var pointList = [];
+                            for (var j = 0; j < coords[i].length; j += 1) {
+                                debugger;
+
+                                var point = ol.proj.transform([Number(coords[i][j][0]), Number(coords[i][j][1])], 'EPSG:4326', 'EPSG:3857');
+                                pointList.push(point);
+                            }
+                            var polygon = new ol.geom.Polygon([pointList]);
+
+                            polygonList.push(polygon);
+                        }
+
+                        debugger;
+
+                        var multuPolygonGeometry = new ol.geom.MultiPolygon(polygonList);
+                        var multiPolygonFeature = new ol.Feature(multuPolygonGeometry);
+
+
+                        vectorSourceLeft.clear();
+                        vectorSourceLeft.addFeature(multiPolygonFeature);
+
+
+                        map.removeLayer(layerLeft);
+                        map.addLayer(layerLeft);
+                        debugger;
+                    }
+                    else
+                        if (result.Result == "ERROR") {
+                            $('#my-warning-modal').find('.modal-title').html('خطا');
+                            $('#my-warning-modal').find('#error').html('خطا');
+                            $('#my-warning-modal').modal("show");
+                        }
+                },
+            });
+
+        });
+
+
+
+    });
+
+</script>

@@ -1,0 +1,68 @@
+﻿@using Newtonsoft.Json
+@using VM.Teniaco
+<script type="text/javascript">
+    @{
+        List<PropertiesPricesForMapVM> propertiesPricesList = new List<PropertiesPricesForMapVM>();
+
+        @Html.Raw("var propertiesPricesList = [];")
+        ;
+
+
+
+
+        if (ViewData["Records"] != null)
+        {
+            propertiesPricesList = (List<PropertiesPricesForMapVM>)ViewData["Records"];
+
+            @Html.Raw("propertiesPricesList = " +
+                 JsonConvert.DeserializeObject(JsonConvert.SerializeObject(propertiesPricesList)) + "; debugger;")
+            ;
+
+        }
+    }
+</script>
+
+<link href="~/lib/openlayers-v6.9.0/css/ol.css" rel="stylesheet" />
+<script src="~/lib/openlayers-v6.9.0/build/ol.js"></script>
+
+<style type="text/css">
+
+    #mapContainer {
+        position: relative;
+        height: 700px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+        #mapContainer .ol-viewport {
+            height: 700px !important;
+        }
+
+
+
+
+.adtype{
+    width:28%;
+      position: absolute;
+  top: 80px; /* Distance from the bottom corner */
+  right: 10px;  /* Distance from the right corner */
+  cursor: pointer;
+  z-index : 1;
+}
+
+
+.map-label {
+    position: absolute;
+    bottom: 110px; /* Adjust to place it appropriately */
+    right: 10px; /* Adjust for alignment */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-family: IRANYekanX, Arial, sans-serif;
+    font-size: 15px;
+    z-index: 1000; /* Ensure it appears on top */
+    
+
+
+</style>

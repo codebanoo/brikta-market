@@ -1,0 +1,59 @@
+﻿@using VM.Melkavan
+@using VM.Public;
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "جزئیات آگهی";
+}
+@{
+    string domainName = "";
+    if (ViewData["DomainName"] != null)
+        domainName = ViewData["DomainName"] as string;
+}
+
+<script>
+    var domainName = "@domainName";
+    var isAuthenticated = "@User.Identity.IsAuthenticated" == 'True';
+</script>
+
+<script type="text/javascript">
+    @{
+        AdvertisementVM advertisementVM = new AdvertisementVM();
+
+        @Html.Raw("var advertisement = {};")
+        ;
+
+        if (ViewData["AdvertisementVM"] != null)
+        {
+
+            advertisementVM = (AdvertisementVM)ViewData["AdvertisementVM"];
+
+
+            @Html.Raw("advertisement = " +
+                 JsonConvert.DeserializeObject(JsonConvert.SerializeObject(advertisementVM)) + ";debugger; ")
+            ;
+        }
+    }
+</script>
+<link rel="stylesheet" href="~/lib/openlayers-v6.9.0/dist/ol/ol.css" />
+<link href="~/dactorapp/vender/slick/slick/slick.css" />
+<link href="~/dactorapp/vender/slick/slick/slick-theme.css" />
+<script src="~/dactorapp/vender/slick/slick/slick.js"></script>
+<script src="~/lib/openlayers-v6.9.0/dist/ol/ol.js"></script>
+
+
+<style>
+    .description {
+        font-size: 13px;
+    }
+
+    .title {
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .ol-viewport {
+        border-radius: 10px !important;
+    }
+
+</style>

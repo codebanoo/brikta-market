@@ -1,0 +1,1184 @@
+﻿@using VM.Public;
+@using VM.Teniaco;
+@using VM.Projects;
+@using Newtonsoft.Json;
+
+
+
+
+<script type="text/javascript">
+    @{
+        List<ProjectProgressDataVM> progressDataList = new List<ProjectProgressDataVM>();
+
+        @Html.Raw("var progressDataList = [];");
+
+
+        if (ViewData["ProgressDataList"] != null)
+        {
+            progressDataList = (List<ProjectProgressDataVM>)ViewData["ProgressDataList"];
+
+            @Html.Raw("progressDataList = " +
+                 JsonConvert.DeserializeObject(JsonConvert.SerializeObject(progressDataList)) + ";");
+
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<PropertiesPricesForMapVM> propertiesPricesList = new List<PropertiesPricesForMapVM>();
+
+        @Html.Raw("var propertiesPricesList = [];")
+        ;
+
+
+
+
+        if (ViewData["Records"] != null)
+        {
+            propertiesPricesList = (List<PropertiesPricesForMapVM>)ViewData["Records"];
+
+            @Html.Raw("propertiesPricesList = " +
+                 JsonConvert.DeserializeObject(JsonConvert.SerializeObject(propertiesPricesList)) + "; debugger;")
+            ;
+
+        }
+    }
+</script>
+
+
+@* <script type="text/javascript">
+    @{
+        List<MapLayerCategoriesVM> mapLayerCategoriesList = new List<MapLayerCategoriesVM>();
+        @Html.Raw("var mapLayerCategoriesList  = [];")
+        ;
+
+        if (ViewData["MapLayerCategoriesList"] != null)
+        {
+            mapLayerCategoriesList = (List<MapLayerCategoriesVM>)ViewData["MapLayerCategoriesList"];
+
+            var mapLayerCategoriesListData = mapLayerCategoriesList.Select(a =>
+
+            new
+            {
+                DisplayText = $"{a.MapLayerCategoryTitle}",
+                Value = a.MapLayerCategoryId,
+                Data_Parent = a.ParentMapLayerCategoryId
+            });
+
+            @Html.Raw(" mapLayerCategoriesList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(mapLayerCategoriesListData))+" ;")
+            ;
+        }
+    }
+
+</script> *@
+
+<script type="text/javascript">
+    @{
+        List<StatesVM> statesList = new List<StatesVM>();
+        @Html.Raw("var statesList=[];")
+        ;
+
+        if (ViewData["StatesList"] != null)
+        {
+            statesList = (List<StatesVM>)ViewData["StatesList"];
+
+            var statesListData = statesList.Select(s =>
+         new
+         {
+             DisplayText = $"{s.StateName}",
+             Value = s.StateId
+         });
+
+            @Html.Raw(" statesList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(statesListData)) +" ;")
+            ;
+        }
+
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<CitiesVM> citiesList = new List<CitiesVM>();
+        @Html.Raw("var citiesList=[];")
+        ;
+
+        if (ViewData["CitiesList"] != null)
+        {
+            citiesList = (List<CitiesVM>)ViewData["CitiesList"];
+
+            var citiesListData = citiesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.CityName}",
+                Value = c.CityId,
+                Data_StateId = c.StateId
+            });
+
+            @Html.Raw(" citiesList = " +
+               JsonConvert.DeserializeObject(JsonConvert.SerializeObject(citiesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<ZonesVM> zonesList = new List<ZonesVM>();
+
+        @Html.Raw("var zonesList = [];")
+        ;
+
+        if (ViewData["ZonesList"] != null)
+        {
+            zonesList = (List<ZonesVM>)ViewData["ZonesList"];
+
+            var zonesListData = zonesList.Select(c =>
+            new
+            {
+                DisplayText = $"{c.ZoneName}",
+                Value = c.ZoneId,
+                Data_CityId = c.CityId
+            });
+
+            @Html.Raw(" zonesList = " +
+                JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zonesListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        List<DistrictsVM> districtsList = new List<DistrictsVM>();
+
+        @Html.Raw("var districtsList = [];")
+        ;
+
+        if (ViewData["DistrictsList"] != null)
+        {
+            districtsList = (List<DistrictsVM>)ViewData["DistrictsList"];
+
+            var districtsListData = districtsList.Select(z =>
+           new
+           {
+               DisplayText = $"{z.DistrictName}",
+               Value = z.DistrictId,
+               Data_ZoneId = z.ZoneId
+           });
+
+
+            @Html.Raw(" districtsList = " +
+    JsonConvert.DeserializeObject(JsonConvert.SerializeObject(districtsListData)) + "; ")
+            ;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    @{
+        OutterDashboardPricesBlockVM outterDashboardPricesBlockVM = new OutterDashboardPricesBlockVM();
+
+        @Html.Raw("var outterDashboardPricesBlockVM;")
+        ;
+
+        if (ViewData["OutterDashboardPricesBlock"] != null)
+        {
+            outterDashboardPricesBlockVM = (OutterDashboardPricesBlockVM)ViewData["OutterDashboardPricesBlock"];
+
+            @Html.Raw(" outterDashboardPricesBlockVM =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(outterDashboardPricesBlockVM))+" ;")
+            ;
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        List<ConstructionProjectsVM> constructionProjectsVMList = new List<ConstructionProjectsVM>();
+        @Html.Raw("var constructionProjectsList  = [];")
+        ;
+
+        if (ViewData["ProjectsList"] != null)
+        {
+            constructionProjectsVMList = (List<ConstructionProjectsVM>)ViewData["ProjectsList"];
+
+            @Html.Raw(" constructionProjectsList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(constructionProjectsVMList))+" ;");
+        }
+    }
+
+</script>
+
+
+<script type="text/javascript">
+    @{
+        List<long> constructionProjectIds = new List<long>();
+        @Html.Raw("var constructionProjectIds  = [];")
+        ;
+
+        if (ViewData["ConstructionProjectIds"] != null)
+        {
+            constructionProjectIds = (List<long>)ViewData["ConstructionProjectIds"];
+
+            @Html.Raw(" constructionProjectIds =" + JsonConvert.DeserializeObject(JsonConvert.SerializeObject(constructionProjectIds)) + " ;")
+            ;
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        List<MyFundsVM> myFundsDispersionList = new List<MyFundsVM>();
+        @Html.Raw("var myFundsDispersionList  = [];")
+        ;
+
+        if (ViewData["MyFundsDispersionList"] != null)
+        {
+            myFundsDispersionList = (List<MyFundsVM>)ViewData["MyFundsDispersionList"];
+
+            @Html.Raw(" myFundsDispersionList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(myFundsDispersionList))+" ;");
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        double sumOfDispersion = 0;
+        @Html.Raw("var sumOfDispersion  = 0;")
+        ;
+
+        if (ViewData["SumOfDispersion"] != null)
+        {
+            sumOfDispersion = (double)ViewData["SumOfDispersion"];
+
+            @Html.Raw(" sumOfDispersion =" + sumOfDispersion.ToString() + " ;");
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        List<MyFundsVM> myFundsGrowthList = new List<MyFundsVM>();
+        @Html.Raw("var myFundsGrowthList  = [];")
+        ;
+
+        if (ViewData["MyFundsGrowthList"] != null)
+        {
+            myFundsGrowthList = (List<MyFundsVM>)ViewData["MyFundsGrowthList"];
+
+            @Html.Raw(" myFundsGrowthList =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(myFundsGrowthList))+" ;");
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        double sumOfGrowth = 0;
+        @Html.Raw("var sumOfGrowth  = 0;")
+        ;
+
+        if (ViewData["SumOfGrowth"] != null)
+        {
+            sumOfGrowth = (double)ViewData["sumOfGrowth"];
+
+            @Html.Raw(" sumOfGrowth =" + sumOfGrowth.ToString() + " ;");
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+    @{
+        DetailsForOuterDashboardVM detailsForOuterDashboardVM = new DetailsForOuterDashboardVM();
+
+        @Html.Raw("var detailsForOuterDashboardVM;")
+        ;
+
+        if (ViewData["DetailsForOuterDashboard"] != null)
+        {
+            detailsForOuterDashboardVM = (DetailsForOuterDashboardVM)ViewData["DetailsForOuterDashboard"];
+
+            @Html.Raw(" detailsForOuterDashboardVM =" +JsonConvert.DeserializeObject(JsonConvert.SerializeObject(detailsForOuterDashboardVM))+" ;")
+            ;
+        }
+    }
+</script>
+
+
+<link href="~/lib/ol-ext/dist/ol.css" rel="stylesheet" />
+<script type="text/javascript" src="~/lib/ol-ext/dist/ol.js"></script>
+<script src="~/lib/ol-ext/dist/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
+
+
+<link rel="stylesheet" href="~/lib/ol-ext/dist/ol-ext.css" />
+<script type="text/javascript" src="~/lib/ol-ext/dist/ol-ext.js"></script>
+
+
+
+
+
+
+
+<style type="text/css">
+
+.adCardTitle{
+    width:50%;
+}
+
+#nearAdvertisementsCountValue{
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 50%;
+    border-color: #46628c;
+}
+
+.projectNameDiv{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    font-weight: 600;
+    font-size: x-large;
+}
+
+    .tippy-box {
+        background-color: rgb(50 81 127) !important;
+    }
+
+    .tippy-arrow {
+        color: rgb(50 81 127) !important;
+    }
+
+    [id^="tippy-"] {
+        z-index: 10000 !important;
+    }
+
+
+        #tippy-2 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-3 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-4 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-5 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-6 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-7 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-8 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-9 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-10 {
+        z-index: 10000 !important;
+    }
+
+    #tippy-11 {
+        z-index: 10000 !important;
+    }
+
+.tns-controls{
+    visibility:hidden;
+}
+
+.map-container {
+    position: relative;
+}
+
+.map-label {
+    position: absolute;
+    bottom: 10px; /* Adjust to place it appropriately */
+    left: 10px; /* Adjust for alignment */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: IRANYekanX, Arial, sans-serif;
+    font-size: 14px;
+    z-index: 1000; /* Ensure it appears on top */
+    pointer-events: none; /* Avoid blocking map interactions */
+}
+
+
+.map-label2 {
+    position: absolute;
+    bottom: 10px;
+    right : 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: IRANYekanX, Arial, sans-serif;
+    font-size: 14px;
+    z-index: 1000; /* Ensure it appears on top */
+    pointer-events: none; /* Avoid blocking map interactions */
+}
+
+
+
+    .map-container {
+        display: flex;
+        /*margin: 2rem 2rem;*/
+		// opacity: 0.3;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .tools {
+        text-align: center;
+        display: inline-block;
+        width: 2.5em;
+        height: 500px;
+        background: #eee;
+    }
+
+
+        .tools i {
+            font-size: 2em;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+    #compare {
+        position: relative;
+    
+        height: 500px;
+        width: 100%;
+    }
+
+    .fullscreen .tools {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        padding: 6em 0;
+        touch-action: none;
+    }
+
+    .fullscreen #compare {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        height: auto;
+    }
+
+    #map,
+    #map2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #compare.view1 #map2 {
+        display: none;
+    }
+
+    #compare.view2 #map {
+        display: none;
+    }
+
+    #compare.swipev #map .ol-control,
+    #compare.swipeh #map .ol-control,
+    #compare.clip #map .ol-control {
+        display: none;
+    }
+
+    #compare.swipev .ol-target-overlay,
+    #compare.swipeh .ol-target-overlay {
+        display: none;
+    }
+
+    .compare #map {
+        width: 50%;
+    }
+
+    .compare #map2 {
+        left: 50%;
+        width: 50%;
+    }
+
+    .ol-popup {
+        max-width: 300px;
+        min-width: 100px;
+        min-height: 1em;
+        z-index: 1;
+    }
+
+        .ol-popup img {
+            float: left;
+            margin: 0 0.5em 0 0;
+            max-width: 100px;
+            max-height: 100px;
+        }
+
+    .tom-select {
+        width: 20rem !important;
+    }
+
+
+    .chosen-choices {
+        width: 17rem !important height: 2rem;
+        background-color: #fff !important;
+        border: 1px solid #aaa !important;
+        border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133)) !important;
+        border-color: darkgray !important;
+        border-radius: 4px !important;
+        min-height: 40px !important;
+        padding: 7.5px 32px 7.5px 12px !important;
+        background-image: url(data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(74 85 104)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E);
+        background-size: 18px !important;
+        background-position: center right 0.6rem !important;
+        border-radius: 0.25rem !important;
+        --tw-border-opacity: 1 !important;
+        border-color: rgb(var(--color-slate-200) / var(--tw-border-opacity)) !important;
+        background-repeat: no-repeat !important;
+        font-size: 0.875rem !important;
+        line-height: 1.25rem !important;
+        --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+        --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color) !important;
+        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+    }
+
+
+
+    .chosen-single {
+        width: 17rem !important height: 2rem;
+        background-color: #fff !important;
+        border: 1px solid #aaa !important;
+        border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133)) !important;
+        border-color: darkgray !important;
+        border-radius: 4px !important;
+        min-height: 40px !important;
+        padding: 7.5px 32px 7.5px 12px !important;
+        background-image: url(data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(74 85 104)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E);
+        background-size: 18px !important;
+        background-position: center right 0.6rem !important;
+        !important;
+        background-position: center right 0.6rem !important;
+        border-radius: 0.25rem !important;
+        --tw-border-opacity: 1 !important;
+        border-color: rgb(var(--color-slate-200) / var(--tw-border-opacity)) !important;
+        background-repeat: no-repeat !important;
+        font-size: 0.875rem !important;
+        line-height: 1.25rem !important;
+        --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+        --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color) !important;
+        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+    }
+
+    #slcStateId_chosen,
+    #slcCityId_chosen,
+    #slcZoneId_chosen,
+    #slcDistrictId_chosen {
+        margin-left: 2rem;
+        width: 280px !important;
+    }
+
+    .report-donut-chart1,
+    .report-donut-chartback {
+        /*height: 240px;*/
+        height: 200px;
+    }
+
+    .report-donut-chart1Items,
+    .report-donut-chartbackItems {
+        height: 115px;
+        padding: 0 10px;
+    }
+
+    .report-donut-chart2 {
+    overflow: hidden;
+    max-width: 335px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+    align-items:center;
+    height:200px;
+    }
+
+    .report-donut-chart2Items {
+        height: 115px;
+    }
+
+    .tab-content .grid {
+        width: inherit !important;
+    }
+
+    .highcharts-root path.highcharts-axis-line {
+        stroke: inherit;
+        display: none;
+    }
+
+    g.highcharts-axis.highcharts-xaxis.highcharts-grid-axis path.highcharts-tick {
+        stroke: inherit;
+        display: none;
+    }
+
+    g.highcharts-axis.highcharts-yaxis.highcharts-grid-axis path.highcharts-tick {
+        stroke: inherit;
+        display: none;
+    }
+
+    .ganttChart {
+        padding: 20px;
+    }
+
+    .rightBlock .report-box-2,
+    .middleBlock .report-box-2,
+    .leftBlock .report-box-2 {
+        height: 375px;
+    }
+
+        .rightBlock .report-box-2 .box,
+        .middleBlock .report-box-2 .box,
+        .leftBlock .report-box-2 .box {
+            height: 375px;
+        }
+
+    #TotalInvestment,
+    #LastDaysOfLastUpdate,
+    #SumOfFirstPropertiesPrices,
+    #OldestFaDateOfPropertyInvestment,
+    #SumOfLastPropertiesPrices,
+    #NewestFaDateOfPropertyInvestment,
+    #PropertiesGrowth,
+    #PropertiesProfit,
+    #SumOfFirstConstructionProjectsPrices,
+    #OldestFaDateOfConstructionProjectInvestment,
+    #SumOfLastConstructionProjectsPrices,
+    #NewestFaDateOfConstructionProjectInvestment,
+    #ConstructionProjectsGrowth,
+    #ConstructionProjectsProfit,
+    #SumOfPayments {
+        direction: ltr;
+    }
+
+    .constructionProjectsList,
+    .myFundsDispersionList {
+        padding-right: 0 10px;
+    }
+
+    /*.mapParent,*/
+    // .countriesDiv,
+    // .bottomRightBlock,
+    // .bottomLeftBlock,
+    // .selectingYears,
+    // .btn-outline-secondary {
+    //     opacity: 0.3 !important;
+    // }
+
+    .countriesDiv,
+    .mapParent .intro-y:nth-child(1) {
+        display: none;
+    }
+
+    g text[text-anchor="middle"] {
+        direction: rtl;
+    }
+
+    .zoom-in{
+        cursor: inherit;
+    }
+
+    .alert {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .sumPercent{
+        vertical-align: bottom;
+        line-height: 38px;
+        font-size: 20px;
+        padding-right: 20px;
+    }
+
+    @@media (max-width: calc(767px)) {
+        #weekly-report{
+            display: none;
+        }
+
+        #responsive-weekly-report{
+            display: grid;
+        }
+
+        .text-sm{
+            font-size: 0.80rem;
+        }
+    }
+
+    @@media (min-width: calc(768px)) {
+       
+        #weekly-report{
+            display: grid;
+        }
+
+        #responsive-weekly-report{
+            display: none;
+        }
+    }
+    .invall{
+        border-radius:8px;
+        align-content:center;
+    }
+    .growmargin{
+        border-radius:8px;
+    }
+    #weekly-report{
+        margin-top:50px;
+    }
+    #weekly-report > div{
+            padding: 1.25rem 1.5rem;
+            
+            border-bottom: 1px solid #e3e3e7;
+    }
+    .sumofprofit{
+        margin-top:25px;
+        background: #f1f1f1;
+        border-radius: 8px;
+        width:max-content;
+        padding: 0.75rem !important;
+        border-bottom: unset!important;
+  
+    
+    }
+    #SumOfPayments{
+        font-weight: 500;
+        margin-right: 6px;
+    }
+
+    .border-btn{
+        bottom:15px;
+        position:absolute;
+        right:20px;
+      
+    }
+
+    .invall{
+        align-items: center;
+    }
+    .invtotal{
+        text-align: center;
+        justify-content: center;
+        font-size: 1.2em;
+    }
+    .btn-kia{
+        background: #f1f1f1;
+        /* position: absolute; */
+      
+        font-weight: 300;
+       
+        display: flex;
+        border: unset;
+        width: max-content;
+        border-radius: 8px;
+
+    }
+    .btn-kia span{
+            margin-right: 10px;
+            border-radius: 8px;
+    }
+    .totalprofitmargin{
+        margin-top:65px;
+    }
+
+    div#responsive-weekly-report > div{
+        padding: 0.5rem 0.5rem;
+        border-bottom: 1px solid #e3e3e7;
+    }
+
+  
+    div#responsive-weekly-report > div:first-of-type{
+        border: unset !important;
+    }
+
+    @@media (max-width: calc(768px)) {
+
+        .adCardButtonContainer{
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .ads_container{
+            min-height: 640px!important;
+            text-align:center;
+        }
+        .ads2-img1 {
+            display: block;
+            position: absolute;
+            left: 0px;
+            right: unset;
+            /* top: -4px; */
+            width: 340px;
+            /* opacity: 0.2; */
+            height: unset;
+            bottom: 0px;
+            /* height: 100%; */
+            /* top: 200px; */
+            top: unset;
+        }
+        .offert {
+            white-space: nowrap;
+            /* text-wrap: wrap; */
+            -webkit-line-clamp: 1;
+            /* max-width: 200px; */
+            display: block;
+            margin:0 auto;
+        }
+
+        .offert1 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            /* max-width: 200px; */
+            -webkit-line-clamp: 6;
+            overflow: hidden;
+            margin:0 auto;
+            text-align:center;
+        }
+        .reverse{
+            transform: skewY(187deg);
+        }
+        .historyup{
+            bottom: -60px!important;
+        }
+        .grid.grid-cols-12.myFundsGrowthList > div {
+            text-align: center !important;
+        }
+        .projectmfix {
+            margin-top:40px;
+        }
+
+        #Responsive-SumOfPayments{
+            font-weight:bold;
+        }
+        .totalsumpayed{
+            background: #f1f1f1;
+            margin-top: 20px;
+        }
+        .map-label2,.map-label{
+            display:none;
+        }
+
+        #mapM{
+            display:flex!important;
+            justify-content:center;
+            align-content:center;
+            text-align:center;
+            align-items:center;
+        }
+
+        #compare{
+            height: 380px;
+        }
+        .totalprofitmargin {
+            margin: unset !important;
+            padding-top: 40px;
+        }
+
+       
+
+        #responsive-weekly-report {
+            margin-top: 0px;
+          
+        }
+
+        .historyup {
+            padding-bottom: 80px;
+        }
+    }
+
+    .no-border {
+        border: unset !important;
+    }
+
+    .col-span-12.mapParent{
+        filter: hue-rotate(4deg);
+        mix-blend-mode: darken;
+    }
+
+    #mapM{
+        display:none;
+        position: absolute;
+        bottom: 0px;
+        z-index: 9999;
+        background: #44618b;
+        color: #fff;
+        padding: 5px;
+        border-radius: 8px;
+        width: 100%;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+    }
+
+    .report-donut-chart1Items, .report-donut-chartbackItems, .report-donut-chart2Items {
+        overflow: auto;
+        margin-left: 10px;
+        /* padding: 0 10px; */
+        padding-right: 20px;
+        padding-left: 5px;
+    }
+    .intro-y.box.p-5.mt-5 >div {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    text.highcharts-credits{
+        display:none!important;
+    }
+    .tab-content.px-1{
+        background: #fff;
+    }
+
+    .chartsTimeLinePanelButton, chartsTimeLinePanelButton, chartsTimeLinePanelButton {
+        width: 90%;
+        display: flex;
+        margin: 0 auto;
+        justify-content: center;
+        align-items: center;
+    
+        cursor:unset!important;
+    }
+    .noDataShare{
+        /* background: #afafaf; */
+        border-radius: 8px;
+        color: #32517f;
+        text-align: center;
+        /* min-height: 80px; */
+        display: flex;
+        margin: 10px;
+        justify-content: center;
+        align-content: center;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .noDataShareContainer{
+        min-height: 295px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+       .report-donut-chart2Items{
+        overflow: auto;
+    }
+    .historyup{
+        font-weight: 300;
+        font-size: 1em;
+        color: #9d9d9d;
+        position: absolute;
+  
+        bottom: 8px;
+        left: 20px;
+    }
+
+
+    #SumOfPayments, #SumOfLastPropertiesPrices, #SumOfLastConstructionProjectsPrices {
+        display:flex;
+    }
+
+    .material-symbols-outlined{
+        font-size:28px!important;
+    }
+
+    .small-decimal {
+     
+        
+    }
+    .v2{
+        font-size: 20px !important;
+        font-weight: 300 !important;
+    }
+    .totalpay{
+        padding-right:5px!important;
+        padding-left:5px!important;
+    }
+    #TotalInvestment,#SumOfPayments,#SumOfLastPropertiesPrices,#SumOfLastConstructionProjectsPrices{
+        display:flex;
+        flex-direction: column;
+    }
+    .nameofPorject{
+        bottom:10px;
+        font-weight:400;
+     
+    }
+
+    .l1{
+        left:20px;
+    }
+    .reverse{
+        filter:hue-rotate(128deg) contrast(2);
+        transform: skewY(-163deg);
+    }
+    .success{
+        filter:hue-rotate(311deg) contrast(2) brightness(2.5);
+    }
+    .persDev{
+        font-size:18px;
+    }
+    .Ads1-img{
+        top: 2px;
+        left: -30px;
+        width: 330px;
+    }
+    .ads2-img{
+        position: absolute;
+        right: unset;
+        left: 0;
+        display: block;
+        /* top: 79px; */
+        bottom: 0px;
+        top: unset;
+        width: 333px;
+    }
+    .ads_container{
+        min-height:270px;
+    }
+    .ads2-img1{
+        display: block;
+        position: absolute;
+        left: 0px;
+        right: unset;
+        top: -4px;
+        height: 100%;
+    }
+    
+
+    #important-notes-mw{
+        direction:ltr;
+    }
+    #important-notes > .tns-item{
+        text-align:right;
+    }
+    .text-contract{
+        text-align:justify;
+        direction:rtl;
+        margin-top:20px;
+
+    }
+    .btn-contact{
+        direction: ltr;
+        margin-top: 20px;
+
+    }
+
+
+    rect.highcharts-background, span.highcharts-title {
+        fill:#fff;
+        background-color:#fff!important;
+        font-weight: 400!important;
+    }
+    .containerpriv{
+        height:100%;
+    }
+
+    @@media (max-width: calc(768px)) {
+
+        .adCardTitle{
+            width:100%;
+        }
+
+        .ads_container {
+            min-height: 540px !important;
+            padding:30px 20px;
+        }
+
+        .ads2-img1 {
+            display: block;
+            position: absolute;
+            left: 0px;
+            right: 20px;
+            margin:0 auto;
+            /* top: -4px; */
+            width: 340px;
+            /* opacity: 0.2; */
+            height: unset;
+            bottom: 0px;
+            /* height: 100%; */
+            /* top: 200px; */
+            top: unset;
+            max-height:335px;
+            width:100%;
+        }
+        .Ads1-img{
+            display: block;
+            position: absolute;
+            left: 0px;
+            right: unset;
+            /* top: -4px; */
+            width: 340px;
+            /* opacity: 0.2; */
+            height: unset;
+            bottom: 0px;
+            /* height: 100%; */
+            /* top: 200px; */
+            top: unset;
+        }
+        .offert {
+           white-space: nowrap;
+        text-wrap: wrap;
+        /* -webkit-line-clamp: 1; */
+        /* max-width: 200px; */
+        display: block;
+        text-align: center;
+        }
+
+        .offert1 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            /* max-width: 200px; */
+            -webkit-line-clamp: 6;
+            overflow: hidden;
+        }
+
+        .reverse {
+            transform: skewY(187deg);
+        }
+
+        .historyup {
+            bottom: -60px !important;
+        }
+        }
+
+            @@media only screen and (min-width: 1100px) and (max-width: 1535px) {
+                .redLine{
+                    transform: rotate(-8deg);
+                }
+            }
+
+            @@media only screen and (min-width: 1536px) and (max-width: 1880px){
+                .adCard{
+                    grid-column: span 12 / span 12;
+                }
+            }
+  
+</style>
+
+

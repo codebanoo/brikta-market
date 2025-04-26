@@ -1,0 +1,146 @@
+﻿@using VM.Public;
+
+@{
+    string domainName = "";
+    if (ViewData["DomainName"] != null)
+        domainName = ViewData["DomainName"] as string;
+}
+
+
+<div class="d-flex align-items-center justify-content-between mb-auto p-3 osahan-header bg-white shadow-sm osahan-header" style="position: fixed; z-index: 3; width: 100%;">
+
+    @*<div class="d-flex align-items-center gap-2">
+    <a class="toggle bg-white shadow rounded-circle icon d-flex align-items-center justify-content-center"
+    href="#"><i class="bi bi-list text-primary fs-5 d-flex"></i></a>
+    </div>*@
+    <h6 class="mb-0 ms-3 me-auto fw-bold">پروفایل  </h6>
+    <a id="backButton" class="text-dark bg-white shadow rounded-circle icon">
+        <span class="mdi mdi-arrow-left mdi-18px"></span>
+    </a>
+</div>
+<div style=" padding-bottom: 4rem!important;padding-top: 4.5rem!important;">
+    <input type="hidden" id="personId" />
+    <div class="p-3">
+        <div class="bg-white rounded-4 px-3 pt-3 overflow-hidden edit-profile-back shadow mb-3">
+            <div class="d-flex">
+                <div class="col">
+                    <p><span class="text-muted ">نام </span><br> <span id="name"></span> </p>
+                </div>
+                <div class="col">
+                    <p><span class="text-muted "> نام خانوادگی</span><br><span id="family"></span>  </p>
+                </div>
+            </div>
+            <div class="d-flex">
+                <div class="col">
+                    <p><span class="text-muted ">موبایل</span><br><span id="mobile"></span></p>
+                </div>
+                <div class="col">
+                    <p><span class="text-muted ">ایمیل </span><br> <span id="email"></span> </p>
+                </div>
+
+                <div class="col">
+                    <p><span class="text-muted ">سمت </span><br> <span id="personTypeName"></span> </p>
+                </div>
+            </div>
+            <div class="d-flex">
+
+                <div class="col">
+                    <p><span class="text-muted ">شهر </span><br> <span id="cityName"></span> </p>
+                </div>
+            </div>
+
+            <a asp-action="EditMelkavanProfile" class="link-dark">
+                <div class="edit-profile-icon bg-primary text-white">
+                    <span style="-webkit-transform: rotate(270deg);" class="mdi mdi-square-edit-outline h2 m-0 pt-3 pe-3"></span>
+                </div>
+            </a>
+        </div>
+        <div class="rounded-4 shadow overflow-hidden">
+            <a asp-action="MyAdvertisements" asp-controller="MelkavanPanel" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0"> آگهی های من </h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+            <a id="favorites" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0"> علاقه مندی ها</h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+            <a asp-controller="MelkavanPanel" asp-action="WatchedAdvertisements" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0"> بازدیدهای اخیر</h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+            <a href="#" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0"> مشاورین املاک</h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+            <a asp-action="Rules" asp-controller="MelkavanPanel" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0"> قوانین </h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+            <a asp-action="AboutMelkavan" asp-controller="MelkavanPanel" class="link-dark">
+                <div class="bg-white d-flex align-items-center justify-content-between p-3 border-bottom">
+                    <h6 class="m-0">درباره ملکاوان</h6>
+                    <span class="mdi mdi-chevron-left mdi-24px icon shadow rounded-pill"></span>
+                </div>
+            </a>
+        </div>
+        <a asp-action="LogOffMelkavan" asp-controller="MelkavanPanel" class="link-dark">
+            <div class=" d-flex align-items-center justify-content-between p-3">
+                <button type="button" class="btn btn-primary btn-lg w-100 rounded-4 "> خروج</button>
+
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="footer mt-auto  pt-1 fix-osahan-footer" style="position: fixed;">
+    <div class="mx-1 my-1 d-flex align-items-center justify-content-between rounded-4 shadow overflow-hidden bottom-nav-main">
+        <a id="melkavan-icon" class="col footer-bottom-nav ">
+            <span class="mdi mdi-home-variant-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+            <span>ملکاوان</span>
+        </a>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="AdvertisementRegistration" class="col footer-bottom-nav">
+                <span class="mdi mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </a>
+            <a id="chat-icon" class="col footer-bottom-nav">
+                <span class="mdi md mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </a>
+            <a asp-action="MelkavanProfile" class="col footer-bottom-nav active">
+                <span class="mdi mdi-account-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>پروفایل</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi   mdi-application-edit-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ثبت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-message-processing-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>چت</span>
+            </button>
+            <button type="button" style="background-color: transparent;" id="openSignin" class="col footer-bottom-nav border-0 "
+                    data-bs-toggle="modal" data-bs-target="#loginModal">
+                <span class="mdi  mdi-account-key-outline mdi-24px footer-bottom-nav-span-mdi"></span>
+                <span>ورود</span>
+            </button>
+        }
+    </div>
+</div>

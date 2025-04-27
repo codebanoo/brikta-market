@@ -31,6 +31,6 @@ A public platform for listing, renting, selling, or exchanging real estate prope
 
 ```bash
 # Clone the repository
-git clone <repo-link>
+git clone https://github.com/codebanoo/brikta-market.git
 
 # Open in Visual Studio and run the solution

@@ -4,6 +4,11 @@ A public platform for listing, renting, selling, or exchanging real estate prope
 
 ---
 
+## 📸 Screenshots
+
+![Adverisement Details](images/AdvertisementDetails.png)
+---
+
 ## 🔍 Features
 
 - 📋 Post and browse property listings with full details
